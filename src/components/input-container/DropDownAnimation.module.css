@@ -1,0 +1,33 @@
+:root {
+  /* max height will change from 0 to this value within the duration, 
+    thus this value also effect how the transition looks */
+  --max-drop-down-height: 250px;
+  /* The top padding of the drop down menu that gives spaces to show the input bar */
+  --pt-drop-down: 4rem;
+}
+
+.enter {
+  max-height: 0 !important;
+  padding-top: 0 !important;
+}
+
+.enterActive {
+  max-height: var(--max-drop-down-height) !important;
+  padding-top: var(--pt-drop-down) !important;
+  transition: all 0.8s ease !important; 
+}
+
+.enterDone {
+  padding-top: var(--pt-drop-down) !important;
+}
+
+.exit {
+  padding-top: var(--pt-drop-down) !important;
+  max-height: var(--max-drop-down-height) !important;
+}
+
+.exitActive {
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  transition: all 0.8s ease !important; 
+}
