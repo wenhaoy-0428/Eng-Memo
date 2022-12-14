@@ -9,14 +9,6 @@
 }
 
 
-
-
-.AddonDropDown {
-  border: 1px solid green;
-
-}
-
-
 .App {
   border: 1px solid green;
 }
@@ -25,11 +17,17 @@
 } */
 
 
-.InputForm {
-  /* border: 1px solid pink; */
-  /* background-color: green; */
-  /* padding: 20px; */
+/* Use Tailwind Group */
+
+
+.NavBar {
+  border: 1px solid green;
 }
+
+.NavItem {
+  border: 1px solid pink;
+}
+
 
 
 
