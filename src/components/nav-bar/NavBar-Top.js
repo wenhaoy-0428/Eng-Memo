@@ -11,49 +11,14 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
 
-import TodayIcon from "@mui/icons-material/Today";
-
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-
-import GradingIcon from "@mui/icons-material/Grading";
-
-import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
-
-/**
- * @brief: A function that returns rendered Nav items.
- * @param handler: The handler function for onClick events
- * @return: An array of rendered items that calls the handler when clicked.
- */
-const renderNavItems = (handler) => {
-  const pages = {
-    Review: <TodayIcon />,
-    Library: <LocalLibraryIcon />,
-  };
-  const rendered = [];
-  for (const name in pages) {
-    const renderPage = (
-      <Tooltip key={name} title={name}>
-        <Button
-          onClick={handler}
-          sx={{ color: "white" }}
-          className="my-1 inline-flex items-center justify-center"
-        >
-          {pages[name]}
-        </Button>
-      </Tooltip>
-    );
-    rendered.push(renderPage);
-  }
-  console.log(rendered);
-  return rendered;
-};
+import { pages } from "./NavItems";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
-
 /**
  * @brief: The NavBar component that handles the routing of the App
  */
-function NavBar() {
+function NavBarTop() {
+  // Todo: States clean up
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -73,14 +38,17 @@ function NavBar() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" role="navigation">
       {/*  centers your content horizontally. */}
       <Container
         maxWidth="xl"
         className="xs:grid xs:grid-cols-3 xs:justify-items-center md:flex md:items-center p-2"
       >
         {/* Icon on Desktop */}
-        <div className="xs:hidden md:flex md: items-center">
+        <div
+          data-testid="logo-desktop"
+          className="xs:hidden md:flex md: items-center"
+        >
           <AdbIcon sx={{ mr: 1 }} />
           <Typography
             variant="h6"
@@ -101,7 +69,10 @@ function NavBar() {
         </div>
 
         {/* Icon on Mobile */}
-        <div className="xs:flex xs:items-center md:hidden col-start-2">
+        <div
+          data-testid="logo-mobile"
+          className="xs:flex xs:items-center md:hidden col-start-2"
+        >
           <AdbIcon sx={{ mr: 1 }} />
           <Typography
             variant="h5"
@@ -127,7 +98,27 @@ function NavBar() {
           className="xs:hidden md:flex md: items-center"
           sx={{ flexGrow: 1 }}
         >
-          {renderNavItems(handleCloseNavMenu)}
+          <Tooltip title={"Review"}>
+            <Button
+              aria-label="Review"
+              onClick={handleCloseNavMenu}
+              sx={{ color: "white" }}
+              className="my-1 inline-flex items-center justify-center"
+            >
+              {pages["Review"]}
+            </Button>
+          </Tooltip>
+
+          <Tooltip title={"Library"}>
+            <Button
+              aria-label={"Library"}
+              onClick={handleCloseNavMenu}
+              sx={{ color: "white" }}
+              className="my-1 inline-flex items-center justify-center"
+            >
+              {pages["Library"]}
+            </Button>
+          </Tooltip>
         </Box>
 
         {/* UserAvatar */}
@@ -166,4 +157,4 @@ function NavBar() {
     </AppBar>
   );
 }
-export { NavBar };
+export default NavBarTop;

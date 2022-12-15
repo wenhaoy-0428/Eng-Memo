@@ -7,27 +7,8 @@
 *::after {
   box-sizing: border-box;
 }
-
-
-.App {
+body{
   border: 1px solid green;
+  margin: 0;
+  padding: 0;
 }
-/* .InputBar {
-  border: 1px solid pink;
-} */
-
-
-/* Use Tailwind Group */
-
-
-.NavBar {
-  border: 1px solid green;
-}
-
-.NavItem {
-  border: 1px solid pink;
-}
-
-
-
-
