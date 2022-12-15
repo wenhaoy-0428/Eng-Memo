@@ -36,7 +36,7 @@ const inputPresets = {
     placeholder: "MDN",
     label: "Tag",
   },
-  link: {
+  rLink: {
     placeholder: "https://",
     label: "Link",
   },
@@ -96,7 +96,7 @@ function InputForm() {
           setFormStatus(status.neutral);
           // tell to animate.
           setSwitchSubmitBtn(!switchSubmitBtn);
-        }, 1);
+        }, 2000);
       });
   };
 
@@ -119,9 +119,8 @@ function InputForm() {
     <div className="InputForm relative flex-1 w-4/5 max-w-xl">
       {/* Use Formik library to implement form, 
       check this link https://formik.org/docs/tutorial for a comprehensive tutorial */}
-      <button onClick={toggleSuccess}> Toggle SUCCESS</button>
       <Formik
-        initialValues={{ word: "", quote: "", tagName: "", rLink: "" }}
+        initialValues={{ word: "", quote: "", tag: "", rLink: "" }}
         validationSchema={object({
           word: string().required("Required"),
           rLink: string().url("Link must be a valid URL").nullable(),
@@ -272,7 +271,7 @@ function InputFormDropDown({ errors }) {
         />
 
         <Field
-          name="tagName"
+          name="tag"
           as={TextField}
           type="text"
           label={inputPresets.tag.label}
@@ -285,8 +284,8 @@ function InputFormDropDown({ errors }) {
           name="rLink"
           as={TextField}
           type="url"
-          label={inputPresets.link.label}
-          placeholder={inputPresets.link.placeholder}
+          label={inputPresets.rLink.label}
+          placeholder={inputPresets.rLink.placeholder}
           helperText={errors["rLink"]}
           className="LinkInput"
         />
