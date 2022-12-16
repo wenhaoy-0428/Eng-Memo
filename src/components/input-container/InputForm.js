@@ -64,7 +64,7 @@ function InputForm() {
    */
   const toggleDropDown = () => {
     setOpenDropDown(!openDropDown);
-    console.log(`Menu ${openDropDown ? "opened" : "closed"}`);
+    console.log(`Menu ${openDropDown ? "closed" : "opened"}`);
   };
 
   /**
@@ -116,7 +116,7 @@ function InputForm() {
   };
 
   return (
-    <div className="InputForm relative flex-1 w-4/5 max-w-xl">
+    <div className="InputForm relative w-4/5 max-w-xl xs:row-start-3 md:row-start-4">
       {/* Use Formik library to implement form, 
       check this link https://formik.org/docs/tutorial for a comprehensive tutorial */}
       <Formik

@@ -7,29 +7,8 @@
 *::after {
   box-sizing: border-box;
 }
-
-
-
-
-.AddonDropDown {
+body{
   border: 1px solid green;
-
+  margin: 0;
+  padding: 0;
 }
-
-
-.App {
-  border: 1px solid green;
-}
-/* .InputBar {
-  border: 1px solid pink;
-} */
-
-
-.InputForm {
-  /* border: 1px solid pink; */
-  /* background-color: green; */
-  /* padding: 20px; */
-}
-
-
-
