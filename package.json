@@ -22,7 +22,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "npx tailwindcss -i ./src/index.css -o ./src/index-compiled.css; react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -51,7 +51,8 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "axios": "axios/dist/node/axios.cjs"
+      "axios": "axios/dist/node/axios.cjs",
+      "src(.*)$": "<rootDir>/src$1"
     }
   }
 }

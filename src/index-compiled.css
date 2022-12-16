@@ -1,0 +1,342 @@
+*, ::before, ::after {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
+}
+
+::-webkit-backdrop {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
+}
+
+::backdrop {
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-pan-x:  ;
+  --tw-pan-y:  ;
+  --tw-pinch-zoom:  ;
+  --tw-scroll-snap-strictness: proximity;
+  --tw-ordinal:  ;
+  --tw-slashed-zero:  ;
+  --tw-numeric-figure:  ;
+  --tw-numeric-spacing:  ;
+  --tw-numeric-fraction:  ;
+  --tw-ring-inset:  ;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5);
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-blur:  ;
+  --tw-brightness:  ;
+  --tw-contrast:  ;
+  --tw-grayscale:  ;
+  --tw-hue-rotate:  ;
+  --tw-invert:  ;
+  --tw-saturate:  ;
+  --tw-sepia:  ;
+  --tw-drop-shadow:  ;
+  --tw-backdrop-blur:  ;
+  --tw-backdrop-brightness:  ;
+  --tw-backdrop-contrast:  ;
+  --tw-backdrop-grayscale:  ;
+  --tw-backdrop-hue-rotate:  ;
+  --tw-backdrop-invert:  ;
+  --tw-backdrop-opacity:  ;
+  --tw-backdrop-saturate:  ;
+  --tw-backdrop-sepia:  ;
+}
+
+#root .static {
+  position: static;
+}
+
+#root .absolute {
+  position: absolute;
+}
+
+#root .relative {
+  position: relative;
+}
+
+#root .top-0 {
+  top: 0px;
+}
+
+#root .z-50 {
+  z-index: 50;
+}
+
+#root .z-10 {
+  z-index: 10;
+}
+
+#root .col-span-2 {
+  grid-column: span 2 / span 2;
+}
+
+#root .col-start-2 {
+  grid-column-start: 2;
+}
+
+#root .row-start-6 {
+  grid-row-start: 6;
+}
+
+#root .my-1 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+#root .ml-auto {
+  margin-left: auto;
+}
+
+#root .flex {
+  display: flex;
+}
+
+#root .inline-flex {
+  display: inline-flex;
+}
+
+#root .grid {
+  display: grid;
+}
+
+#root .h-screen {
+  height: 100vh;
+}
+
+#root .h-10 {
+  height: 2.5rem;
+}
+
+#root .h-6 {
+  height: 1.5rem;
+}
+
+#root .w-4\/5 {
+  width: 80%;
+}
+
+#root .w-full {
+  width: 100%;
+}
+
+#root .max-w-xl {
+  max-width: 36rem;
+}
+
+#root .flex-1 {
+  flex: 1 1 0%;
+}
+
+#root .resize {
+  resize: both;
+}
+
+#root .grid-flow-col {
+  grid-auto-flow: column;
+}
+
+#root .grid-cols-\[1fr_2fr\] {
+  grid-template-columns: 1fr 2fr;
+}
+
+#root .grid-rows-6 {
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+}
+
+#root .items-start {
+  align-items: flex-start;
+}
+
+#root .items-center {
+  align-items: center;
+}
+
+#root .justify-center {
+  justify-content: center;
+}
+
+#root .justify-items-center {
+  justify-items: center;
+}
+
+#root .gap-4 {
+  gap: 1rem;
+}
+
+#root .self-end {
+  align-self: flex-end;
+}
+
+#root .overflow-hidden {
+  overflow: hidden;
+}
+
+#root .bg-slate-50 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(248 250 252 / var(--tw-bg-opacity));
+}
+
+#root .p-3 {
+  padding: 0.75rem;
+}
+
+#root .p-2 {
+  padding: 0.5rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .mmm {
+    display: none;
+  }
+}
+
+@media (min-width: 0px) {
+  #root .xs\:row-start-3 {
+    grid-row-start: 3;
+  }
+
+  #root .xs\:flex {
+    display: flex;
+  }
+
+  #root .xs\:grid {
+    display: grid;
+  }
+
+  #root .xs\:hidden {
+    display: none;
+  }
+
+  #root .xs\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #root .xs\:items-center {
+    align-items: center;
+  }
+
+  #root .xs\:justify-items-center {
+    justify-items: center;
+  }
+}
+
+@media (min-width: 768px) {
+  #root .md\:row-start-4 {
+    grid-row-start: 4;
+  }
+
+  #root .md\:flex {
+    display: flex;
+  }
+
+  #root .md\:hidden {
+    display: none;
+  }
+
+  #root .md\:items-center {
+    align-items: center;
+  }
+}
