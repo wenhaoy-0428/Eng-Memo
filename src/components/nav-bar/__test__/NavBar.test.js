@@ -19,10 +19,15 @@ describe("NavBarTestSuite", () => {
    * @exp: Review / Library / LOGO are appeared
    */
   it("NAV_BAR_TC_001", async () => {
+    const userInfo = {
+      name: "Ada",
+      email: "ada@gmail.com",
+      avatar: undefined,
+    };
     const routes = [
       {
         path: "/",
-        element: <NavBarTop />,
+        element: <NavBarTop pendingReviews={10} userInfo={userInfo} />,
       },
     ];
     const router = createMemoryRouter(routes, {

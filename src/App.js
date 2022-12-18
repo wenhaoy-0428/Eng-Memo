@@ -8,10 +8,15 @@ function App() {
   const data = useLoaderData();
   // The number of unfinished reviews
   const [pendingReviews, setPendingReviews] = useState(100);
+  const userInfo = {
+    name: "Ada",
+    email: "ada@gmail.com",
+    avatar: undefined,
+  };
 
   return (
     <div className="App grid grid-rows-6 grid-flow-col items-start justify-items-center h-screen">
-      <NavBarTop pendingReviews={pendingReviews} />
+      <NavBarTop pendingReviews={pendingReviews} userInfo={userInfo} />
       <Outlet />
       <NavBarBottom pendingReviews={pendingReviews} />
     </div>
