@@ -10,33 +10,30 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
+import { Link } from "react-router-dom";
 
-import { pages } from "./NavItems";
+import { getPages } from "./NavItems";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const navItems = ["Review", "Library"];
+
 /**
  * @brief: The NavBar component that handles the routing of the App
+ * @param pendingReviews: The number of unfinished reviews
  */
-function NavBarTop() {
+function NavBarTop({ pendingReviews }) {
   // Todo: States clean up
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-
+  // Initialize the available pages.
+  const pages = getPages(pendingReviews);
   return (
     <AppBar position="static" role="navigation">
       {/*  centers your content horizontally. */}
@@ -78,7 +75,7 @@ function NavBarTop() {
             variant="h5"
             noWrap
             component="a"
-            href=""
+            href="/"
             sx={{
               mr: 2,
               flexGrow: 1,
@@ -98,27 +95,19 @@ function NavBarTop() {
           className="xs:hidden md:flex md: items-center"
           sx={{ flexGrow: 1 }}
         >
-          <Tooltip title={"Review"}>
-            <Button
-              aria-label="Review"
-              onClick={handleCloseNavMenu}
-              sx={{ color: "white" }}
-              className="my-1 inline-flex items-center justify-center"
-            >
-              {pages["Review"]}
-            </Button>
-          </Tooltip>
-
-          <Tooltip title={"Library"}>
-            <Button
-              aria-label={"Library"}
-              onClick={handleCloseNavMenu}
-              sx={{ color: "white" }}
-              className="my-1 inline-flex items-center justify-center"
-            >
-              {pages["Library"]}
-            </Button>
-          </Tooltip>
+          {navItems.map((item) => (
+            <Tooltip title={item} key={item}>
+              <Button
+                aria-label={item}
+                component={Link}
+                to={pages[item].path}
+                sx={{ color: "white" }}
+                className="my-1 inline-flex items-center justify-center"
+              >
+                {pages[item].icon}
+              </Button>
+            </Tooltip>
+          ))}
         </Box>
 
         {/* UserAvatar */}

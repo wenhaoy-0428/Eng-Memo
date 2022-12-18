@@ -200,6 +200,10 @@
   height: 100vh;
 }
 
+#root .h-full {
+  height: 100%;
+}
+
 #root .h-10 {
   height: 2.5rem;
 }
@@ -208,12 +212,12 @@
   height: 1.5rem;
 }
 
-#root .w-4\/5 {
-  width: 80%;
-}
-
 #root .w-full {
   width: 100%;
+}
+
+#root .w-4\/5 {
+  width: 80%;
 }
 
 #root .max-w-xl {
@@ -222,10 +226,6 @@
 
 #root .flex-1 {
   flex: 1 1 0%;
-}
-
-#root .resize {
-  resize: both;
 }
 
 #root .grid-flow-col {
@@ -238,6 +238,10 @@
 
 #root .grid-rows-6 {
   grid-template-rows: repeat(6, minmax(0, 1fr));
+}
+
+#root .flex-col {
+  flex-direction: column;
 }
 
 #root .items-start {
@@ -287,10 +291,15 @@
   box-sizing: border-box;
 }
 
-@media (min-width: 768px) {
-  .mmm {
-    display: none;
-  }
+body{
+  border: 1px solid green;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  height: 100%;
 }
 
 @media (min-width: 0px) {
