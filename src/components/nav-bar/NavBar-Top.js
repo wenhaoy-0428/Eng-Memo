@@ -1,18 +1,20 @@
-import * as React from "react";
+import React, { useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import Menu from "@mui/material/Menu";
 import Container from "@mui/material/Container";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
+import IconButton from "@mui/material/IconButton";
+import Avatar from "@mui/material/Avatar";
+import useMediaQuery from "@mui/material/useMediaQuery";
+
 import { Link } from "react-router-dom";
 
 import { getPages } from "./NavItems";
+import UserDropDown from "../user/user-dropdown";
+import UserDrawer from "../user/user-drawer";
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 const navItems = ["Review", "Library"];
@@ -20,20 +22,35 @@ const navItems = ["Review", "Library"];
 /**
  * @brief: The NavBar component that handles the routing of the App
  * @param pendingReviews: The number of unfinished reviews
+ * @param userInfo: The user information including userName and email, etc.
  */
-function NavBarTop({ pendingReviews }) {
-  // Todo: States clean up
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
+function NavBarTop({ pendingReviews, userInfo }) {
   // Initialize the available pages.
   const pages = getPages(pendingReviews);
+  const matches = useMediaQuery("(min-width:768px)");
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const [openDrawer, setOpenDrawer] = useState(false);
+
+  const handleCloseDropdown = (event) => {
+    console.log("close Drop down");
+    setAnchorElUser(null);
+  };
+  const handleCloseDrawer = () => {
+    console.log("close drawer");
+    setOpenDrawer(false);
+  };
+
+  const openUserMenu = (event) => {
+    console.log("toggle UserMenu");
+    // Open DropDown in desktop view
+    if (matches) {
+      setAnchorElUser(event.currentTarget);
+    } else {
+      // Open drawer in mobile view
+      setOpenDrawer(true);
+    }
+  };
+
   return (
     <AppBar position="static" role="navigation">
       {/*  centers your content horizontally. */}
@@ -111,36 +128,22 @@ function NavBarTop({ pendingReviews }) {
         </Box>
 
         {/* UserAvatar */}
-        <Box className="ml-auto">
+        <Box className="UserMenu ml-auto">
           <Tooltip title="User Information">
-            <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+            <IconButton onClick={openUserMenu} sx={{ p: 0 }}>
+              <Avatar alt="Undefined" src={userInfo.avatar} />
             </IconButton>
           </Tooltip>
-          {/* DropDownMenu */}
-          {/* //TODO MODIFY THIS */}
-          <Menu
-            sx={{ mt: "45px" }}
-            id="menu-appbar"
-            anchorEl={anchorElUser}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            open={Boolean(anchorElUser)}
-            onClose={handleCloseUserMenu}
-          >
-            {settings.map((setting) => (
-              <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                <Typography textAlign="center">{setting}</Typography>
-              </MenuItem>
-            ))}
-          </Menu>
+          <UserDropDown
+            userInfo={userInfo}
+            anchorElUser={anchorElUser}
+            handleCloseDropdown={handleCloseDropdown}
+          />
+          <UserDrawer
+            userInfo={userInfo}
+            openDrawer={openDrawer}
+            handleCloseDrawer={handleCloseDrawer}
+          />
         </Box>
       </Container>
     </AppBar>
