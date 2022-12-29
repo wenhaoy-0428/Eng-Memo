@@ -199,6 +199,18 @@
   top: 0px;
 }
 
+#root .bottom-0 {
+  bottom: 0px;
+}
+
+#root .bottom-3 {
+  bottom: 0.75rem;
+}
+
+#root .left-0 {
+  left: 0px;
+}
+
 #root .z-50 {
   z-index: 50;
 }
@@ -213,6 +225,10 @@
 
 #root .col-start-2 {
   grid-column-start: 2;
+}
+
+#root .row-span-4 {
+  grid-row: span 4 / span 4;
 }
 
 #root .row-start-6 {
@@ -238,6 +254,10 @@
 
 #root .block {
   display: block;
+}
+
+#root .inline-block {
+  display: inline-block;
 }
 
 #root .flex {
@@ -268,8 +288,16 @@
   height: 1.5rem;
 }
 
+#root .h-\[2px\] {
+  height: 2px;
+}
+
 #root .h-\[1\.5em\] {
   height: 1.5em;
+}
+
+#root .max-h-44 {
+  max-height: 11rem;
 }
 
 #root .w-full {
@@ -278,6 +306,14 @@
 
 #root .w-4\/5 {
   width: 80%;
+}
+
+#root .w-\[600px\] {
+  width: 600px;
+}
+
+#root .w-\[30\%\] {
+  width: 30%;
 }
 
 #root .w-\[10px\] {
@@ -296,8 +332,20 @@
   max-width: 36rem;
 }
 
+#root .max-w-\[95vw\] {
+  max-width: 95vw;
+}
+
 #root .flex-1 {
   flex: 1 1 0%;
+}
+
+#root .grow-0 {
+  flex-grow: 0;
+}
+
+#root .grow {
+  flex-grow: 1;
 }
 
 #root .transform {
@@ -333,12 +381,29 @@
   justify-content: center;
 }
 
+#root .justify-around {
+  justify-content: space-around;
+}
+
 #root .justify-items-center {
   justify-items: center;
 }
 
 #root .gap-4 {
   gap: 1rem;
+}
+
+#root .gap-1 {
+  gap: 0.25rem;
+}
+
+#root .gap-x-1 {
+  -webkit-column-gap: 0.25rem;
+          column-gap: 0.25rem;
+}
+
+#root .self-start {
+  align-self: flex-start;
 }
 
 #root .self-end {
@@ -349,6 +414,10 @@
   overflow: hidden;
 }
 
+#root .overflow-y-auto {
+  overflow-y: auto;
+}
+
 #root .text-ellipsis {
   text-overflow: ellipsis;
 }
@@ -357,17 +426,134 @@
   white-space: nowrap;
 }
 
+#root .break-all {
+  word-break: break-all;
+}
+
+#root .rounded-xl {
+  border-radius: 0.75rem;
+}
+
+#root .rounded-lg {
+  border-radius: 0.5rem;
+}
+
+#root .border-0 {
+  border-width: 0px;
+}
+
+#root .border-4 {
+  border-width: 4px;
+}
+
+#root .border-2 {
+  border-width: 2px;
+}
+
+#root .border-solid {
+  border-style: solid;
+}
+
+#root .border-slate-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(226 232 240 / var(--tw-border-opacity));
+}
+
+#root .border-green-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(34 197 94 / var(--tw-border-opacity));
+}
+
+#root .border-orange-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(249 115 22 / var(--tw-border-opacity));
+}
+
+#root .border-rose-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(244 63 94 / var(--tw-border-opacity));
+}
+
+#root .bg-green-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(34 197 94 / var(--tw-bg-opacity));
+}
+
 #root .bg-slate-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(248 250 252 / var(--tw-bg-opacity));
+}
+
+#root .bg-slate-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(226 232 240 / var(--tw-bg-opacity));
+}
+
+#root .bg-white {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+#root .bg-green-400 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(74 222 128 / var(--tw-bg-opacity));
+}
+
+#root .bg-inherit {
+  background-color: inherit;
+}
+
+#root .p-2 {
+  padding: 0.5rem;
 }
 
 #root .p-3 {
   padding: 0.75rem;
 }
 
-#root .p-2 {
-  padding: 0.5rem;
+#root .text-center {
+  text-align: center;
+}
+
+#root .text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+#root .text-neutral-100 {
+  --tw-text-opacity: 1;
+  color: rgb(245 245 245 / var(--tw-text-opacity));
+}
+
+#root .text-green-500 {
+  --tw-text-opacity: 1;
+  color: rgb(34 197 94 / var(--tw-text-opacity));
+}
+
+#root .text-orange-500 {
+  --tw-text-opacity: 1;
+  color: rgb(249 115 22 / var(--tw-text-opacity));
+}
+
+#root .text-rose-500 {
+  --tw-text-opacity: 1;
+  color: rgb(244 63 94 / var(--tw-text-opacity));
+}
+
+#root .no-underline {
+  text-decoration-line: none;
+}
+
+#root .shadow-md {
+  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+#root .shadow-2xl {
+  --tw-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
 #root .drop-shadow {
@@ -397,6 +583,14 @@ body{
 #root {
   overflow: hidden;
   height: 100%;
+}
+
+/* .ReviewCard {
+  border: 1px solid grey;
+} */
+
+#root .hover\:cursor-pointer:hover {
+  cursor: pointer;
 }
 
 @media (min-width: 0px) {
