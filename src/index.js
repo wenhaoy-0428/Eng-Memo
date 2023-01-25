@@ -55,6 +55,52 @@ function fetchMock() {
   };
 }
 
+function fetchReview() {
+  return [
+    {
+      key: "Word",
+      occurrences: [
+        {
+          quote: "QuoteA",
+          tag: "TAG1",
+          link: "#",
+        },
+        {
+          quote: "QuoteA+",
+          tag: "TAG1",
+          link: "#",
+        },
+        {
+          quote:
+            "QuoteB QuoteB ABC 123 ABC ABC ABC ABC 345 ABC ABC ABC ABC ABC 789  ABC 123 ABC ABC ABC ABC 345 ABC ABC ABC ABC ABC 789 ABC 123 ABC ABC ABC ABC 345 ABC ABC ABC ABC ABC 789  ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ABC ",
+          tag: "TAG2",
+          link: "#",
+        },
+        {
+          quote: "QuoteC",
+          tag: undefined,
+          link: "#",
+        },
+        {
+          quote: "QuoteD",
+          tag: "TAG3",
+          link: undefined,
+        },
+      ],
+    },
+    {
+      key: "Another",
+      occurrences: [
+        {
+          quote: "QuoteA",
+          tag: "TAG1",
+          link: "#",
+        },
+      ],
+    },
+  ];
+}
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     // TODO: root should be log in page
@@ -65,7 +111,7 @@ const router = createBrowserRouter(
       loader={fetchMock}
     >
       <Route index element={<InputForm />} />
-      <Route path="review" element={<Review />} />
+      <Route path="review" element={<Review />} loader={fetchReview} />
       <Route path="library" element={<Library />} />
     </Route>
   )

@@ -1,0 +1,21 @@
+.QuoteContainer {
+    transition: height .5s linear !important;
+}
+
+.FunBtn .Label {
+    transform: scale(1);
+    transition: transform .2s linear;
+}
+
+.FunBtn:hover .Label{
+    transform: scale(1.2);
+    transition: transform .2s linear;
+}
+
+.TagIndicator {
+    transition: left .3s linear, width 0.3s linear;
+}
+
+.ReviewContainer {
+    transition: border 0.2s linear;
+}

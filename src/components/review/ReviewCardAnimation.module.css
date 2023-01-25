@@ -1,0 +1,25 @@
+.enter {
+    /* opacity: 0 !important; */
+    transform:  scale(0.7) translateY(150%) !important;
+  }
+    
+  .enterActive {
+    /* opacity: 1 !important; */
+    /* transform: scale(0.9) !important; */
+    transform: scale(1) translateY(0%) !important;
+  }
+
+  
+  .exit {
+    /* opacity: 1 !important; */
+    transform: scale(1) translateY(0%) !important;
+  }
+  
+  .exitActive {
+    /* opacity: 0 !important; */
+    transform: scale(0.7) translateY(-150%) !important;
+  }
+  
+  .enterActive, .exitActive {
+    transition: all 1s ease !important;
+  }
