@@ -59,7 +59,7 @@ describe("InputFormSuite", () => {
     // ! getBy methods will throw an error when they can't find an element.
     const quoteInput = screen.queryByLabelText(inputPresets.quote.label);
     const tagInput = screen.queryByLabelText(inputPresets.tag.label);
-    const linkInput = screen.queryByLabelText(inputPresets.rLink.label);
+    const linkInput = screen.queryByLabelText(inputPresets.link.label);
     expect(quoteInput).toBeNull();
     expect(tagInput).toBeNull();
     expect(linkInput).toBeNull();
@@ -76,7 +76,7 @@ describe("InputFormSuite", () => {
     user.click(dropDownBtn);
     const quoteInput = screen.queryByLabelText(inputPresets.quote.label);
     const tagInput = screen.queryByLabelText(inputPresets.tag.label);
-    const linkInput = screen.queryByLabelText(inputPresets.rLink.label);
+    const linkInput = screen.queryByLabelText(inputPresets.link.label);
     await waitFor(() => {
       expect(quoteInput).toBeInTheDocument();
       expect(tagInput).toBeInTheDocument();
@@ -100,7 +100,7 @@ describe("InputFormSuite", () => {
     });
     expect(screen.queryByTestId("addIcon")).not.toBeNull();
     user.click(submitBtn);
-    expect(axios.put.mock.calls.length).toBe(0);
+    expect(axios.post.mock.calls.length).toBe(0);
   });
 
   /**
@@ -133,7 +133,7 @@ describe("InputFormSuite", () => {
     });
     await waitFor(() => {
       expect(
-        screen.getByPlaceholderText(inputPresets["rLink"].placeholder).value
+        screen.getByPlaceholderText(inputPresets["link"].placeholder).value
       ).toEqual("");
     });
     await waitFor(() => {
@@ -147,7 +147,7 @@ describe("InputFormSuite", () => {
    */
   it("INPUT_FORM_TC_006", async () => {
     render(<InputForm />);
-    axios.put.mockImplementation(async () => {
+    axios.post.mockImplementation(async () => {
       console.log("MOCKED PUT");
       // 2s loading time
       await timeout(1000);
@@ -174,7 +174,7 @@ describe("InputFormSuite", () => {
     });
     await waitFor(() => {
       expect(
-        screen.getByPlaceholderText(inputPresets["rLink"].placeholder).value
+        screen.getByPlaceholderText(inputPresets["link"].placeholder).value
       ).toEqual("");
     });
     await waitFor(() => {
@@ -208,7 +208,7 @@ describe("InputFormSuite", () => {
   it("INPUT_FORM_TC_007", async () => {
     jest.useFakeTimers();
     render(<InputForm />);
-    axios.put.mockImplementation(async () => {
+    axios.post.mockImplementation(async () => {
       console.log("MOCKED PUT");
       return Promise.resolve();
     });
@@ -238,7 +238,7 @@ describe("InputFormSuite", () => {
   it("INPUT_FORM_TC_008", async () => {
     jest.useFakeTimers();
     render(<InputForm />);
-    axios.put.mockImplementation(async () => {
+    axios.post.mockImplementation(async () => {
       console.log("MOCKED PUT");
       return Promise.reject();
     });
@@ -280,7 +280,7 @@ describe("InputFormSuite", () => {
     user.click(submitBtn);
     // expect submission is called once.
     await waitFor(() => {
-      expect(axios.put.mock.calls.length).toBe(1);
+      expect(axios.post.mock.calls.length).toBe(1);
     });
   });
 
@@ -297,12 +297,12 @@ describe("InputFormSuite", () => {
     const dropDownBtn = screen.getByTestId("DropDownBtn");
     user.click(dropDownBtn);
     // write random to word to link
-    const [linkInput, link] = writeToInputField("rLink");
+    const [linkInput, link] = writeToInputField("link");
     expect(linkInput.value).toEqual(link);
     // click the submitButton
     const submitBtn = screen.queryByTestId("submitBtn");
     user.click(submitBtn);
-    expect(axios.put.mock.calls.length).toBe(0);
+    expect(axios.post.mock.calls.length).toBe(0);
   });
 
   /**
@@ -326,7 +326,7 @@ describe("InputFormSuite", () => {
     expect(tagInput.value).toEqual(tag);
 
     const [linkInput, link] = writeToInputField(
-      "rLink",
+      "link",
       "https://www.google.com"
     );
     expect(linkInput.value).toEqual(link);
@@ -334,7 +334,7 @@ describe("InputFormSuite", () => {
     const submitBtn = screen.queryByTestId("submitBtn");
     user.click(submitBtn);
     await waitFor(() => {
-      expect(axios.put.mock.calls.length).toBe(1);
+      expect(axios.post.mock.calls.length).toBe(1);
     });
   });
 });

@@ -21,6 +21,10 @@ import { green } from "@mui/material/colors";
 import dropDownAnimation from "./DropDownAnimation.module.css";
 import submitBtnAnimation from "./SubmitBtnAnimation.module.css";
 
+// solve csrf token missing error when POSTing data to Django
+axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+axios.defaults.xsrfCookieName = "csrftoken";
+
 /**
  * @brief: The default attributes for the inputs.
  */
@@ -36,7 +40,7 @@ const inputPresets = {
     placeholder: "MDN",
     label: "Tag",
   },
-  rLink: {
+  link: {
     placeholder: "https://",
     label: "Link",
   },
@@ -79,7 +83,7 @@ function InputForm() {
 
     // handle request.
     axios
-      .put("#", values)
+      .post("/api/newRecord/", values)
       .then(() => {
         console.log("Submission Success");
         setFormStatus(status.success);
@@ -100,30 +104,15 @@ function InputForm() {
       });
   };
 
-  // ! FOR TEST ONLY
-  const devSubmitForm = (values) => {
-    setFormStatus(status.loading);
-    setTimeout(() => {
-      setFormStatus(status.success);
-    }, 1000);
-  };
-
-  // ! FOR TEST ONLY
-  const toggleSuccess = () => {
-    setFormStatus(status.neutral);
-    // toggle animation
-    setSwitchSubmitBtn(!switchSubmitBtn);
-  };
-
   return (
     <div className="InputForm relative w-4/5 max-w-xl xs:row-start-3 md:row-start-4">
       {/* Use Formik library to implement form, 
       check this link https://formik.org/docs/tutorial for a comprehensive tutorial */}
       <Formik
-        initialValues={{ word: "", quote: "", tag: "", rLink: "" }}
+        initialValues={{ word: "", quote: "", tag: "", link: "" }}
         validationSchema={object({
           word: string().required("Required"),
-          rLink: string().url("Link must be a valid URL").nullable(),
+          link: string().url("Link must be a valid URL").nullable(),
         })}
         onSubmit={submitForm}
       >
@@ -280,13 +269,13 @@ function InputFormDropDown({ errors }) {
         />
 
         <Field
-          error={!objIsEmpty(errors) && errors["rLink"] ? true : false}
-          name="rLink"
+          error={!objIsEmpty(errors) && errors["link"] ? true : false}
+          name="link"
           as={TextField}
           type="url"
-          label={inputPresets.rLink.label}
-          placeholder={inputPresets.rLink.placeholder}
-          helperText={errors["rLink"]}
+          label={inputPresets.link.label}
+          placeholder={inputPresets.link.placeholder}
+          helperText={errors["link"]}
           className="LinkInput"
         />
       </Paper>
