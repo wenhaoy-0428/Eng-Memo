@@ -5,6 +5,8 @@ import quoteAnimationRight from "./QuoteAnimationRight.module.css";
 import quoteAnimationLeft from "./QuoteAnimationLeft.module.css";
 
 import Tag from "../common/Tag";
+import Confetti from "../common/Confetti";
+import Summary from "./summary/Summary";
 
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { useLoaderData } from "react-router-dom";
@@ -52,6 +54,9 @@ function Review() {
   const [direction, setDirection] = useState(quoteAnimationRight);
   // The refs to all tags.
   const tagRefs = useRef([]);
+  const reviewPageRef = useRef(null);
+  const [reviewPageWidth, setReviewPageWidth] = useState(0);
+  const [reviewPageHeight, setReviewPageHeight] = useState(0);
   // The absolute position offset from the left of the tag indicator.
   const [indicatorOffset, setIndicatorOffset] = useState(null);
   // The width of the tag indicator. Disappeared (0 width) When associated tag is undefined.
@@ -150,102 +155,126 @@ function Review() {
     }
   }, [crtQuoteIdx]);
 
+  useEffect(() => {
+    setReviewPageWidth(reviewPageRef.current.clientWidth);
+    setReviewPageHeight(reviewPageRef.current.clientHeight);
+  });
+
   return (
     <div
-      data-testid="review-container"
-      className={`ReviewContainer relative row-span-4 w-[600px] max-w-[95vw] h-full border-solid border-slate-200 rounded-lg ${extraRCAttr} ${reviewAnimation.ReviewContainer}`}
+      id="review-page"
+      className="ReviewPage row-span-4 h-full w-full flex justify-center relative"
+      ref={reviewPageRef}
     >
-      <TransitionGroup component={null}>
-        <CSSTransition
-          key={crtEntryIdx}
-          timeout={1500}
-          onEnter={() => {
-            setExtraRCAttr("border-4 bg-slate-200 overflow-hidden");
-          }}
-          onEntered={() => {
-            setExtraRCAttr("border-0");
-          }}
-          classNames={{ ...reviewCardAnimation }}
+      {crtEntryIdx < entries.length ? (
+        <div
+          data-testid="review-container"
+          className={`ReviewContainer relative w-[600px] max-w-[95vw] h-full border-solid border-slate-200 rounded-lg ${extraRCAttr} ${reviewAnimation.ReviewContainer}`}
         >
-          <div className="ReviewCard absolute h-full w-full p-3 flex flex-col rounded-lg bg-white shadow-2xl">
-            {/* TODO: link to word details */}
-            <a className="WordDetail">
-              <h2 className="text-center grow-0">{entry.key}</h2>
-            </a>
-            <div className="QuoteContainer">
-              <h3>Quotes</h3>
-              <div className="QuoteGallery flex items-center justify-center gap-1 overflow-hidden">
-                <IconButton aria-label="before" onClick={goToPrevQuote}>
-                  <NavigateBeforeIcon />
-                </IconButton>
-                <TransitionGroup
-                  // height is dynamically adjusted below.
-                  style={{ height: quoteContainerHeight }}
-                  // ! https://wenhaoy-0428.github.io/Docs/#/FrontEnd/React/libraryNotes?id=dynamic-sliding-direction
-                  childFactory={(child) =>
-                    React.cloneElement(child, { classNames: { ...direction } })
-                  }
-                  className={`grow self-start overflow-hidden relative ${reviewAnimation.QuoteContainer}`}
-                >
-                  <CSSTransition
-                    appear
-                    key={crtQuoteIdx}
-                    timeout={800}
-                    // dynamically adjust container height.
-                    onEnter={handleQuoteContainerHeight}
-                    classNames={{ ...direction }}
-                  >
-                    <div className="break-all w-full absolute max-h-44 overflow-y-auto">
-                      {entry.occurrences[crtQuoteIdx].quote}
-                    </div>
-                  </CSSTransition>
-                </TransitionGroup>
-
-                <IconButton aria-label="next" onClick={goToNextQuote}>
-                  <NavigateNextIcon />
-                </IconButton>
-              </div>
-            </div>
-            <div className="TagContainer relative">
-              <h3>Tags</h3>
-              <div className="flex gap-x-1 p-2">
-                {/* https://beta.reactjs.org/learn/manipulating-the-dom-with-refs#how-to-manage-a-list-of-refs-using-a-ref-callback */}
-                {entry.occurrences.map((occurrence, idx) => {
-                  if (occurrence.tag) {
-                    return (
-                      <Tag
-                        ref={(el) => {
-                          tagRefs.current[idx] = el;
-                        }}
-                        key={idx}
-                        link={occurrence.link}
+          <TransitionGroup component={null}>
+            <CSSTransition
+              key={crtEntryIdx}
+              timeout={1500}
+              onEnter={() => {
+                setExtraRCAttr("border-4 bg-slate-200 overflow-hidden");
+              }}
+              onEntered={() => {
+                setExtraRCAttr("border-0");
+              }}
+              classNames={{ ...reviewCardAnimation }}
+            >
+              <div className="ReviewCard absolute h-full w-full p-3 flex flex-col rounded-lg bg-white shadow-2xl">
+                {/* TODO: link to word details */}
+                <a className="WordDetail">
+                  <h2 className="text-center grow-0">{entry.key}</h2>
+                </a>
+                <div className="QuoteContainer">
+                  <h3>Quotes</h3>
+                  <div className="QuoteGallery flex items-center justify-center gap-1 overflow-hidden">
+                    <IconButton aria-label="before" onClick={goToPrevQuote}>
+                      <NavigateBeforeIcon />
+                    </IconButton>
+                    <TransitionGroup
+                      // height is dynamically adjusted below.
+                      style={{ height: quoteContainerHeight }}
+                      // ! https://wenhaoy-0428.github.io/Docs/#/FrontEnd/React/libraryNotes?id=dynamic-sliding-direction
+                      childFactory={(child) =>
+                        React.cloneElement(child, {
+                          classNames: { ...direction },
+                        })
+                      }
+                      className={`grow self-start overflow-hidden relative ${reviewAnimation.QuoteContainer}`}
+                    >
+                      <CSSTransition
+                        appear
+                        key={crtQuoteIdx}
+                        timeout={800}
+                        // dynamically adjust container height.
+                        onEnter={handleQuoteContainerHeight}
+                        classNames={{ ...direction }}
                       >
-                        {occurrence.tag}
-                      </Tag>
-                    );
-                  }
-                })}
-              </div>
-              {/* Tag Indicator */}
-              <span
-                style={{ left: indicatorOffset, width: indicatorWidth }}
-                className={`h-[2px] bg-green-400 absolute bottom-0 rounded-xl ${reviewAnimation.TagIndicator}`}
-              ></span>
-            </div>
+                        <div className="break-all w-full absolute max-h-44 overflow-y-auto">
+                          {entry.occurrences[crtQuoteIdx].quote}
+                        </div>
+                      </CSSTransition>
+                    </TransitionGroup>
 
-            <div className="FunButtonContainer w-full absolute bottom-3 left-0 flex justify-around">
-              {funBtns.map((btn) => (
-                <FunButton
-                  key={btn.label}
-                  label={btn.label}
-                  color={btn.color}
-                  eventHandler={btn.handler}
-                />
-              ))}
-            </div>
-          </div>
-        </CSSTransition>
-      </TransitionGroup>
+                    <IconButton aria-label="next" onClick={goToNextQuote}>
+                      <NavigateNextIcon />
+                    </IconButton>
+                  </div>
+                </div>
+                <div className="TagContainer relative">
+                  <h3>Tags</h3>
+                  <div className="flex gap-x-1 p-2">
+                    {/* https://beta.reactjs.org/learn/manipulating-the-dom-with-refs#how-to-manage-a-list-of-refs-using-a-ref-callback */}
+                    {entry.occurrences.map((occurrence, idx) => {
+                      if (occurrence.tag) {
+                        return (
+                          <Tag
+                            ref={(el) => {
+                              tagRefs.current[idx] = el;
+                            }}
+                            key={idx}
+                            link={occurrence.link}
+                          >
+                            {occurrence.tag}
+                          </Tag>
+                        );
+                      }
+                    })}
+                  </div>
+                  {/* Tag Indicator */}
+                  <span
+                    style={{ left: indicatorOffset, width: indicatorWidth }}
+                    className={`h-[2px] bg-green-400 absolute bottom-0 rounded-xl ${reviewAnimation.TagIndicator}`}
+                  ></span>
+                </div>
+
+                <div className="FunButtonContainer w-full absolute bottom-3 left-0 flex justify-around">
+                  {funBtns.map((btn) => (
+                    <FunButton
+                      key={btn.label}
+                      label={btn.label}
+                      color={btn.color}
+                      eventHandler={btn.handler}
+                    />
+                  ))}
+                </div>
+              </div>
+            </CSSTransition>
+          </TransitionGroup>
+        </div>
+      ) : (
+        <>
+          {/* <Confetti
+            canvasWidth={window.innerWidth}
+            canvasHeight={window.innerHeight}
+            confettiCount={100}
+          ></Confetti> */}
+          <Summary></Summary>
+        </>
+      )}
     </div>
   );
 }

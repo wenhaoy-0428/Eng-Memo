@@ -1,0 +1,19 @@
+.BlankPaper-exit-active {
+    transform: translateY(110%) !important;
+    transition: all 2s ease !important;
+}
+
+
+.Transcript-enter {
+    transform: translateY(-110%) !important;
+}
+
+.Transcript-enter-active {
+    transform: translateY(0) !important;
+    transition:  all 2s ease !important;
+}
+
+/* .Transcript-enter-done {
+    transform: scale(2.5) !important;
+    transition: all 0.5s ease !important;
+} */
