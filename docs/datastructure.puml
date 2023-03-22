@@ -1,0 +1,30 @@
+@startuml
+
+
+object UserInfo {
+    UserName = "Ab"
+    UserEmail = "Ab@gmail.com"
+}
+
+
+object Occurance {
+    quote
+    tag
+    link
+
+}
+
+map Entries {
+    key => word
+    occurances *--> Occurance
+}
+
+map Data {
+    userInfo *--> UserInfo
+    Library *-> Entries
+    DailyReview => key
+}
+
+Data::DailyReview --> Entries::key
+
+@enduml
