@@ -1,0 +1,88 @@
+@startuml
+
+entity User {
+    email <<PK>>
+    --
+} 
+
+entity Record {
+    user_id: email <<PK, FK>>
+    word_id: value <<PK, FK>>
+    --
+}
+
+entity Word {
+    **value** <<PK>>
+    --
+}
+
+entity TagAssignment {
+    id <<PK>>
+    --
+    user_id <<FK>>
+    tag_id <<FK>>
+}
+
+
+entity Tag {
+    **value**
+}
+
+entity Quote {
+    **Quoteid** <<PK>>
+    tagAssignmentId <<FK>>
+    record_id <<FK>>
+    --
+    value <<Required>>
+    Link <<OPT>>
+}
+
+
+
+User --o{ Record
+
+Record }|-- Word
+
+Record --o{ Tag
+
+Record --o{ Quote
+
+Tag --o{ Quote
+
+User --o{ TagAssignment
+
+Tag --o{ TagAssignment
+
+
+@enduml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
