@@ -19,7 +19,8 @@ import IconButton from "@mui/material/IconButton";
  * The Review component  that contains the scheduled daily words to memorize.
  */
 function Review() {
-  const entries = useLoaderData();
+  const allReviews = useLoaderData().data;
+  console.log(allReviews);
   // The functional Buttons.
   const handleKW = () => {
     console.log("I know this word");
@@ -42,10 +43,10 @@ function Review() {
 
   // The normal width of the tag indicator.
   let indicatorOffsetWidth = 10;
-  // The index of the current Entry.
+  // The index of the current review.
   const [crtEntryIdx, setCrtEntryIdx] = useState(0);
-  let entry = entries[crtEntryIdx];
-  // ! entry is only temporary.
+  let review = allReviews[crtEntryIdx];
+  // ! review is only temporary.
   // The index of the current Quote, used as the key of CSSTransition.
   const [crtQuoteIdx, setCrtQuoteIdx] = useState(0);
   // The dynamic height of the QuoteContainer
@@ -81,7 +82,7 @@ function Review() {
    */
   const goToNextQuote = () => {
     console.log("Clicked Next-Quote Button");
-    if (crtQuoteIdx >= entry.occurrences.length - 1) {
+    if (crtQuoteIdx >= review.entries.length - 1) {
       return;
     }
     setDirection(quoteAnimationRight);
@@ -166,7 +167,7 @@ function Review() {
       className="ReviewPage row-span-4 h-full w-full flex justify-center relative"
       ref={reviewPageRef}
     >
-      {crtEntryIdx < entries.length ? (
+      {crtEntryIdx < allReviews.length ? (
         <div
           data-testid="review-container"
           className={`ReviewContainer relative w-[600px] max-w-[95vw] h-full border-solid border-slate-200 rounded-lg ${extraRCAttr} ${reviewAnimation.ReviewContainer}`}
@@ -186,7 +187,7 @@ function Review() {
               <div className="ReviewCard absolute h-full w-full p-3 flex flex-col rounded-lg bg-white shadow-2xl">
                 {/* TODO: link to word details */}
                 <a className="WordDetail">
-                  <h2 className="text-center grow-0">{entry.key}</h2>
+                  <h2 className="text-center grow-0">{review.word}</h2>
                 </a>
                 <div className="QuoteContainer">
                   <h3>Quotes</h3>
@@ -214,7 +215,9 @@ function Review() {
                         classNames={{ ...direction }}
                       >
                         <div className="break-all w-full absolute max-h-44 overflow-y-auto">
-                          {entry.occurrences[crtQuoteIdx].quote}
+                          {crtQuoteIdx < review.entries.length
+                            ? review.entries[crtQuoteIdx].value
+                            : null}
                         </div>
                       </CSSTransition>
                     </TransitionGroup>
@@ -228,17 +231,17 @@ function Review() {
                   <h3>Tags</h3>
                   <div className="flex gap-x-1 p-2">
                     {/* https://beta.reactjs.org/learn/manipulating-the-dom-with-refs#how-to-manage-a-list-of-refs-using-a-ref-callback */}
-                    {entry.occurrences.map((occurrence, idx) => {
-                      if (occurrence.tag) {
+                    {review.entries.map((entry, idx) => {
+                      if (entry.tag) {
                         return (
                           <Tag
                             ref={(el) => {
                               tagRefs.current[idx] = el;
                             }}
                             key={idx}
-                            link={occurrence.link}
+                            link={entry.link}
                           >
-                            {occurrence.tag}
+                            {entry.tag}
                           </Tag>
                         );
                       }
