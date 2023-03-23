@@ -17,6 +17,8 @@ import {
   Link,
 } from "react-router-dom";
 
+import axios from "axios";
+
 /**
  * A Mock data fetcher.
  */
@@ -101,17 +103,16 @@ function fetchReview() {
   ];
 }
 
+function loadReview() {
+  return axios.get("/api/getReview/");
+}
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     // TODO: root should be log in page
-    <Route
-      path="/"
-      element={<App />}
-      errorElement={<ErrorPage />}
-      loader={fetchMock}
-    >
+    <Route path="/" element={<App />} errorElement={<ErrorPage />}>
       <Route index element={<InputForm />} />
-      <Route path="review" element={<Review />} loader={fetchReview} />
+      <Route path="review" element={<Review />} loader={loadReview} />
       <Route path="library" element={<Library />} />
     </Route>
   )

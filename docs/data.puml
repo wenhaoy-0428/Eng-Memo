@@ -43,11 +43,10 @@ User --o{ Record
 
 Record }|-- Word
 
-Record --o{ Tag
 
 Record --o{ Quote
 
-Tag --o{ Quote
+TagAssignment --o{ Quote
 
 User --o{ TagAssignment
 

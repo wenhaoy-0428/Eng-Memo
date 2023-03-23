@@ -2,12 +2,25 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework import status, generics
+from rest_framework.response import Response
 
 from .models import Word, Tag, Record, TagAssignment, Quote
 from .forms import NewRecordForm
+from .serializers import ReviewSerializer
 
+# todo: is there a way to avoid getting current user in such way?
 
 def NewRecord(request):
+    """ API handler that handles user enter new words
+    Args:
+        request (_type_): The POST request
+
+    Returns:
+        response: The response of this API including the status
+    """
+    
     if request.method == 'POST':
         # Populate the form with received data 
         form = NewRecordForm(json.loads(request.body))
@@ -63,7 +76,39 @@ def NewRecord(request):
     return HttpResponse(request.body)
 
 
+class DetailEntry():
+    def __init__(self, tag, link, value):
+        self.tag = tag
+        self.link = link
+        self.value = value
 
+class ReviewEntry():
+    def __init__(self, word, entries):
+        self.word = word
+        self.entries = entries
+    
+class GetReview(APIView):
+    
+    def get(self, request, format=None):
+        # get current user
+        currentUser = User.objects.get(id=request.user.id)
 
-    
-    
+        records = Record.objects.filter(user_id=currentUser)
+
+        reviewEntries = []
+        for record in records:
+            word = record.word_id
+            quotes = Quote.objects.filter(record_id=record)
+            
+            detailEntries = []
+            for quote in quotes:
+                tag = quote.tagAssignment_id.tag_id if quote.tagAssignment_id else None
+                link = quote.link
+                value = quote.value
+                detailEntries.append(DetailEntry(tag, link, value))
+
+            reviewEntries.append(ReviewEntry(word, detailEntries))
+        s = ReviewSerializer(reviewEntries, many=True)
+        
+        return Response(s.data)
+
