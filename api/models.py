@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.utils import timezone
 
 class Word(models.Model):
     value = models.CharField(max_length=150, unique=True)
@@ -16,7 +16,10 @@ class Tag(models.Model):
 class Record(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     word_id = models.ForeignKey(Word, on_delete=models.CASCADE)
-
+    date_added = models.DateField(default=timezone.now)
+    times_reviewed = models.PositiveIntegerField(default=0)
+    familiarity = models.PositiveSmallIntegerField(default=0)
+    
     def __str__(self):
         return f'{self.user_id}-{self.word_id}'
 
@@ -26,7 +29,7 @@ class TagAssignment(models.Model):
 
 class Quote(models.Model):
     tagAssignment_id = models.ForeignKey(TagAssignment, on_delete=models.CASCADE, null=True)
-    record_id = models.ForeignKey(Record, on_delete=models.CASCADE)
+    record_id = models.ForeignKey(Record, related_name='quotes', on_delete=models.CASCADE)
     value = models.CharField(max_length=300, null=True)
     # we assume quote and link have 1 to 1 relationship
     link = models.URLField(null=True)

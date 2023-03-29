@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from .models import Word, Tag, Record, TagAssignment, Quote
 from .forms import NewRecordForm
-from .serializers import ReviewSerializer
+from .serializers import RecordSerializer, QuoteSerializer
 
 # todo: is there a way to avoid getting current user in such way?
 
@@ -75,6 +75,56 @@ def NewRecord(request):
             
     return HttpResponse(request.body)
 
+class GetReview(APIView):
+    """
+        Fetches all entries that are currently being reviewed.
+    """
+    def get(self, request, format=None):
+        # get current user
+        currentUser = User.objects.get(id=request.user.id)
+
+        records = Record.objects.filter(user_id=currentUser)
+        
+        reviewEntries = RecordSerializer(records, many=True).data
+
+        return Response(reviewEntries)
+
+
+class GetLibrary(APIView):
+    """ 
+        Fetches all entries belong to current user.
+    """
+    def get(self, request, format=None):
+        records = Record.objects.filter(user_id=request.user)
+
+        data = RecordSerializer(records, many=True).data
+        return Response(data)
+
+class UpdateQuote(APIView):
+    
+    def patch(self, request, format=None):
+        quoteSet = Quote.objects.filter(id=request.data['key'])
+        serializer = QuoteSerializer(data=request.data)
+        if serializer.is_valid():
+            if quoteSet.exists():
+                quote = quoteSet[0]
+                quote.value = serializer.data['value']
+                quote.save(update_fields=['value'])
+                return Response(status=status.HTTP_202_ACCEPTED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+class DeleteQuotes(APIView):
+
+    def put(self, request, format=None):
+        quotesToDelete = Quote.objects.filter(pk__in=request.data)
+        quotesToDelete.delete()
+        return Response()
+
+
+        
+
+
+""" Legacy Code that constructs response data using for loops and Objects
 
 class DetailEntry():
     def __init__(self, tag, link, value):
@@ -94,7 +144,7 @@ class GetReview(APIView):
         currentUser = User.objects.get(id=request.user.id)
 
         records = Record.objects.filter(user_id=currentUser)
-
+        
         reviewEntries = []
         for record in records:
             word = record.word_id
@@ -109,6 +159,16 @@ class GetReview(APIView):
 
             reviewEntries.append(ReviewEntry(word, detailEntries))
         s = ReviewSerializer(reviewEntries, many=True)
-        
+
         return Response(s.data)
 
+
+class QuoteSerializer(serializers.Serializer):
+    tag = serializers.CharField(max_length=30)
+    link = serializers.URLField()
+    value = serializers.CharField(max_length=300)
+
+class ReviewSerializer(serializers.Serializer):
+    word = serializers.CharField(max_length=150)
+    entries = QuoteSerializer(many=True)
+"""

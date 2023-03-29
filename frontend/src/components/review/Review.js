@@ -82,7 +82,7 @@ function Review() {
    */
   const goToNextQuote = () => {
     console.log("Clicked Next-Quote Button");
-    if (crtQuoteIdx >= review.entries.length - 1) {
+    if (crtQuoteIdx >= review.quotes.length - 1) {
       return;
     }
     setDirection(quoteAnimationRight);
@@ -215,8 +215,8 @@ function Review() {
                         classNames={{ ...direction }}
                       >
                         <div className="break-all w-full absolute max-h-44 overflow-y-auto">
-                          {crtQuoteIdx < review.entries.length
-                            ? review.entries[crtQuoteIdx].value
+                          {crtQuoteIdx < review.quotes.length
+                            ? review.quotes[crtQuoteIdx].value
                             : null}
                         </div>
                       </CSSTransition>
@@ -231,7 +231,7 @@ function Review() {
                   <h3>Tags</h3>
                   <div className="flex gap-x-1 p-2">
                     {/* https://beta.reactjs.org/learn/manipulating-the-dom-with-refs#how-to-manage-a-list-of-refs-using-a-ref-callback */}
-                    {review.entries.map((entry, idx) => {
+                    {review.quotes.map((entry, idx) => {
                       if (entry.tag) {
                         return (
                           <Tag
