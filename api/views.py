@@ -5,10 +5,18 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework.response import Response
+from datetime import date
+from django.db.models import Q
+
 
 from .models import Word, Tag, Record, TagAssignment, Quote
 from .forms import NewRecordForm
 from .serializers import RecordSerializer, QuoteSerializer
+
+from random import random, randint
+
+from .global_param import NUM_REVIEW_RECORDS_PER_DAY,  REVIEW_TIMES_DENOMINATOR, TIME_SINCE_ADDED_DENOMINATOR, REVIEW_WINDOW_SIZE, FAMILIARITY_INCREMENT, STATUS_KW, STATUS_UC, STATUS_DN
+
 
 # todo: is there a way to avoid getting current user in such way?
 
@@ -79,14 +87,59 @@ class GetReview(APIView):
     """
         Fetches all entries that are currently being reviewed.
     """
-    def get(self, request, format=None):
-        # get current user
-        currentUser = User.objects.get(id=request.user.id)
+    def calcSelectedProb(self, instance):
+        date_since_added = (date.today() - instance.date_added).days 
+        prob = 0.5 * (1 - instance.familiarity) + 0.3 * (min(1, instance.num_reviewed / REVIEW_TIMES_DENOMINATOR)) \
+            + 0.2 * (min(1,  date_since_added / TIME_SINCE_ADDED_DENOMINATOR))
+        return prob
 
-        records = Record.objects.filter(user_id=currentUser)
+    def initTodaysRecord(self, instance):
+        instance.todays_hit = True
+        # Reset num reviewed
+        instance.num_reviewed = 0
+        instance.save()
         
-        reviewEntries = RecordSerializer(records, many=True).data
+    
+    def get(self, request, format=None):
+        # check if there are reviewing records
+        recordQueryCount = Record.objects.filter(user_id=request.user, todays_hit=True).count()
 
+        # Generate reviewing records
+        if recordQueryCount == 0:
+            recordQuery = Record.objects.filter(user_id=request.user).all()
+            # All selected records for reviewing 
+            reviewRecords = []
+            # if review requirement is more than database size
+            if recordQuery.count() < NUM_REVIEW_RECORDS_PER_DAY:
+                for record in recordQuery:
+                    self.initTodaysRecord(record)
+                reviewRecords = recordQuery
+            else:
+                # Keep selecting candidates until meed the USER daily requirement
+                while len(reviewRecords) != NUM_REVIEW_RECORDS_PER_DAY and len(reviewRecords):
+                    index = randint(0, recordQuery.count() - 1)
+                    dice = random()
+                    candidate = recordQuery[index]
+                    prob = self.calcSelectedProb(candidate)
+                    if (prob > dice):
+                        self.initTodaysRecord(candidate)
+                        reviewRecords.append(candidate)
+
+        else:
+            # select from generated reviewing records
+            reviewRecords = Record.objects.filter(~Q(todays_status=3), todays_reviewing=False, user_id=request.user, todays_hit=True)
+            
+        
+        # send only data only within the window size
+        reviewRecords = reviewRecords[0:REVIEW_WINDOW_SIZE]
+        # mark as reviewing
+        for record in reviewRecords:
+            record.todays_reviewing = True
+            record.save()
+            
+        
+        reviewEntries = RecordSerializer(reviewRecords, many=True).data
+        print("GET", reviewEntries)
         return Response(reviewEntries)
 
 
@@ -118,6 +171,40 @@ class DeleteQuotes(APIView):
     def put(self, request, format=None):
         quotesToDelete = Quote.objects.filter(pk__in=request.data)
         quotesToDelete.delete()
+        return Response()
+    
+
+
+
+class UpdateReviewingRecordStatus(APIView):
+    """
+        Update the today's status of specified record.
+        The request should have the format as follows:
+        {
+            pk: *,
+            status: *,
+        }
+    """
+    def patch(self, request, format=None):
+        print("PATCH", request.data)
+        record = Record.objects.get(pk=request.data['pk'])
+        # Mark as not reviewing, meaning frontend now doesn't contain this record
+        record.todays_reviewing = False
+        record.num_reviewed += 1
+        
+        status = request.data['status']
+        # < 3 is a safety guard
+        if status == STATUS_KW and record.todays_status < 3:
+            record.todays_status += 1
+            if (record.todays_status == 3):
+                # update familiarity when pass
+                record.familiarity += FAMILIARITY_INCREMENT * (1 / record.num_reviewed)
+        elif status == STATUS_UC:
+            record.todays_status = 1
+        elif status == STATUS_DN:
+            record.todays_status = 0
+        record.save()
+        print("PATCH", request.data)
         return Response()
 
 

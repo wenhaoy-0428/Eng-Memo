@@ -91,7 +91,7 @@ function Library() {
   }, [fetcher.data]);
 
   return (
-    <div data-testid="library-container">
+    <div data-testid="library-container" className=" min-w-[500px]">
       <CSSTransition
         in={Object.keys(selectedQuote).length}
         unmountOnExit
@@ -120,7 +120,6 @@ function Library() {
               <TableCell />
               <TableCell>Word</TableCell>
               <TableCell align="right">Date Added</TableCell>
-              <TableCell align="right">Times Reviewed</TableCell>
               <TableCell align="right">Familiarity</TableCell>
             </TableRow>
           </TableHead>
@@ -163,7 +162,6 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
           <b>{row.word}</b>
         </TableCell>
         <TableCell align="right">{row.date_added}</TableCell>
-        <TableCell align="right">{row.times_reviewed}</TableCell>
         <TableCell align="right">{row.familiarity}</TableCell>
       </TableRow>
       <TableRow>

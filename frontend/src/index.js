@@ -4,7 +4,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-import Review from "./components/review/Review";
+import Review, { loadReview } from "./components/review/Review";
 import Library, { loadLibrary } from "./components/library/Library";
 import InputForm from "./components/input-container/InputForm";
 import ErrorPage from "./error-page";
@@ -18,10 +18,6 @@ import {
 } from "react-router-dom";
 
 import axios from "axios";
-
-function loadReview() {
-  return axios.get("/api/getReview/");
-}
 
 const router = createBrowserRouter(
   createRoutesFromElements(
