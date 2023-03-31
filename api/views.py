@@ -15,7 +15,14 @@ from .serializers import RecordSerializer, QuoteSerializer
 
 from random import random, randint
 
-from .global_param import NUM_REVIEW_RECORDS_PER_DAY,  REVIEW_TIMES_DENOMINATOR, TIME_SINCE_ADDED_DENOMINATOR, REVIEW_WINDOW_SIZE, FAMILIARITY_INCREMENT, STATUS_KW, STATUS_UC, STATUS_DN
+from .global_param import NUM_REVIEW_RECORDS_PER_DAY,  \
+    REVIEW_TIMES_DENOMINATOR, \
+    TIME_SINCE_ADDED_DENOMINATOR, \
+    REVIEW_WINDOW_SIZE, \
+    FAMILIARITY_INCREMENT, \
+    STATUS_KW, \
+    STATUS_UC, \
+    STATUS_DN
 
 
 # todo: is there a way to avoid getting current user in such way?
@@ -83,6 +90,12 @@ def NewRecord(request):
             
     return HttpResponse(request.body)
 
+class SyncReview(APIView):
+    def get(self, request, format=None):
+        if 'reviewing_records' in request.session:
+            return Response(request.session['reviewing_records'])
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class GetReview(APIView):
     """
         Fetches all entries that are currently being reviewed.
@@ -98,49 +111,53 @@ class GetReview(APIView):
         # Reset num reviewed
         instance.num_reviewed = 0
         instance.save()
-        
-    
+
     def get(self, request, format=None):
-        # check if there are reviewing records
+        # check if review records are generated
         recordQueryCount = Record.objects.filter(user_id=request.user, todays_hit=True).count()
+        """
+            The if statements are under a condition that as long as a session is available, the data is generated. 
+            This is ensured by clearing of session and generated data the same time in a regular basis
+        """
+        if 'reviewing_records' not in request.session:
+            # Generate reviewing records
+            if recordQueryCount == 0:
+                recordQuery = Record.objects.filter(user_id=request.user).all()
+                # All selected records for reviewing 
+                reviewRecords = []
+                # if review requirement is more than database size
+                if recordQuery.count() < NUM_REVIEW_RECORDS_PER_DAY:
+                    for record in recordQuery:
+                        self.initTodaysRecord(record)
+                    reviewRecords = recordQuery
+                else:
+                    # Keep selecting candidates until meed the USER daily requirement
+                    while len(reviewRecords) != NUM_REVIEW_RECORDS_PER_DAY and len(reviewRecords):
+                        index = randint(0, recordQuery.count() - 1)
+                        dice = random()
+                        candidate = recordQuery[index]
+                        prob = self.calcSelectedProb(candidate)
+                        if (prob > dice):
+                            self.initTodaysRecord(candidate)
+                            reviewRecords.append(candidate)
 
-        # Generate reviewing records
-        if recordQueryCount == 0:
-            recordQuery = Record.objects.filter(user_id=request.user).all()
-            # All selected records for reviewing 
-            reviewRecords = []
-            # if review requirement is more than database size
-            if recordQuery.count() < NUM_REVIEW_RECORDS_PER_DAY:
-                for record in recordQuery:
-                    self.initTodaysRecord(record)
-                reviewRecords = recordQuery
             else:
-                # Keep selecting candidates until meed the USER daily requirement
-                while len(reviewRecords) != NUM_REVIEW_RECORDS_PER_DAY and len(reviewRecords):
-                    index = randint(0, recordQuery.count() - 1)
-                    dice = random()
-                    candidate = recordQuery[index]
-                    prob = self.calcSelectedProb(candidate)
-                    if (prob > dice):
-                        self.initTodaysRecord(candidate)
-                        reviewRecords.append(candidate)
-
+                # select from generated reviewing records
+                reviewRecords = Record.objects.filter(~Q(todays_status=3), user_id=request.user, todays_hit=True)
+            # send only data only within the window size
+            reviewRecords = reviewRecords[0:REVIEW_WINDOW_SIZE]
+            data = RecordSerializer(reviewRecords, many=True).data
+            request.session['reviewing_records'] = data
         else:
             # select from generated reviewing records
-            reviewRecords = Record.objects.filter(~Q(todays_status=3), todays_reviewing=False, user_id=request.user, todays_hit=True)
-            
+            reviewRecords = Record.objects.filter(~Q(todays_status=3), user_id=request.user, todays_hit=True)\
+                .exclude(pk__in=[record['pk'] for record in request.session['reviewing_records']])
+            data = RecordSerializer(reviewRecords[0:REVIEW_WINDOW_SIZE], many=True).data
+            request.session['reviewing_records'] += data
         
-        # send only data only within the window size
-        reviewRecords = reviewRecords[0:REVIEW_WINDOW_SIZE]
-        # mark as reviewing
-        for record in reviewRecords:
-            record.todays_reviewing = True
-            record.save()
-            
-        
-        reviewEntries = RecordSerializer(reviewRecords, many=True).data
-        print("GET", reviewEntries)
-        return Response(reviewEntries)
+        request.session.modified = True
+        print(request.session['reviewing_records'])
+        return Response(data)
 
 
 class GetLibrary(APIView):
@@ -186,12 +203,10 @@ class UpdateReviewingRecordStatus(APIView):
         }
     """
     def patch(self, request, format=None):
-        print("PATCH", request.data)
         record = Record.objects.get(pk=request.data['pk'])
         # Mark as not reviewing, meaning frontend now doesn't contain this record
-        record.todays_reviewing = False
+        request.session['reviewing_records'] = list(filter(lambda x: x['pk'] != request.data['pk'], request.session['reviewing_records']))
         record.num_reviewed += 1
-        
         status = request.data['status']
         # < 3 is a safety guard
         if status == STATUS_KW and record.todays_status < 3:
@@ -204,7 +219,7 @@ class UpdateReviewingRecordStatus(APIView):
         elif status == STATUS_DN:
             record.todays_status = 0
         record.save()
-        print("PATCH", request.data)
+        request.session.modified = True
         return Response()
 
 
