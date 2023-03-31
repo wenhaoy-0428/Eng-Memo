@@ -9,43 +9,34 @@ import Confetti from "../common/Confetti";
 import Summary from "./summary/Summary";
 
 import { TransitionGroup, CSSTransition } from "react-transition-group";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useFetcher, useLocation } from "react-router-dom";
 
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import IconButton from "@mui/material/IconButton";
 
+import axios from "axios";
+
+// Number of remaining reviews before current reviews that allows to look back
+const NUM_PREV_REVIEW = 1;
+// The normal width of the tag indicator.
+const INDICATOR_OFFSET_WIDTH = 10;
+const REVIEW_WINDOW_SIZE = 5;
+
+const STATUS_KW = "KW", // Know
+  STATUS_UC = "UC", // Uncertain
+  STATUS_DN = "DN"; // Don't Know
+
 /**
  * The Review component  that contains the scheduled daily words to memorize.
  */
 function Review() {
-  const allReviews = useLoaderData().data;
-  console.log(allReviews);
-  // The functional Buttons.
-  const handleKW = () => {
-    console.log("I know this word");
-    setCrtEntryIdx(crtEntryIdx + 1);
-  };
+  const [reviewWindow, setReviewWindow] = useState(useLoaderData().data);
+  const location = useLocation();
+  const fetcher = useFetcher();
+  const [prevRecord, setPrevRecord] = useState(null);
 
-  const handleUC = () => {
-    console.log("I am uncertain about this word");
-  };
-
-  const handleDN = () => {
-    console.log("I dunno this word");
-  };
-
-  const funBtns = [
-    { label: "Know", color: "green", handler: handleKW },
-    { label: "Uncertain", color: "orange", handler: handleUC },
-    { label: "Dunno", color: "red", handler: handleDN },
-  ];
-
-  // The normal width of the tag indicator.
-  let indicatorOffsetWidth = 10;
-  // The index of the current review.
-  const [crtEntryIdx, setCrtEntryIdx] = useState(0);
-  let review = allReviews[crtEntryIdx];
+  let review = reviewWindow[0];
   // ! review is only temporary.
   // The index of the current Quote, used as the key of CSSTransition.
   const [crtQuoteIdx, setCrtQuoteIdx] = useState(0);
@@ -64,6 +55,37 @@ function Review() {
   const [indicatorWidth, setIndicatorWidth] = useState(null);
   // Extra animation styles for review container when switching entries.
   const [extraRCAttr, setExtraRCAttr] = useState("border-0");
+  // Toggles review sliding to next. Animation only happens when @ TransitionGroup.key changes
+  const [nextReview, setNextReview] = useState(false);
+
+  const slideNextReview = () => {
+    setNextReview(!nextReview);
+  };
+
+  // The functional Buttons.
+  const handleFuncButton = (status) => {
+    console.log("I know this word");
+    let data = { pk: review.pk, status: status };
+    axios
+      .patch("/api/updateReviewingRecordStatus", data)
+      .then(() => {
+        // save prev review
+        setPrevRecord(review);
+        // update window
+        let updatedReviewWindow = reviewWindow;
+        updatedReviewWindow.shift();
+        setReviewWindow(updatedReviewWindow);
+        // update animation
+        slideNextReview();
+        // fetch new data if necessary
+        if (reviewWindow.length <= REVIEW_WINDOW_SIZE - 3) {
+          fetcher.load(location.pathname);
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
 
   /**
    * Handles state changes for sliding to the previous quote.
@@ -97,7 +119,7 @@ function Review() {
   const shiftIndicatorRight = (newIndicatorWidth, newIndicatorOffset) => {
     setIndicatorWidth(newIndicatorWidth);
     setTimeout(() => {
-      setIndicatorWidth(indicatorOffsetWidth);
+      setIndicatorWidth(INDICATOR_OFFSET_WIDTH);
       setIndicatorOffset(newIndicatorOffset);
     }, 300);
   };
@@ -111,7 +133,7 @@ function Review() {
     setIndicatorWidth(newIndicatorWidth);
     setIndicatorOffset(newIndicatorOffset);
     setTimeout(() => {
-      setIndicatorWidth(indicatorOffsetWidth);
+      setIndicatorWidth(INDICATOR_OFFSET_WIDTH);
       setIndicatorOffset(newIndicatorOffset);
     }, 300);
   };
@@ -134,16 +156,16 @@ function Review() {
       // This offset centers the indicator bar underneath the new tag.
       let newIndicatorOffset =
         currentTag.offsetLeft +
-        (currentTag.offsetWidth - indicatorOffsetWidth) / 2;
+        (currentTag.offsetWidth - INDICATOR_OFFSET_WIDTH) / 2;
       // Apply no animation when first mounted.
       if (indicatorOffset === null || indicatorWidth === null) {
-        setIndicatorWidth(indicatorOffsetWidth);
+        setIndicatorWidth(INDICATOR_OFFSET_WIDTH);
         setIndicatorOffset(newIndicatorOffset);
         return;
       }
       // The new indicator width that span from current offset to new offset.
       let newIndicatorWidth =
-        Math.abs(newIndicatorOffset - indicatorOffset) + indicatorOffsetWidth;
+        Math.abs(newIndicatorOffset - indicatorOffset) + INDICATOR_OFFSET_WIDTH;
       // Apply animation based on direction.
       if (direction === quoteAnimationRight) {
         shiftIndicatorRight(newIndicatorWidth, newIndicatorOffset);
@@ -161,20 +183,28 @@ function Review() {
     setReviewPageHeight(reviewPageRef.current.clientHeight);
   });
 
+  // update records when changes.
+  useEffect(() => {
+    if (fetcher.data) {
+      setReviewWindow([...reviewWindow, ...fetcher.data.data]);
+    }
+  }, [fetcher.data]);
+
   return (
     <div
       id="review-page"
       className="ReviewPage row-span-4 h-full w-full flex justify-center relative"
       ref={reviewPageRef}
     >
-      {crtEntryIdx < allReviews.length ? (
+      {/* TODO: SUMMARY PAGE */}
+      {true ? (
         <div
           data-testid="review-container"
           className={`ReviewContainer relative w-[600px] max-w-[95vw] h-full border-solid border-slate-200 rounded-lg ${extraRCAttr} ${reviewAnimation.ReviewContainer}`}
         >
           <TransitionGroup component={null}>
             <CSSTransition
-              key={crtEntryIdx}
+              key={nextReview}
               timeout={1500}
               onEnter={() => {
                 setExtraRCAttr("border-4 bg-slate-200 overflow-hidden");
@@ -185,7 +215,7 @@ function Review() {
               classNames={{ ...reviewCardAnimation }}
             >
               <div className="ReviewCard absolute h-full w-full p-3 flex flex-col rounded-lg bg-white shadow-2xl">
-                {/* TODO: link to word details */}
+                {/* TODO: link to word translate API */}
                 <a className="WordDetail">
                   <h2 className="text-center grow-0">{review.word}</h2>
                 </a>
@@ -255,14 +285,27 @@ function Review() {
                 </div>
 
                 <div className="FunButtonContainer w-full absolute bottom-3 left-0 flex justify-around">
-                  {funBtns.map((btn) => (
-                    <FunButton
-                      key={btn.label}
-                      label={btn.label}
-                      color={btn.color}
-                      eventHandler={btn.handler}
-                    />
-                  ))}
+                  <FunButton
+                    label="Know"
+                    color="green"
+                    eventHandler={() => {
+                      handleFuncButton(STATUS_KW);
+                    }}
+                  />
+                  <FunButton
+                    label="Uncertain"
+                    color="orange"
+                    eventHandler={() => {
+                      handleFuncButton(STATUS_UC);
+                    }}
+                  />
+                  <FunButton
+                    label="Dunno"
+                    color="red"
+                    eventHandler={() => {
+                      handleFuncButton(STATUS_DN);
+                    }}
+                  />
                 </div>
               </div>
             </CSSTransition>
@@ -302,6 +345,10 @@ function FunButton({ label, color, eventHandler }) {
       <div className={reviewAnimation.Label}>{label}</div>
     </button>
   );
+}
+
+export function loadReview() {
+  return axios.get("/api/getReview/");
 }
 
 export default Review;

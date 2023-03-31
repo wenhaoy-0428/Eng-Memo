@@ -17,9 +17,18 @@ class Record(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     word_id = models.ForeignKey(Word, on_delete=models.CASCADE)
     date_added = models.DateField(default=timezone.now)
-    times_reviewed = models.PositiveIntegerField(default=0)
-    familiarity = models.PositiveSmallIntegerField(default=0)
-    
+    familiarity = models.FloatField(default=0)
+    # ------
+    todays_hit = models.BooleanField(default=False)
+    # current status when reviewing. This field is only used when today_hit is True
+    STATUS_CHOICES = [(0, "Don't Know"), (1, "Uncertain"), (2, "Uncertain or Default"), (3, "Pass")]
+    todays_status = models.PositiveSmallIntegerField(default=2, choices=STATUS_CHOICES)
+    todays_reviewing = models.BooleanField(default=False)
+
+    # represent the number of times reviewed before hit a pass when today_hit is False
+    # represent the number of times currently reviewed if today_hit is True
+    num_reviewed = models.PositiveIntegerField(default=0)
+
     def __str__(self):
         return f'{self.user_id}-{self.word_id}'
 

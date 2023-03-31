@@ -9,6 +9,11 @@ entity Record {
     user_id: email <<PK, FK>>
     word_id: value <<PK, FK>>
     --
+    date_added
+    times_reviewed
+    today_hit
+    score
+    familiarity
 }
 
 entity Word {

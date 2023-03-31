@@ -27,4 +27,4 @@ class RecordSerializer(serializers.ModelSerializer):
     quotes = QuoteSerializer(many=True, read_only=True)
     class Meta:
         model = Record
-        fields = ['word', 'date_added', 'times_reviewed', 'familiarity', 'quotes']
+        fields = ['pk', 'word', 'date_added', 'familiarity', 'quotes']
