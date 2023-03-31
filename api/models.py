@@ -23,7 +23,6 @@ class Record(models.Model):
     # current status when reviewing. This field is only used when today_hit is True
     STATUS_CHOICES = [(0, "Don't Know"), (1, "Uncertain"), (2, "Uncertain or Default"), (3, "Pass")]
     todays_status = models.PositiveSmallIntegerField(default=2, choices=STATUS_CHOICES)
-    todays_reviewing = models.BooleanField(default=False)
 
     # represent the number of times reviewed before hit a pass when today_hit is False
     # represent the number of times currently reviewed if today_hit is True

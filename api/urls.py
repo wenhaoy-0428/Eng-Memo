@@ -7,5 +7,6 @@ urlpatterns = [
         path('getLibrary/', views.GetLibrary.as_view(), name="get_library"),
         path('updateQuote/', views.UpdateQuote.as_view(), name="update_quote"),
         path('deleteQuotes/', views.DeleteQuotes.as_view(), name="delete_quotes"),
-        path('updateReviewingRecordStatus', views.UpdateReviewingRecordStatus.as_view(), name="update_reviewing_record_status")
+        path('updateReviewingRecordStatus/', views.UpdateReviewingRecordStatus.as_view(), name="update_reviewing_record_status"),
+        path('syncReview/', views.SyncReview.as_view(), name="sync_review"),
     ]
