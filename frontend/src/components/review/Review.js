@@ -9,7 +9,7 @@ import Confetti from "../common/Confetti";
 import Summary from "./summary/Summary";
 
 import { TransitionGroup, CSSTransition } from "react-transition-group";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useOutletContext } from "react-router-dom";
 
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -31,6 +31,7 @@ const STATUS_KW = "KW", // Know
 function Review() {
   const [reviewWindow, setReviewWindow] = useState(useLoaderData());
   const [prevRecord, setPrevRecord] = useState(null);
+  const [setPendingReviews] = useOutletContext();
 
   let review = reviewWindow[0];
   // ! review is only temporary.
@@ -83,6 +84,7 @@ function Review() {
         setReviewWindow(newReviewWindow);
         // update animation
         slideNextReview();
+        setPendingReviews(response.data["numPending"]);
       })
       .catch((e) => {
         console.log(e);

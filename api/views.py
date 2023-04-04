@@ -28,6 +28,16 @@ from .global_param import NUM_REVIEW_RECORDS_PER_DAY,  \
 
 # todo: is there a way to avoid getting current user in such way?
 
+
+class GetUserContext(APIView):
+    def get(self, request, format=None):
+        allReviewingRecordsCount = Record.objects.filter(~Q(todays_status=3), user_id=request.user, todays_hit=True).count()
+        response = {
+            "numPending": allReviewingRecordsCount
+        }
+        return Response(response)
+        
+
 def NewRecord(request):
     """ API handler that handles user enter new words
     Args:
@@ -190,9 +200,6 @@ class DeleteQuotes(APIView):
         quotesToDelete = Quote.objects.filter(pk__in=request.data)
         quotesToDelete.delete()
         return Response()
-    
-
-
 
 class UpdateReviewingRecordStatus(APIView):
     """
@@ -232,7 +239,7 @@ class UpdateReviewingRecordStatus(APIView):
         request.session.modified = True
 
         response = {
-            'numReviewing': allReviewingRecords.count(),
+            'numPending': allReviewingRecords.count(),
             'newRecords': data
         }
     

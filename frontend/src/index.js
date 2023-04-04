@@ -1,9 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-
-import App from "./App";
 import "./index.css";
-
+import App, { loadApp } from "./App";
 import Review, { loadReview } from "./components/review/Review";
 import Library, { loadLibrary } from "./components/library/Library";
 import InputForm from "./components/input-container/InputForm";
@@ -22,7 +20,12 @@ import axios from "axios";
 const router = createBrowserRouter(
   createRoutesFromElements(
     // TODO: root should be log in page
-    <Route path="/" element={<App />} errorElement={<ErrorPage />}>
+    <Route
+      path="/"
+      element={<App />}
+      loader={loadApp}
+      errorElement={<ErrorPage />}
+    >
       <Route index element={<InputForm />} />
       <Route path="review" element={<Review />} loader={loadReview} />
       <Route path="library" element={<Library />} loader={loadLibrary} />
