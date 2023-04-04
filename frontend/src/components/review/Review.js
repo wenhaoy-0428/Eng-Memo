@@ -9,7 +9,7 @@ import Confetti from "../common/Confetti";
 import Summary from "./summary/Summary";
 
 import { TransitionGroup, CSSTransition } from "react-transition-group";
-import { useLoaderData, useFetcher, useLocation } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -17,8 +17,6 @@ import IconButton from "@mui/material/IconButton";
 
 import axios from "axios";
 
-// Number of remaining reviews before current reviews that allows to look back
-const NUM_PREV_REVIEW = 1;
 // The normal width of the tag indicator.
 const INDICATOR_OFFSET_WIDTH = 10;
 const REVIEW_WINDOW_SIZE = 5;
@@ -31,9 +29,7 @@ const STATUS_KW = "KW", // Know
  * The Review component  that contains the scheduled daily words to memorize.
  */
 function Review() {
-  const [reviewWindow, setReviewWindow] = useState(useLoaderData().data);
-  const location = useLocation();
-  const fetcher = useFetcher();
+  const [reviewWindow, setReviewWindow] = useState(useLoaderData());
   const [prevRecord, setPrevRecord] = useState(null);
 
   let review = reviewWindow[0];
@@ -67,20 +63,26 @@ function Review() {
     console.log("I know this word");
     let data = { pk: review.pk, status: status };
     axios
-      .patch("/api/updateReviewingRecordStatus", data)
-      .then(() => {
+      .patch("/api/updateReviewingRecordStatus/", data)
+      .then((response) => {
         // save prev review
         setPrevRecord(review);
         // update window
-        let updatedReviewWindow = reviewWindow;
-        updatedReviewWindow.shift();
-        setReviewWindow(updatedReviewWindow);
+        let newReviewWindow = reviewWindow;
+        newReviewWindow.shift();
+        if (
+          response.data["newRecords"] != null &&
+          response.data["newRecords"].length != 0
+        ) {
+          newReviewWindow = [
+            ...newReviewWindow,
+            ...response.data["newRecords"],
+          ];
+        }
+        console.log(newReviewWindow);
+        setReviewWindow(newReviewWindow);
         // update animation
         slideNextReview();
-        // fetch new data if necessary
-        if (reviewWindow.length <= REVIEW_WINDOW_SIZE - 3) {
-          fetcher.load(location.pathname);
-        }
       })
       .catch((e) => {
         console.log(e);
@@ -183,13 +185,6 @@ function Review() {
     setReviewPageHeight(reviewPageRef.current.clientHeight);
   });
 
-  // update records when changes.
-  useEffect(() => {
-    if (fetcher.data) {
-      setReviewWindow([...reviewWindow, ...fetcher.data.data]);
-    }
-  }, [fetcher.data]);
-
   return (
     <div
       id="review-page"
@@ -197,7 +192,7 @@ function Review() {
       ref={reviewPageRef}
     >
       {/* TODO: SUMMARY PAGE */}
-      {true ? (
+      {review ? (
         <div
           data-testid="review-container"
           className={`ReviewContainer relative w-[600px] max-w-[95vw] h-full border-solid border-slate-200 rounded-lg ${extraRCAttr} ${reviewAnimation.ReviewContainer}`}
@@ -347,8 +342,19 @@ function FunButton({ label, color, eventHandler }) {
   );
 }
 
-export function loadReview() {
-  return axios.get("/api/getReview/");
+export async function loadReview() {
+  try {
+    let response = await axios.get("/api/syncReview/");
+    if (response.data.length != 0 && response.status == 200) {
+      return response.data;
+    } else {
+      response = await axios.get("/api/getReview/");
+      console.log(response);
+      return response.data;
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 export default Review;
