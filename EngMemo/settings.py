@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.messages', 'django.contrib.staticfiles',
     'rest_framework',
     'api.apps.ApiConfig',
+    'account.apps.AccountConfig'
 ]
 
 MIDDLEWARE = [
@@ -82,19 +83,38 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME':
-        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'account.validators.UppercaseValidator',
     },
+
+    {
+        'NAME':
+        'account.validators.LowercaseValidator',
+    },
+
+    {
+        'NAME':
+        'account.validators.SpecialCharValidator',
+    },
+
+    {
+        'NAME':
+        'account.validators.MaximumLengthValidator',
+    },
+
+
     {
         'NAME':
         'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
+
+    {
+        'NAME':
+        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+
     {
         'NAME':
         'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME':
-        'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
