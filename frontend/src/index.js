@@ -7,6 +7,7 @@ import Library, { loadLibrary } from "./components/library/Library";
 import InputForm from "./components/input-container/InputForm";
 import ErrorPage from "./error-page";
 import Register from "./components/authentication/registration/RegisterPage";
+import Login from "./components/authentication/login/LoginPage";
 
 import {
   createBrowserRouter,
@@ -32,6 +33,7 @@ const router = createBrowserRouter(
       <Route path="library" element={<Library />} loader={loadLibrary} />
     </Route>,
     <Route path="/register" element={<Register />} />,
+    <Route path="/login" element={<Login />} />,
   ])
 );
 
