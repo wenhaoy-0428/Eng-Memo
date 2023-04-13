@@ -16,6 +16,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate_username(self, value):
         if not re.match('^[a-zA-Z][a-zA-Z0-9-_]{3,23}$', value):
             raise serializers.ValidationError("The username is invalid.")
+        return value
     class Meta:
         model = User
         fields = ['username', 'email', 'password']
