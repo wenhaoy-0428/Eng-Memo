@@ -5,18 +5,20 @@ import Divider from "@mui/material/Divider";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 
-import {
-  UserMenuInfoSection,
-  userMenuDataSection,
-  userMenuActionSection,
-} from "./user-menu-items";
+import withUserItems, { UserMenuInfoSection } from "./user-menu-hoc";
 
 /**
  * The UserDrop down component that is only visibly in Desktop view.
  * This includes a userAvatar and dropDown menu.
  * @param userInfo: The prop that contains user information.
  */
-function UserDropDown({ userInfo, anchorElUser, handleCloseDropdown }) {
+function UserDropDown({
+  userMenuDataSection,
+  userMenuActionSection,
+  userInfo,
+  anchorElUser,
+  handleCloseDropdown,
+}) {
   return (
     <Menu
       anchorEl={anchorElUser}
@@ -28,6 +30,7 @@ function UserDropDown({ userInfo, anchorElUser, handleCloseDropdown }) {
           overflow: "visible",
           filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
           mt: 1.5,
+          minWidth: 200,
           // tip
           "&:before": {
             content: '""',
@@ -52,14 +55,14 @@ function UserDropDown({ userInfo, anchorElUser, handleCloseDropdown }) {
     >
       <UserMenuInfoSection userInfo={userInfo} />
       {userMenuDataSection.map((item) => (
-        <MenuItem key={item.label}>
+        <MenuItem key={item.label} onClick={item.onclick}>
           <ListItemIcon>{item.icon}</ListItemIcon>
           {item.label}
         </MenuItem>
       ))}
       <Divider />
       {userMenuActionSection.map((item) => (
-        <MenuItem key={item.label}>
+        <MenuItem key={item.label} onClick={item.onclick}>
           <ListItemIcon>{item.icon}</ListItemIcon>
           {item.label}
         </MenuItem>
@@ -68,4 +71,4 @@ function UserDropDown({ userInfo, anchorElUser, handleCloseDropdown }) {
   );
 }
 
-export default UserDropDown;
+export default withUserItems(UserDropDown);

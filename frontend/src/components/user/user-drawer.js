@@ -7,13 +7,15 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
-import {
-  UserMenuInfoSection,
+import withUserItems, { UserMenuInfoSection } from "./user-menu-hoc";
+
+function UserDrawer({
   userMenuDataSection,
   userMenuActionSection,
-} from "./user-menu-items";
-
-function UserDrawer({ userInfo, openDrawer, handleCloseDrawer }) {
+  userInfo,
+  openDrawer,
+  handleCloseDrawer,
+}) {
   return (
     <Drawer
       anchor="right"
@@ -25,7 +27,7 @@ function UserDrawer({ userInfo, openDrawer, handleCloseDrawer }) {
       <List sx={{ width: 250 }}>
         {userMenuDataSection.map((item) => (
           <ListItem key={item.label} disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={item.onclick}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
             </ListItemButton>
@@ -34,7 +36,7 @@ function UserDrawer({ userInfo, openDrawer, handleCloseDrawer }) {
         <Divider />
         {userMenuActionSection.map((item) => (
           <ListItem key={item.label} disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={item.onclick}>
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
             </ListItemButton>
@@ -45,4 +47,4 @@ function UserDrawer({ userInfo, openDrawer, handleCloseDrawer }) {
   );
 }
 
-export default UserDrawer;
+export default withUserItems(UserDrawer);

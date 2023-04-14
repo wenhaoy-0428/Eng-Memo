@@ -139,6 +139,7 @@ function NavBarTop({ pendingReviews, userInfo }) {
             anchorElUser={anchorElUser}
             handleCloseDropdown={handleCloseDropdown}
           />
+
           <UserDrawer
             userInfo={userInfo}
             openDrawer={openDrawer}
