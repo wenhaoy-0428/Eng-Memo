@@ -1,11 +1,16 @@
-from django.shortcuts import render
-from rest_framework.views import APIView
-from .serializers import RegisterSerializer, LoginSerializer
-from rest_framework import generics, status
-from rest_framework.response import Response
 from django.contrib.auth import authenticate, login, logout
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 
+from rest_framework.views import APIView
+from rest_framework import generics, status, permissions
+from rest_framework.response import Response
+
+from .serializers import RegisterSerializer, LoginSerializer
+
+@method_decorator(csrf_protect, name="dispatch")
 class Register(generics.CreateAPIView):
+    permission_classes = [permissions.AllowAny,]
     serializer_class = RegisterSerializer
 
     # def post(self, request, *args, **kwargs):
@@ -14,7 +19,10 @@ class Register(generics.CreateAPIView):
     #     user = serializer.save()
     #     return Response()
 
+@method_decorator(csrf_protect, name="dispatch")
 class Login(APIView):
+    # allows no csrf token check, allows
+    permission_classes = [permissions.AllowAny,]
 
     def post(self, request, format=None):
         serializer = LoginSerializer(data=request.data)

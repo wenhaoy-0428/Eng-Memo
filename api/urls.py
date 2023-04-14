@@ -9,5 +9,6 @@ urlpatterns = [
         path('deleteQuotes/', views.DeleteQuotes.as_view(), name="delete_quotes"),
         path('updateReviewingRecordStatus/', views.UpdateReviewingRecordStatus.as_view(), name="update_reviewing_record_status"),
         path('syncReview/', views.SyncReview.as_view(), name="sync_review"),
-        path('getUserContext/', views.GetUserContext.as_view(), name="get_user_context")
+        path('getUserContext/', views.GetUserContext.as_view(), name="get_user_context"),
+        path("auth-get-csrf-token/", views.GetCSTRFToken.as_view(), name="auth_get_csrf_token"),
     ]
