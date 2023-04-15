@@ -1,20 +1,21 @@
 import json
-from django.shortcuts import render
-from django.http import HttpResponse
-from django.contrib.auth.models import User
-from rest_framework.views import APIView
-from rest_framework import status, generics
-from rest_framework.response import Response
 from datetime import date
-from django.db.models import Q
-
-
-from .models import Word, Tag, Record, TagAssignment, Quote
-from .forms import NewRecordForm
-from .serializers import RecordSerializer, QuoteSerializer
-
 from random import random, randint
 
+from django.contrib.auth.models import User
+from django.db.models import Q
+from django.http import HttpResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+
+from rest_framework.views import APIView
+from rest_framework import status, permissions
+from rest_framework.response import Response
+
+from .forms import NewRecordForm
+from .models import Word, Tag, Record, TagAssignment, Quote
+from .serializers import RecordSerializer, QuoteSerializer
 from .global_param import NUM_REVIEW_RECORDS_PER_DAY,  \
     REVIEW_TIMES_DENOMINATOR, \
     TIME_SINCE_ADDED_DENOMINATOR, \
@@ -102,6 +103,10 @@ def NewRecord(request):
     return HttpResponse(request.body)
 
 class SyncReview(APIView):
+    """
+        Sync frontend with backend all reviewing records that were already sent to the frontend 
+        before last page refresh.
+    """
     def get(self, request, format=None):
         if 'reviewing_records' in request.session:
             return Response(request.session['reviewing_records'])
@@ -109,7 +114,11 @@ class SyncReview(APIView):
 
 class GetReview(APIView):
     """
-        Fetches all entries that are currently being reviewed.
+        Fetches all entries that are currently being reviewed, or generate entries to be reviewed.
+        
+        Caveat: This API accepts GET request meaning it supposes to be a safe API and should not manipulate 
+            server states. However, now it contains reviewing entires generation.
+
     """
     def calcSelectedProb(self, instance):
         date_since_added = (date.today() - instance.date_added).days 
@@ -182,8 +191,18 @@ class GetLibrary(APIView):
         return Response(data)
 
 class UpdateQuote(APIView):
-    
     def patch(self, request, format=None):
+        """ Update the content of a specific quote.
+        Args:
+            request: Accepts JSON input in the format 
+            {
+                key: The primary key of the quote.
+                value: The new quote to replace the old one
+            }
+
+        Returns:
+           Accepts when the input is valid and rejects with code 400 otherwise.
+        """
         quoteSet = Quote.objects.filter(id=request.data['key'])
         serializer = QuoteSerializer(data=request.data)
         if serializer.is_valid():
@@ -195,8 +214,15 @@ class UpdateQuote(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
 class DeleteQuotes(APIView):
-
     def put(self, request, format=None):
+        """Delete an array of specified quotes
+        Args:
+            request: Accepts JSON input in the format of
+            [pk1, pk2, pk3...]
+
+        Returns:
+            _type_: _description_
+        """
         quotesToDelete = Quote.objects.filter(pk__in=request.data)
         quotesToDelete.delete()
         return Response()
@@ -244,6 +270,15 @@ class UpdateReviewingRecordStatus(APIView):
         }
     
         return Response(response)
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class GetCSTRFToken(APIView):
+    permission_classes = [permissions.AllowAny, ]
+
+    def get(self, request, format=None):
+        """
+            use decorator to ensure a CSRF token is included in the cookie even it's a GET request.
+        """
+        return Response("CSRF Token set")
 
 
         

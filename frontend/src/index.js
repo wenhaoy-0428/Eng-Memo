@@ -9,6 +9,8 @@ import ErrorPage from "./error-page";
 import Register from "./components/authentication/registration/RegisterPage";
 import Login from "./components/authentication/login/LoginPage";
 
+import { loadCSRFToken } from "./libs/auth/auth";
+
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -32,8 +34,8 @@ const router = createBrowserRouter(
       <Route path="review" element={<Review />} loader={loadReview} />
       <Route path="library" element={<Library />} loader={loadLibrary} />
     </Route>,
-    <Route path="/register" element={<Register />} />,
-    <Route path="/login" element={<Login />} />,
+    <Route path="/register" element={<Register />} loader={loadCSRFToken} />,
+    <Route path="/login" element={<Login />} loader={loadCSRFToken} />,
   ])
 );
 
