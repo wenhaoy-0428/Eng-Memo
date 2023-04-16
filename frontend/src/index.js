@@ -9,7 +9,7 @@ import ErrorPage from "./error-page";
 import Register from "./components/authentication/registration/RegisterPage";
 import Login from "./components/authentication/login/LoginPage";
 
-import { loadCSRFToken } from "./libs/auth/auth";
+import { PrivateRoutes, loadCSRFToken } from "./libs/auth/auth";
 
 import {
   createBrowserRouter,
@@ -17,27 +17,41 @@ import {
   RouterProvider,
   Route,
   Link,
+  Navigate,
+  Routes,
 } from "react-router-dom";
 
 import axios from "axios";
+import { AuthProvider } from "./contexts/AuthContext";
+// import { AuthProvider } from "./contexts/AuthContext";
 
 const router = createBrowserRouter(
-  createRoutesFromElements([
-    // TODO: root should be log in page
-    <Route
-      path="/"
-      element={<App />}
-      loader={loadApp}
-      errorElement={<ErrorPage />}
-    >
-      <Route index element={<InputForm />} />
-      <Route path="review" element={<Review />} loader={loadReview} />
-      <Route path="library" element={<Library />} loader={loadLibrary} />
-    </Route>,
-    <Route path="/register" element={<Register />} loader={loadCSRFToken} />,
-    <Route path="/login" element={<Login />} loader={loadCSRFToken} />,
-  ])
+  createRoutesFromElements(
+    <Route>
+      <Route path="/" element={<Navigate to={"/home"} />} />
+      <Route element={<PrivateRoutes />}>
+        <Route
+          path="/*"
+          element={<App />}
+          loader={loadApp}
+          errorElement={<ErrorPage />}
+        >
+          <Route path="home" element={<InputForm />} />
+          <Route path="review" element={<Review />} loader={loadReview} />
+          <Route path="library" element={<Library />} loader={loadLibrary} />
+        </Route>
+      </Route>
+      <Route path="account/*" loader={loadCSRFToken}>
+        <Route path="register" element={<Register />} />
+        <Route path="login" element={<Login />} />
+      </Route>
+    </Route>
+  )
 );
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<RouterProvider router={router} />);
+root.render(
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>
+);

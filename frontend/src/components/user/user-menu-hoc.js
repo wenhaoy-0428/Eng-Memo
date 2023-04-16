@@ -8,6 +8,7 @@ import InsightsIcon from "@mui/icons-material/Insights";
 import { Navigate } from "react-router-dom";
 
 import axios from "axios";
+import { useAuth } from "../../contexts/AuthContext";
 
 const API_LOG_OUT = "/account/logout/";
 
@@ -22,11 +23,15 @@ export function UserMenuInfoSection({ userInfo }) {
   );
 }
 
-// export { UserMenuInfoSection, userMenuDataSection, userMenuActionSection };
-
+/**
+ * An Higher Order Component that pushes UserItems into the original component
+ * @param {*} OriginalComponent
+ * @returns An Enhanced component with UserItems pushed in.
+ */
 function withUserItems(OriginalComponent) {
   return function (props) {
-    const [logout, setLogout] = useState(false);
+    // AuthContext
+    const { auth, setAuth } = useAuth();
 
     // The available Info related buttons in user menu
     const userMenuDataSection = [
@@ -50,27 +55,28 @@ function withUserItems(OriginalComponent) {
       {
         label: "Logout",
         icon: <Logout fontSize="small" />,
-        onclick: async () => {
+        onclick: () => {
           console.log("logout");
-          try {
-            let response = await axios.post(API_LOG_OUT);
-            setLogout(true);
-          } catch (e) {
-            // TODO: notification
-            console.log(e);
-          }
+          axios
+            .post(API_LOG_OUT)
+            .then(() => {
+              setAuth(false);
+            })
+            .catch((e) => {
+              console.log(e);
+            });
         },
       },
     ];
 
-    return logout ? (
-      <Navigate to={"/login"} />
-    ) : (
+    return auth ? (
       <OriginalComponent
         userMenuDataSection={userMenuDataSection}
         userMenuActionSection={userMenuActionSection}
         {...props}
       ></OriginalComponent>
+    ) : (
+      <Navigate to={"/account/login"} />
     );
   };
 }
