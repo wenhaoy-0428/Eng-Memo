@@ -280,7 +280,16 @@ class GetCSTRFToken(APIView):
         """
         return Response("CSRF Token set")
 
+class CheckAuthenticated(APIView):
+    def get(self, request, format=None):
+        """
+        checks if the current user is authenticated. 
+        By default, this API is login only, protected by DRF authentication class. Thus, unauthenticated user will 
+        receive 403 before reaching this method. 
 
+        Returns: 200 if the user is authenticated and 403 otherwise
+        """
+        return Response()
         
 
 

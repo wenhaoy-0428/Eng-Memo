@@ -18,6 +18,7 @@ import axios from "axios";
 import AuthForm from "../AuthForm";
 import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../../../contexts/AuthContext";
 
 const API_LOGIN = "/account/login/";
 
@@ -29,7 +30,8 @@ function Login() {
     formState: { errors },
   } = useForm();
 
-  const [userAuthenticated, setUserAuthenticated] = useState(false);
+  // AuthContext
+  const { auth, setAuth } = useAuth();
 
   // Toggle the visibility of password
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +41,7 @@ function Login() {
     console.log(data);
     try {
       let response = await axios.post(API_LOGIN, data);
-      setUserAuthenticated(true);
+      setAuth(true);
     } catch (e) {
       console.log(e.response.data);
       let data = e.response.data;
@@ -58,7 +60,7 @@ function Login() {
 
   return (
     <>
-      {userAuthenticated && <Navigate to="/" replace={true} />}
+      {auth && <Navigate to="/home" />}
       <AuthForm handleSubmit={handleSubmit(onSuccess)}>
         <h1>Login</h1>
         {/* Email field */}
