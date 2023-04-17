@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from .models import Quote, Record, TagAssignment, Tag
 
+from . import utils
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,3 +29,9 @@ class RecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Record
         fields = ['pk', 'word', 'date_added', 'familiarity', 'quotes']
+    
+    def to_representation(self, instance):
+        # update the representation of familiarity so that it shows decayed value since last reviewed.
+        ret = super().to_representation(instance)
+        ret['familiarity'] = utils.calcDecayedFamiliarity(instance)
+        return ret
