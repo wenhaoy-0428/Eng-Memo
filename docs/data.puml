@@ -14,7 +14,22 @@ entity Record {
     today_hit
     score
     familiarity
+    last_marked : mannual refresh
+    last_reviewed
 }
+
+entity History {
+    date: <PK>
+    user_id: <PK, FK>
+    count: planed number of words
+}
+
+entity HistoryItem {
+    history_id: History <FK>
+    record_id: Record <FK>
+    status: reviewing | reviewed
+}
+
 
 entity Word {
     **value** <<PK>>
@@ -56,6 +71,76 @@ TagAssignment --o{ Quote
 User --o{ TagAssignment
 
 Tag --o{ TagAssignment
+
+HistoryItem }|-- Record
+
+HistoryItem }|-- History
+
+
+@enduml
+
+
+@startuml
+
+entity User {
+    email <<PK>>
+    --
+} 
+
+entity Record {
+    user_id: email <<PK, FK>>
+    word_id: value <<PK, FK>>
+    --
+    date_added
+    times_reviewed
+    score
+    familiarity
+    last_marked : mannual refresh
+    last_reviewed
+}
+
+
+entity Word {
+    **value** <<PK>>
+    --
+}
+
+entity TagAssignment {
+    id <<PK>>
+    --
+    user_id <<FK>>
+    tag_id <<FK>>
+}
+
+
+entity Tag {
+    **value**
+}
+
+entity Quote {
+    **Quoteid** <<PK>>
+    tagAssignmentId <<FK>>
+    record_id <<FK>>
+    --
+    value <<Required>>
+    Link <<OPT>>
+}
+
+
+
+User --o{ Record
+
+Record }|-- Word
+
+
+Record --o{ Quote
+
+TagAssignment --o{ Quote
+
+User --o{ TagAssignment
+
+Tag --o{ TagAssignment
+
 
 
 @enduml

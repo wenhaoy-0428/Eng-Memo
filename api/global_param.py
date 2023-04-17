@@ -11,3 +11,8 @@ LEAST_REVIEWING_SIZE = 2
 STATUS_KW = 'KW'
 STATUS_UC = 'UC'
 STATUS_DN = 'DN'
+
+# Memory Decay Period in number of dates
+MEMORY_DECAY = 30
+# Weight of MEMORY DECAY
+MEMORY_DECAY_WEIGHT = 1

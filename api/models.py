@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import datetime
 
 class Word(models.Model):
     value = models.CharField(max_length=150, unique=True)
@@ -18,14 +19,23 @@ class Record(models.Model):
     word_id = models.ForeignKey(Word, on_delete=models.CASCADE)
     date_added = models.DateField(default=timezone.now)
     familiarity = models.FloatField(default=0)
-    # ------
-    todays_hit = models.BooleanField(default=False)
-    # current status when reviewing. This field is only used when today_hit is True
-    STATUS_CHOICES = [(0, "Don't Know"), (1, "Uncertain"), (2, "Uncertain or Default"), (3, "Pass")]
-    todays_status = models.PositiveSmallIntegerField(default=2, choices=STATUS_CHOICES)
 
-    # represent the number of times reviewed before hit a pass when today_hit is False
-    # represent the number of times currently reviewed if today_hit is True
+    """
+    default = date_added makes newly added records to be included in the target,
+    and target generation is skipped, so that set default to epoch
+    """
+    # last time this record was planed be to reviewed
+    last_planed = models.DateField(default=datetime.fromtimestamp(0))
+    # last time this record was reviewed (finished).
+    last_reviewed = models.DateField(default=datetime.fromtimestamp(0))
+    """
+    All fields below are valid only when last_planed is the same as today, 
+    meaning the record is included in the reviewing target of the day
+    """
+    # current status when reviewing.
+    STATUS_CHOICES = [(0, "Don't Know"), (1, "Uncertain"), (2, "Uncertain or Default"), (3, "Pass")]
+    reviewing_status = models.PositiveSmallIntegerField(default=2, choices=STATUS_CHOICES)
+    # number of times has reviewed for today.
     num_reviewed = models.PositiveIntegerField(default=0)
 
     def __str__(self):
