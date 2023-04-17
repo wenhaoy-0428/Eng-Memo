@@ -3,6 +3,8 @@ import axios from "axios";
 import { Navigate, Outlet, redirect } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
+import LinearProgress from "@mui/material/LinearProgress";
+
 const API_GET_CSRF_TOKEN = "/api/auth-get-csrf-token/";
 const API_CHECK_AUTH = "/api/auth-check/";
 
@@ -21,6 +23,16 @@ export async function loadCSRFToken() {
 
 export const PrivateRoutes = () => {
   const { auth } = useAuth();
+  // render loading page if authentication is not yet checked
+  if (auth === null) {
+    return (
+      <div className="flex justify-center items-center w-full h-full">
+        <div className="w-[30%] max-w-[300px]">
+          <LinearProgress />
+        </div>
+      </div>
+    );
+  }
   return auth ? <Outlet /> : <Navigate to="/account/login" />;
 };
 

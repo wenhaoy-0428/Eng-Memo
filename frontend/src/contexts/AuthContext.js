@@ -12,7 +12,7 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const [auth, setAuth] = useState(false);
+  const [auth, setAuth] = useState(null);
 
   useEffect(() => {
     let checkAuth = async () => {
