@@ -27,7 +27,9 @@ function App() {
 
 export async function loadApp() {
   try {
-    let response = await axios.get("/api/getUserContext/");
+    let response = await axios.post("/api/generateReviewPlan/");
+    console.log(response);
+    response = await axios.get("/api/getUserContext/");
     console.log(response);
     return response.data;
   } catch (e) {
