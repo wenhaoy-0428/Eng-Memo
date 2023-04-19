@@ -1,6 +1,8 @@
 import json
+
 from datetime import date
-from random import random, randint
+from math import log
+from random import choices, random, randint
 
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -106,14 +108,14 @@ class SyncReview(APIView):
             return Response(request.session['reviewing_records'])
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class GetReview(APIView):
-    """
-        Fetches all entries that are currently being reviewed, or generate entries to be reviewed.
-        
-        Caveat: This API accepts GET request meaning it supposes to be a safe API and should not manipulate 
-            server states. However, now it contains reviewing entires generation.
+class GenerateReviewPlan(APIView):
+    def initTodaysRecord(self, record):
+        record.last_planed = date.today()
+        record.reviewing_status = 2
+        # Reset num reviewed
+        record.num_reviewed = 0
+        record.save()
 
-    """
     def calcSelectedProb(self, instance):
         date_since_added = (date.today() - instance.date_added).days 
         # calculate decayed familiarity
@@ -121,55 +123,47 @@ class GetReview(APIView):
         prob = 0.5 * (1 - decayedFamiliarity) + 0.3 * (min(1, instance.num_reviewed / global_param.REVIEW_TIMES_DENOMINATOR)) \
             + 0.2 * (min(1,  date_since_added / global_param.TIME_SINCE_ADDED_DENOMINATOR))
         return prob
-
-    def initTodaysRecord(self, instance):
-        instance.last_planed = date.today()
-        instance.reviewing_status = 2
-        # Reset num reviewed
-        instance.num_reviewed = 0
-        instance.save()
-
-    def get(self, request, format=None):
-
+    
+    def post(self, request, format=None):
         # check if review records are generated
         recordQueryCount = Record.objects.filter(user_id=request.user, last_planed=date.today()).count()
-        """
-            The if statements are under a condition that as long as a session is available, the data is generated. 
-            This is ensured by clearing of session and generated data the same time in a regular basis
-        """
-        print("bp1", recordQueryCount)
-        if 'reviewing_records' not in request.session:
-            # Generate reviewing records
-            if recordQueryCount == 0:
-                print("br2: called")
-                recordQuery = Record.objects.filter(user_id=request.user).all()
-                # All selected records for reviewing 
-                reviewRecords = []
-                # if review requirement is more than database size
-                if recordQuery.count() < global_param.NUM_REVIEW_RECORDS_PER_DAY:
-                    for record in recordQuery:
-                        self.initTodaysRecord(record)
-                    reviewRecords = recordQuery
-                else:
-                    # Keep selecting candidates until meed the USER daily requirement
-                    while len(reviewRecords) != global_param.NUM_REVIEW_RECORDS_PER_DAY and len(reviewRecords):
-                        index = randint(0, recordQuery.count() - 1)
-                        dice = random()
-                        candidate = recordQuery[index]
-                        prob = self.calcSelectedProb(candidate)
-                        if (prob > dice):
-                            self.initTodaysRecord(candidate)
-                            reviewRecords.append(candidate)
+        if recordQueryCount != 0:
+            return Response({"success": "Already Generated"}, status=status.HTTP_200_OK)
+        # Generate reviewing records
+        recordQuery = Record.objects.filter(user_id=request.user).all()
+        # if review requirement is more than database size
+        if recordQuery.count() < global_param.NUM_REVIEW_RECORDS_PER_DAY:
+            for record in recordQuery:
+                self.initTodaysRecord(record)
+        else:
+            # https://stackoverflow.com/questions/2140787/select-k-random-elements-from-a-list-whose-elements-have-weights
+            """
+                Randomly sampling from Exponential Distribution with Weight as lambda.
+            """
+            def randomSampleWithWeightFromExpoDistr(record):
+                # tuple(record, sample)
+                return (record, -log(random())/self.calcSelectedProb(record))
+            expoSamples = list(map(randomSampleWithWeightFromExpoDistr, recordQuery))
+            # select the n minimum samples as candidates
+            candidates = sorted(expoSamples, key=lambda x: x[1])[:global_param.NUM_REVIEW_RECORDS_PER_DAY]
+            for sample in candidates:
+                candidate = sample[0]
+                self.initTodaysRecord(candidate)            
+        return Response({"success": "Generated"}, status=status.HTTP_201_CREATED)
 
-            else:
-                # select from generated reviewing records
-                reviewRecords = Record.objects.filter(~Q(reviewing_status=3), user_id=request.user, last_planed=date.today())
+class GetReview(APIView):
+    """
+        Fetches all entries that are currently being reviewed, or generate entries to be reviewed.
+    """
+    def get(self, request, format=None):
+        if 'reviewing_records' not in request.session:
+            # select from generated reviewing records
+            reviewRecords = Record.objects.filter(~Q(reviewing_status=3), user_id=request.user, last_planed=date.today())
             # send only data only within the window size
-            reviewRecords = reviewRecords[0:global_param.REVIEW_WINDOW_SIZE]
-            data = RecordSerializer(reviewRecords, many=True).data
+            data = RecordSerializer(reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data
             request.session['reviewing_records'] = data
         else:
-            # select from generated reviewing records
+            # select from generated reviewing records that are not currently reviewing (inside )
             reviewRecords = Record.objects.filter(~Q(reviewing_status=3), user_id=request.user, last_planed=date.today())\
                 .exclude(pk__in=[record['pk'] for record in request.session['reviewing_records']])
             data = RecordSerializer(reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data

@@ -22,6 +22,7 @@ export function AuthProvider({ children }) {
         setAuth(true);
       } catch (e) {
         console.log(e);
+        setAuth(false);
       }
     };
     checkAuth();
