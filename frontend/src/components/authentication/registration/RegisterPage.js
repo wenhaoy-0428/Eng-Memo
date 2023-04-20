@@ -33,7 +33,7 @@ function Register() {
   const onSuccess = async (data) => {
     console.log(data);
     try {
-      let response = await axios.post("account/register/", data);
+      let response = await axios.post("/account/register/", data);
       console.log(response);
     } catch (e) {
       console.log(e.response.data);
