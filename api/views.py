@@ -22,10 +22,6 @@ from .serializers import RecordSerializer, QuoteSerializer
 from . import global_param
 from . import utils
 
-
-# todo: is there a way to avoid getting current user in such way?
-
-
 class GetUserContext(APIView):
     def get(self, request, format=None):
         allReviewingRecordsCount = Record.objects.filter(~Q(reviewing_status=3), user_id=request.user, last_planed=date.today()).count()

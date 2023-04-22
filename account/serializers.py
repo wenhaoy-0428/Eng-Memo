@@ -23,7 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     # create is defined to enable serializer to create instance
     def create(self, validated_data):
-        user = User.objects.create_user(validated_data['username'], validated_data['email'], validated_data['password'])
+        user = User.objects.create_user(validated_data['username'], validated_data['email'], validated_data['password'], is_active=False)
         return user
     
 

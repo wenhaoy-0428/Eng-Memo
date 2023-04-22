@@ -113,7 +113,7 @@ function Login() {
           </Button>
 
           <Button
-            to="/register"
+            to="/account/register"
             variant="text"
             sx={{ textTransform: "none" }}
             component={Link}
