@@ -3,25 +3,17 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import Alert from "@mui/material/Alert";
 
-// const GlassAlert = ({ children, severity = "info" }) => {
-//   return (
-
-//   );
-// };
-
 const Notification = ({ message, severity, duration, onClose }) => {
-  const [isHovering, setIsHovering] = useState(false);
-
+  const [prevTimer, setPrevTimer] = useState(undefined);
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // close the notification only when user is not hovering over it
-      if (!isHovering) {
+    if (message) {
+      const timer = setTimeout(() => {
         onClose();
-      }
-    }, duration);
-
-    return () => clearTimeout(timer);
-  }, [message, isHovering]);
+      }, duration);
+      setPrevTimer(timer);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
 
   return (
     <>
@@ -34,10 +26,12 @@ const Notification = ({ message, severity, duration, onClose }) => {
             transition={{ duration: 0.3 }}
             className="fixed top-5 right-4 bg-gray-50 bg-opacity-50 backdrop-filter backdrop-blur-lg border border-gray-200 rounded-lg p-3"
             onMouseEnter={() => {
-              setIsHovering(true);
+              clearTimeout(prevTimer);
             }}
             onMouseLeave={() => {
-              setIsHovering(false);
+              setTimeout(() => {
+                onClose();
+              }, 1000);
             }}
           >
             <Alert severity={severity} className="bg-transparent p-0">
