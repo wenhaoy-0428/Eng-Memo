@@ -23,7 +23,7 @@ import {
 
 import axios from "axios";
 import { AuthProvider } from "./contexts/AuthContext";
-// import { AuthProvider } from "./contexts/AuthContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -52,6 +52,8 @@ const router = createBrowserRouter(
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <AuthProvider>
-    <RouterProvider router={router} />
+    <NotificationProvider>
+      <RouterProvider router={router} />
+    </NotificationProvider>
   </AuthProvider>
 );
