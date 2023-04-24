@@ -1,7 +1,7 @@
-import { useRef, useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
-import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import { Button, OutlinedInput } from "@mui/material";
@@ -14,10 +14,14 @@ import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import axios from "axios";
 
+import { useNotification } from "../../../contexts/NotificationContext";
+
 const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 function Register() {
-  let a = {};
+  const { newNotification } = useNotification();
+  const navigate = useNavigate();
+
   // react-hook-form
   const {
     register,
@@ -31,10 +35,16 @@ function Register() {
 
   // Form submission
   const onSuccess = async (data) => {
-    console.log(data);
     try {
       let response = await axios.post("/account/register/", data);
-      console.log(response);
+      if (response.status == 201) {
+        newNotification(
+          "A confirm email has sent to your email address, please follow the instructions to complete your registration",
+          "success",
+          5000
+        );
+        navigate("/account/login");
+      }
     } catch (e) {
       console.log(e.response.data);
       let data = e.response.data;
