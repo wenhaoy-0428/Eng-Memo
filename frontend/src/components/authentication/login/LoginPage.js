@@ -1,5 +1,7 @@
-import { useRef, useState, useEffect } from "react";
+import axios from "axios";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Navigate, Link } from "react-router-dom";
 
 import TextField from "@mui/material/TextField";
 import { Button, OutlinedInput } from "@mui/material";
@@ -11,14 +13,10 @@ import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 
-import axios from "axios";
-
 import AuthForm from "../AuthForm";
-import { Link } from "react-router-dom";
-import { Navigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
-
 import { useNotification } from "../../../contexts/NotificationContext";
+import TextMorph from "../../common/TextMorph";
 
 const API_LOGIN = "/account/login/";
 
@@ -66,7 +64,7 @@ function Login() {
   return (
     <>
       {auth && <Navigate to="/home" />}
-      <AuthForm handleSubmit={handleSubmit(onSuccess)}>
+      <AuthForm handleSubmit={handleSubmit(onSuccess)} gallery={<TextMorph />}>
         <h1>Login</h1>
         {/* Email field */}
         <TextField
@@ -77,7 +75,6 @@ function Login() {
           size="medium"
           error={errors["email"] != undefined}
           helperText={errors["email"] ? errors["email"].message : ""}
-          className="max-w-lg"
         />
 
         <FormControl
