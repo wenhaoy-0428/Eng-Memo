@@ -78,18 +78,26 @@ class Login(APIView):
 
     def post(self, request, format=None):
         serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            email = serializer.validated_data['email']
-            password = serializer.validated_data['password']
-            user = authenticate(email=email, password=password)
-            if user is not None:
+        if not serializer.is_valid():
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        email = serializer.validated_data['email']
+        password = serializer.validated_data['password']
+        user = authenticate(email=email, password=password)
+        if user is not None:
+            if user.is_active:
                 login(request, user)
                 return Response(data={'success': 'User Authenticated.'})
             else:
-                return Response(data={'password': ["Username and password don't match or username doesn't exist."]}, status=status.HTTP_401_UNAUTHORIZED)
+                # resend email
+                sendAccountActivationEmail(user, request)
+                return Response(data={'error': "Inactivated User. Please check your email box to activate your account."}, status=status.HTTP_401_UNAUTHORIZED)
         else:
-            print(serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+            return Response(data={'password': ["Username and password don't match or username doesn't exist."]}, status=status.HTTP_401_UNAUTHORIZED)
+    
+
+            
 
 class Logout(APIView):
     def post(self, request, format=None):

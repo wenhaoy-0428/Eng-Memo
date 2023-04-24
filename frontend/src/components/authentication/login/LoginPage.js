@@ -1,5 +1,3 @@
-import React from "react";
-
 import { useRef, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 
@@ -20,9 +18,12 @@ import { Link } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
 
+import { useNotification } from "../../../contexts/NotificationContext";
+
 const API_LOGIN = "/account/login/";
 
 function Login() {
+  const { newNotification } = useNotification();
   const {
     register,
     handleSubmit,
@@ -41,11 +42,15 @@ function Login() {
     console.log(data);
     try {
       let response = await axios.post(API_LOGIN, data);
+      console.log("response:", response);
       setAuth(true);
     } catch (e) {
       console.log(e.response.data);
       let data = e.response.data;
-      // update errors
+      if (data["error"]) {
+        newNotification(data["error"], "error", 5000);
+      }
+
       Object.keys(data).forEach((key) => {
         setError(key, {
           type: "server",
