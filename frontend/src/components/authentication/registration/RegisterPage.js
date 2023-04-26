@@ -15,6 +15,7 @@ import FormHelperText from "@mui/material/FormHelperText";
 import axios from "axios";
 
 import { useNotification } from "../../../contexts/NotificationContext";
+import AuthForm from "../AuthForm";
 
 const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
@@ -32,7 +33,12 @@ function Register() {
 
   // Toggle the visibility of password
   const [showPassword, setShowPassword] = useState(false);
-
+  let image = (
+    <img
+      className="object-cover"
+      src={require("./man-writing-in-a-notebook.png")}
+    />
+  );
   // Form submission
   const onSuccess = async (data) => {
     try {
@@ -62,99 +68,89 @@ function Register() {
   };
 
   return (
-    <div className="flex justify-center  items-center w-full h-full">
-      <form
-        className="max-w-[90%] w-[400px]"
-        onSubmit={handleSubmit(onSuccess)}
+    <AuthForm handleSubmit={handleSubmit(onSuccess)} gallery={image}>
+      <h1>Hello, new friend</h1>
+      {/* username filed */}
+      <TextField
+        {...register("username", {
+          validate: {
+            startWithLetter: (v) =>
+              /^[a-zA-Z]/.test(v) || "Must start with a letter",
+            containValidChar: (v) =>
+              /^[\w-]+$/.test(v) ||
+              "Only letters, numbers, hyphens, underscores are allowed",
+            fourToTwentyFour: (v) => /.{4,24}$/.test(v) || "4 to 24 in length",
+          },
+          required: { value: true, message: "This is required." },
+        })}
+        label="User Name"
+        size="small"
+        error={errors["username"] != undefined}
+        helperText={errors["username"] ? errors["username"].message : ""}
+      />
+      {/* Email field */}
+      <TextField
+        {...register("email", {
+          pattern: {
+            value: EMAIL_REGEX,
+            message: "Invalid email address.",
+          },
+          required: { value: true, message: "This is required." },
+        })}
+        label="Email"
+        size="small"
+        error={errors["email"] != undefined}
+        helperText={errors["email"] ? errors["email"].message : ""}
+      />
+      {/* Password field */}
+      <FormControl
+        variant="outlined"
+        error={errors["password"] != undefined}
+        size="small"
       >
-        <Paper elevation={2} className="flex flex-col gap-y-6 w-full p-8">
-          <h1>Hello, new friend</h1>
-          {/* username filed */}
-          <TextField
-            {...register("username", {
-              validate: {
-                startWithLetter: (v) =>
-                  /^[a-zA-Z]/.test(v) || "Must start with a letter",
-                containValidChar: (v) =>
-                  /^[\w-]+$/.test(v) ||
-                  "Only letters, numbers, hyphens, underscores are allowed",
-                fourToTwentyFour: (v) =>
-                  /.{4,24}$/.test(v) || "4 to 24 in length",
-              },
-              required: { value: true, message: "This is required." },
-            })}
-            label="User Name"
-            size="small"
-            error={errors["username"] != undefined}
-            helperText={errors["username"] ? errors["username"].message : ""}
-            className="max-w-lg"
-          />
-          {/* Email field */}
-          <TextField
-            {...register("email", {
-              pattern: {
-                value: EMAIL_REGEX,
-                message: "Invalid email address.",
-              },
-              required: { value: true, message: "This is required." },
-            })}
-            label="Email"
-            size="small"
-            error={errors["email"] != undefined}
-            helperText={errors["email"] ? errors["email"].message : ""}
-            className="max-w-lg"
-          />
-          {/* Password field */}
-          <FormControl
-            variant="outlined"
-            error={errors["password"] != undefined}
-            size="small"
-          >
-            <InputLabel htmlFor="password">Password</InputLabel>
-            <OutlinedInput
-              id="password"
-              {...register("password", {
-                validate: {
-                  containOneLowerCase: (v) =>
-                    /^(?=.*[a-z])/.test(v) ||
-                    "Must contain at least 1 lower-case letter",
-                  containOneUpperCase: (v) =>
-                    /^(?=.*[A-Z])/.test(v) ||
-                    "Must contain at least 1 upper-case letter",
-                  containOneNumber: (v) =>
-                    /^(?=.*[0-9])/.test(v) || "Must contain at least 1 number",
-                  containOneSpecial: (v) =>
-                    /^(?=.*[!@#$%])/.test(v) ||
-                    "Must contain at least 1 special symbol (!@#$%)",
-                  fourToTwentyFour: (v) =>
-                    /.{8,24}$/.test(v) || "8 to 24 in length",
-                },
-                required: { value: true, message: "This is required." },
-              })}
-              type={showPassword ? "text" : "password"}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={() => {
-                      setShowPassword(!showPassword);
-                    }}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              }
-              label="Password"
-            />
-            {errors["password"] != undefined ? (
-              <FormHelperText>{errors["password"].message}</FormHelperText>
-            ) : null}
-          </FormControl>
-          <Button type="submit">create</Button>
-        </Paper>
-      </form>
-    </div>
+        <InputLabel htmlFor="password">Password</InputLabel>
+        <OutlinedInput
+          id="password"
+          {...register("password", {
+            validate: {
+              containOneLowerCase: (v) =>
+                /^(?=.*[a-z])/.test(v) ||
+                "Must contain at least 1 lower-case letter",
+              containOneUpperCase: (v) =>
+                /^(?=.*[A-Z])/.test(v) ||
+                "Must contain at least 1 upper-case letter",
+              containOneNumber: (v) =>
+                /^(?=.*[0-9])/.test(v) || "Must contain at least 1 number",
+              containOneSpecial: (v) =>
+                /^(?=.*[!@#$%])/.test(v) ||
+                "Must contain at least 1 special symbol (!@#$%)",
+              fourToTwentyFour: (v) =>
+                /.{8,24}$/.test(v) || "8 to 24 in length",
+            },
+            required: { value: true, message: "This is required." },
+          })}
+          type={showPassword ? "text" : "password"}
+          endAdornment={
+            <InputAdornment position="end">
+              <IconButton
+                aria-label="toggle password visibility"
+                onClick={() => {
+                  setShowPassword(!showPassword);
+                }}
+                edge="end"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          }
+          label="Password"
+        />
+        {errors["password"] != undefined ? (
+          <FormHelperText>{errors["password"].message}</FormHelperText>
+        ) : null}
+      </FormControl>
+      <Button type="submit">create</Button>
+    </AuthForm>
   );
 }
 
