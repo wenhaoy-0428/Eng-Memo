@@ -136,7 +136,7 @@ function TextMorph() {
       </svg>
       <div
         className="relative w-full h-full bottom-0"
-        style={{ filter: "url(#threshold) blur(0.1px)" }}
+        style={{ filter: "url(#threshold) blur(0.5px)" }}
       >
         <MorphContent ref={text1Ref} />
         <MorphContent ref={text2Ref} />
