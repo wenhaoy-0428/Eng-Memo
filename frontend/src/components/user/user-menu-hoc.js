@@ -56,7 +56,6 @@ function withUserItems(OriginalComponent) {
         label: "Logout",
         icon: <Logout fontSize="small" />,
         onclick: () => {
-          console.log("logout");
           axios
             .post(API_LOG_OUT)
             .then(() => {

@@ -52,7 +52,6 @@ function Register() {
         navigate("/account/login");
       }
     } catch (e) {
-      console.log(e.response.data);
       let data = e.response.data;
       // update errors
       Object.keys(data).forEach((key) => {

@@ -61,7 +61,6 @@ function Review() {
 
   // The functional Buttons.
   const handleFuncButton = (status) => {
-    console.log("I know this word");
     let data = { pk: review.pk, status: status };
     axios
       .patch("/api/updateReviewingRecordStatus/", data)
@@ -80,7 +79,6 @@ function Review() {
             ...response.data["newRecords"],
           ];
         }
-        console.log(newReviewWindow);
         setReviewWindow(newReviewWindow);
         // update animation
         slideNextReview();
@@ -95,7 +93,6 @@ function Review() {
    * Handles state changes for sliding to the previous quote.
    */
   const goToPrevQuote = () => {
-    console.log("Clicked Prev-Quote Button");
     if (crtQuoteIdx <= 0) {
       return;
     }
@@ -107,7 +104,6 @@ function Review() {
    * Handles state changes for sliding to the next quote.
    */
   const goToNextQuote = () => {
-    console.log("Clicked Next-Quote Button");
     if (crtQuoteIdx >= review.quotes.length - 1) {
       return;
     }
@@ -351,7 +347,6 @@ export async function loadReview() {
       return response.data;
     } else {
       response = await axios.get("/api/getReview/");
-      console.log(response);
       return response.data;
     }
   } catch (error) {

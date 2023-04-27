@@ -69,7 +69,6 @@ function InputForm() {
    */
   const toggleDropDown = () => {
     setOpenDropDown(!openDropDown);
-    console.log(`Menu ${openDropDown ? "closed" : "opened"}`);
   };
 
   /**
@@ -78,26 +77,20 @@ function InputForm() {
    * @return:
    */
   const submitForm = (values) => {
-    console.log(JSON.stringify(values, null, 2));
-
     setFormStatus(status.loading);
 
     // handle request.
     axios
       .post("/api/newRecord/", values)
       .then(() => {
-        console.log("Submission Success");
         setFormStatus(status.success);
         // TODO: reset the form.
       })
       .catch((e) => {
-        console.log(`Submission Failure: ${e}`);
         setFormStatus(status.failure);
       })
       .then(() => {
-        console.log("Submission CleanUp");
         setTimeout(() => {
-          console.log("Neutralizing Form");
           setFormStatus(status.neutral);
           // tell to animate.
           setSwitchSubmitBtn(!switchSubmitBtn);
@@ -180,7 +173,6 @@ function InputForm() {
  */
 function SubmitBtn({ formStatus, errors, switchSubmitBtn, handleSubmit }) {
   const handleButtonClick = () => {
-    console.log("Submit Button Clicked");
     handleSubmit();
   };
   /**

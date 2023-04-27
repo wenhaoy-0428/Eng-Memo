@@ -18,7 +18,6 @@ export function AuthProvider({ children }) {
     let checkAuth = async () => {
       try {
         let response = await axios.get(API_CHECK_AUTH);
-        console.log(response);
         setAuth(true);
       } catch (e) {
         console.log(e);
