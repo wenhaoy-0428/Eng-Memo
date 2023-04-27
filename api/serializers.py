@@ -28,10 +28,10 @@ class RecordSerializer(serializers.ModelSerializer):
     quotes = QuoteSerializer(many=True, read_only=True)
     class Meta:
         model = Record
-        fields = ['pk', 'word', 'date_added', 'familiarity', 'quotes']
+        fields = ['pk', 'word', 'date_added', 'mastery', 'quotes']
     
     def to_representation(self, instance):
-        # update the representation of familiarity so that it shows decayed value since last reviewed.
+        # update the representation of mastery so that it shows decayed value since last reviewed.
         ret = super().to_representation(instance)
-        ret['familiarity'] = utils.calcDecayedFamiliarity(instance)
+        ret['mastery'] = utils.calcDecayedMastery(instance)
         return ret

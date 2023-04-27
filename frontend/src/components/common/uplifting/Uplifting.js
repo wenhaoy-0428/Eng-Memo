@@ -1,76 +1,16 @@
-// html{
-//   font-size:62.5%;
-// }
-// body{
-//   background: #f0f0e1;
-//   font:300 1.6em/1.4em Helvetica, Arial, "sans-serif";
-// }
-// .scene{position:relative;
-//   display:block;
-//   margin:0 auto;
-//   width:300px;
-//   height:200px;
-// }
-// .plane,
-// .cloud{
-//   position:absolute;
-// }
-
 import { motion } from "framer-motion";
-
 import cloud from "./cloud.svg";
 
-// /* Cloud Animation */
-
-// @keyframes fade{
-//   0%{ opacity: 0;}
-//   10%{ opacity: 1;}
-//   90%{ opacity:1;}
-//   100%{ opacity:0;}
-// }
-
-// @keyframes move{
-//   from{
-//     left:200px;
-//   }
-//   to{
-//     left:0px;
-//   }
-// }
-
-// .cloud{
-//   animation-duration:10s;
-//   animation-name:move, fade;
-//   animation-direction: normal;
-//   animation-iteration-count:infinite;
-//   animation-timing-function:linear;
-//   animation-fill-mode:both;
-
-//   display:block;
-//   height:40px;
-//   width:53px;
-//   margin:0 auto;
-// }
-
-// .cloud--small{
-//   animation-duration:6s;
-//   top:65px;
-//   transform: scaleX(0.5) scaleY(0.5);
-// }
-// .cloud--medium{
-//   animation-duration:5s;
-//   animation-delay:1s;
-//   top:95px;
-//   transform: scaleX(0.7) scaleY(0.7);
-// }
-// .cloud--large{
-//   animation-duration:4.5s;
-//   animation-delay:2.5s;
-//   top:95px;
-//   transform: scaleX(0.8) scaleY(0.8);
-// }
-
+/**
+ * This component renders a plane with animation.
+ * This component (including cloud.svg) is improved based on https://codepen.io/lionelB/pen/nzRaYG
+ * to support Framer Motion and React
+ *
+ * @param {*} width: The width of the svg component
+ * @param {*} height: The height of the svg component
+ */
 export default function Uplifting({ width = 104, height = 47 }) {
+  // variant that defines the animation of the plane
   const animate_plane = {
     visible: {
       y: [0, 10, 0],
@@ -80,8 +20,9 @@ export default function Uplifting({ width = 104, height = 47 }) {
       },
     },
   };
-
+  // variant that defines the animation of the cloud
   const animate_cloud = {
+    // animation of the small cloud
     small: {
       x: [width / 2, -width],
       opacity: [0, 1, 1, 1, 0, 0],

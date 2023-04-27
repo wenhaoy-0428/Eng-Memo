@@ -13,7 +13,7 @@ entity Record {
     times_reviewed
     today_hit
     score
-    familiarity
+    mastery
     last_marked : mannual refresh
     last_reviewed
 }
@@ -94,7 +94,7 @@ entity Record {
     date_added
     times_reviewed
     score
-    familiarity
+    mastery
     last_marked : mannual refresh
     last_reviewed
 }

@@ -140,7 +140,7 @@ class Confetto {
    * Cosine Interpolation
    * @param {*} p1: The first end point.
    * @param {*} p2: The second end point.
-   * @param {*} mu: The familiarity to points from 0 to 1 where 0 means exactly p1, and 1 means exactly p2
+   * @param {*} mu: The mastery to points from 0 to 1 where 0 means exactly p1, and 1 means exactly p2
    * @returns A point on the cosine wave that connects p1 and p2.
    */
   cosInterpolation(p1, p2, mu) {
