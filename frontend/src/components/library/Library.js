@@ -23,6 +23,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import TextField from "@mui/material/TextField";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Checkbox } from "@mui/material";
+import CircularProgress from "@mui/material/CircularProgress";
+import CircularProgressBar from "../common/CircularProgressBar";
 
 import { CSSTransition } from "react-transition-group";
 
@@ -30,6 +32,7 @@ import axios from "axios";
 
 import Tag from "../common/Tag";
 import ControlPanelStyles from "./CSS/LibraryControlPanel.module.css";
+import { useAnimate, useMotionValue, useTransform } from "framer-motion";
 
 /**
  * The component Library that contains all the word entries the user ever stored.
@@ -120,7 +123,7 @@ function Library() {
               <TableCell />
               <TableCell>Word</TableCell>
               <TableCell align="right">Date Added</TableCell>
-              <TableCell align="right">Familiarity</TableCell>
+              <TableCell align="right">Mastery</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -146,6 +149,27 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
     return selected && getSelectQuote(quote.pk);
   }, true);
 
+  /**
+   * Calculate color of circular progress bar based on the mastery.
+   * @param {*} mastery: describes how well the user knows the word.
+   * @returns The color in hex
+   */
+  const calcProgressBarColor = (mastery) => {
+    switch (true) {
+      case mastery < 0.2:
+        return "#cc3300";
+      case mastery < 0.4:
+        return "#ff9966";
+      case mastery < 0.6:
+        return "#ffcc00";
+      case mastery < 0.8:
+        return "#99cc33";
+      case mastery <= 1:
+        return "#339900";
+    }
+    return null;
+  };
+
   return (
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
@@ -162,7 +186,13 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
           <b>{row.word}</b>
         </TableCell>
         <TableCell align="right">{row.date_added}</TableCell>
-        <TableCell align="right">{row.familiarity}</TableCell>
+        <TableCell align="right">
+          <CircularProgressBar
+            strokeColor={calcProgressBarColor(row.mastery)}
+            strokeWidth={3}
+            progress={row.mastery * 100}
+          />
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>

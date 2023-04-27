@@ -114,9 +114,9 @@ class GenerateReviewPlan(APIView):
 
     def calcSelectedProb(self, instance):
         date_since_added = (date.today() - instance.date_added).days 
-        # calculate decayed familiarity
-        decayedFamiliarity = utils.calcDecayedFamiliarity(instance)
-        prob = 0.5 * (1 - decayedFamiliarity) + 0.3 * (min(1, instance.num_reviewed / global_param.REVIEW_TIMES_DENOMINATOR)) \
+        # calculate decayed mastery
+        decayedMastery = utils.calcDecayedMastery(instance)
+        prob = 0.5 * (1 - decayedMastery) + 0.3 * (min(1, instance.num_reviewed / global_param.REVIEW_TIMES_DENOMINATOR)) \
             + 0.2 * (min(1,  date_since_added / global_param.TIME_SINCE_ADDED_DENOMINATOR))
         return prob
     
@@ -235,8 +235,8 @@ class UpdateReviewingRecordStatus(APIView):
         if status == global_param.STATUS_KW and record.reviewing_status < 3:
             record.reviewing_status += 1
             if (record.reviewing_status == 3):
-                # update familiarity when pass with decayed value and increments
-                record.familiarity = utils.calcDecayedFamiliarity(record) + global_param.FAMILIARITY_INCREMENT * (1 / record.num_reviewed)
+                # update mastery when pass with decayed value and increments
+                record.mastery = utils.calcDecayedMastery(record) + global_param.MASTERY_INCREMENT * (1 / record.num_reviewed)
                 record.last_reviewed = date.today()
 
         elif status == global_param.STATUS_UC:

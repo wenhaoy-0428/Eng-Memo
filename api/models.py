@@ -18,7 +18,7 @@ class Record(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     word_id = models.ForeignKey(Word, on_delete=models.CASCADE)
     date_added = models.DateField(default=timezone.now)
-    familiarity = models.FloatField(default=0)
+    mastery = models.FloatField(default=0)
 
     """
     default = date_added makes newly added records to be included in the target,
