@@ -44,7 +44,6 @@ export const PrivateRoutes = () => {
 const loadPrivate = async () => {
   try {
     let response = await axios.get(API_CHECK_AUTH);
-    console.log(response);
     return null;
   } catch (e) {
     console.log(e);
