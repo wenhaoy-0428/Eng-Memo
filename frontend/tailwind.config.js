@@ -24,6 +24,9 @@ module.exports = {
       "2xl": { min: "1536px" },
       // => @media (min-width: 1536px) { ... }
     },
+    fontFamily: {
+      lilita: ["LilitaOne", "sans-serif"],
+    },
     extend: {},
   },
   plugins: [],

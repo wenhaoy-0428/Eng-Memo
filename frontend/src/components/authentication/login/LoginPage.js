@@ -17,6 +17,7 @@ import AuthForm from "../AuthForm";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useNotification } from "../../../contexts/NotificationContext";
 import TextMorph from "../../common/TextMorph";
+import Logo from "../../logo/Logo";
 
 const API_LOGIN = "/account/login/";
 
@@ -64,8 +65,9 @@ function Login() {
   return (
     <>
       {auth && <Navigate to="/home" />}
+
       <AuthForm handleSubmit={handleSubmit(onSuccess)} gallery={<TextMorph />}>
-        <h1>Login</h1>
+        <Logo />
         {/* Email field */}
         <TextField
           {...register("email", {

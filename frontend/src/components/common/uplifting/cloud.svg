@@ -1,0 +1,13 @@
+<svg id="cloud" viewBox="0 0 52 40" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100%" height="100%">
+	<defs>
+		<filter id="f1" x="-100%" y="-100%" width="300%" height="300%">
+			<feOffset result="out" in="SourceGraphic" dx="0" dy="1" />
+			<feColorMatrix result="out" in="out" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.4 0" />
+			<feGaussianBlur result="out" in="out" stdDeviation="2" />
+			<feBlend in="SourceGraphic" in2="out" mode="normal" result="dp" />
+		</filter>
+	</defs>
+	<path id="fg-cloud" filter="url(#f1)"
+		d="M6.3 35.1C4.7 34.2-0.4 32.3 1.4 25 3.1 18.1 8.7 19.5 8.7 19.5 8.7 19.5 3.2 14.1 10.4 6.8 16.9 0.2 23.1 4.6 23.1 4.6 23.1 4.6 30-1.7 35.2 2.4 44.6 9.7 42.8 25.3 42.8 25.3 42.8 25.3 48 22.6 49.8 28.6 51 32.7 46 35.8 42.8 36.7 39.7 37.5 8.9 36.6 6.3 35.1Z"
+		stroke="#cccccc" stroke-width="1" fill="#ffffff" />
+</svg>

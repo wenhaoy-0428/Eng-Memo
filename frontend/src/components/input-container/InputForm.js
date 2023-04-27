@@ -20,6 +20,7 @@ import { green } from "@mui/material/colors";
 
 import dropDownAnimation from "./DropDownAnimation.module.css";
 import submitBtnAnimation from "./SubmitBtnAnimation.module.css";
+import Uplifting from "../common/uplifting/Uplifting";
 
 // solve csrf token missing error when POSTing data to Django
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
@@ -105,62 +106,67 @@ function InputForm() {
   };
 
   return (
-    <div className="InputForm relative w-4/5 max-w-xl xs:row-start-3 md:row-start-4">
-      {/* Use Formik library to implement form, 
+    <>
+      <div className="md:row-start-3">
+        <Uplifting />
+      </div>
+      <div className="InputForm relative w-4/5 max-w-xl xs:row-start-3 md:row-start-4">
+        {/* Use Formik library to implement form, 
       check this link https://formik.org/docs/tutorial for a comprehensive tutorial */}
-      <Formik
-        initialValues={{ word: "", quote: "", tag: "", link: "" }}
-        validationSchema={object({
-          word: string().required("Required"),
-          link: string().url("Link must be a valid URL").nullable(),
-        })}
-        onSubmit={submitForm}
-      >
-        {/* Use Children of Formik to get more props */}
-        {({ handleSubmit, errors }) => (
-          <Form>
-            {/* InputBar */}
-            <Paper className="InputBar flex items-center relative z-50 h-10">
-              <Tooltip title="Menu">
-                <IconButton
-                  aria-label="menu"
-                  data-testid="DropDownBtn"
-                  onClick={toggleDropDown}
-                  className="DropDownBtn"
-                >
-                  <MenuIcon />
-                </IconButton>
-              </Tooltip>
-              <Field
-                name="word"
-                type="text"
-                as={InputBase}
-                placeholder={inputPresets.word.placeholder}
-                autoFocus
-                className="WordInput flex-1"
-              />
-              <Divider className="h-6" orientation="vertical" />
-              {/* Give this a better name */}
-              <SubmitBtn
-                formStatus={formStatus}
-                errors={errors}
-                switchSubmitBtn={switchSubmitBtn}
-                handleSubmit={handleSubmit}
-              />
-            </Paper>
-            {/* Drop down menu */}
-            <CSSTransition
-              in={openDropDown}
-              unmountOnExit
-              timeout={800}
-              classNames={{ ...dropDownAnimation }}
-            >
-              <InputFormDropDown errors={errors} />
-            </CSSTransition>
-          </Form>
-        )}
-      </Formik>
-    </div>
+        <Formik
+          initialValues={{ word: "", quote: "", tag: "", link: "" }}
+          validationSchema={object({
+            word: string().required("Required"),
+            link: string().url("Link must be a valid URL").nullable(),
+          })}
+          onSubmit={submitForm}
+        >
+          {/* Use Children of Formik to get more props */}
+          {({ handleSubmit, errors }) => (
+            <Form>
+              {/* InputBar */}
+              <Paper className="InputBar flex items-center relative z-50 h-10">
+                <Tooltip title="Menu">
+                  <IconButton
+                    aria-label="menu"
+                    data-testid="DropDownBtn"
+                    onClick={toggleDropDown}
+                    className="DropDownBtn"
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                </Tooltip>
+                <Field
+                  name="word"
+                  type="text"
+                  as={InputBase}
+                  placeholder={inputPresets.word.placeholder}
+                  autoFocus
+                  className="WordInput flex-1"
+                />
+                <Divider className="h-6" orientation="vertical" />
+                {/* Give this a better name */}
+                <SubmitBtn
+                  formStatus={formStatus}
+                  errors={errors}
+                  switchSubmitBtn={switchSubmitBtn}
+                  handleSubmit={handleSubmit}
+                />
+              </Paper>
+              {/* Drop down menu */}
+              <CSSTransition
+                in={openDropDown}
+                unmountOnExit
+                timeout={800}
+                classNames={{ ...dropDownAnimation }}
+              >
+                <InputFormDropDown errors={errors} />
+              </CSSTransition>
+            </Form>
+          )}
+        </Formik>
+      </div>
+    </>
   );
 }
 

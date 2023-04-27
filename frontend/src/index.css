@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "LilitaOne";
+  src: url(./fonts/Lilita_One/LilitaOne-Regular.ttf);
+}
+
 *,
 *::before,
 *::after {

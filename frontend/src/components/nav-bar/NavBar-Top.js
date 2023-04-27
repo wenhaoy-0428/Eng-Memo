@@ -15,8 +15,8 @@ import { Link } from "react-router-dom";
 import { getPages } from "./NavItems";
 import UserDropDown from "../user/user-dropdown";
 import UserDrawer from "../user/user-drawer";
+import Logo from "../logo/Logo";
 
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
 const navItems = ["Review", "Library"];
 
 /**
@@ -56,55 +56,26 @@ function NavBarTop({ pendingReviews, userInfo }) {
       {/*  centers your content horizontally. */}
       <Container
         maxWidth="xl"
-        className="xs:grid xs:grid-cols-3 xs:justify-items-center md:flex md:items-center p-2"
+        className="xs:grid xs:grid-cols-4 xs:justify-items-center md:flex md:items-center p-2"
       >
         {/* Icon on Desktop */}
         <div
           data-testid="logo-desktop"
           className="xs:hidden md:flex md: items-center"
         >
-          <AdbIcon sx={{ mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            Desktop
-          </Typography>
+          <a href="/" className="no-underline text-white">
+            <Logo size={40} />
+          </a>
         </div>
 
         {/* Icon on Mobile */}
         <div
           data-testid="logo-mobile"
-          className="xs:flex xs:items-center md:hidden col-start-2"
+          className="xs:flex xs:items-center md:hidden col-start-2  col-end-4"
         >
-          <AdbIcon sx={{ mr: 1 }} />
-          <Typography
-            variant="h5"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              flexGrow: 1,
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          >
-            Mobile
-          </Typography>
+          <a href="/" className="no-underline text-white">
+            <Logo size={40} />
+          </a>
         </div>
 
         {/* Nav-Items */}
