@@ -10,7 +10,7 @@ from .email.accountActivation import sendAccountActivationEmail
 from .views import Register
 
 class Test_Register(TestCase):
-    API_PATH = "/account/register"
+    API_PATH = "api/account/register"
 
     def setUp(self):
         self.factory = RequestFactory()

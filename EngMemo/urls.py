@@ -4,7 +4,7 @@ from .views import ReactIndex
 
 urlpatterns = [
     path('', ReactIndex.as_view(), name="react-index"),
-    path('account/', include('account.urls')),
+    path('api/account/', include('account.urls')),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls'))
 ]

@@ -19,7 +19,7 @@ import { useNotification } from "../../../contexts/NotificationContext";
 import TextMorph from "../../common/TextMorph";
 import Logo from "../../logo/Logo";
 
-const API_LOGIN = "/account/login/";
+const API_LOGIN = "api/account/login/";
 
 function Login() {
   const { newNotification } = useNotification();

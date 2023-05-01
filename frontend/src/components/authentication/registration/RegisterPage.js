@@ -20,6 +20,8 @@ import AuthForm from "../AuthForm";
 const EMAIL_REGEX = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 function Register() {
+  const API_REGISTER = "api/account/register/";
+
   const { newNotification } = useNotification();
   const navigate = useNavigate();
 
@@ -42,7 +44,7 @@ function Register() {
   // Form submission
   const onSuccess = async (data) => {
     try {
-      let response = await axios.post("/account/register/", data);
+      let response = await axios.post(API_REGISTER, data);
       if (response.status == 201) {
         newNotification(
           "A confirm email has sent to your email address, please follow the instructions to complete your registration",
