@@ -14,10 +14,10 @@ const API_LOGOUT = "/api/account/logout/";
 
 export function UserMenuInfoSection({ userInfo }) {
   return (
-    <div className="UserInfo p-3 w-[10px] block">
-      <h4 className="m-0 w-40 whitespace-nowrap overflow-hidden text-ellipsis ">
+    <div className="UserInfo px-3 w-full mb-2">
+      <div className="m-0 w-40 whitespace-nowrap overflow-hidden text-ellipsis text-xl text-[#1976d2] font-extrabold text-center">
         {userInfo.name}
-      </h4>
+      </div>
       <p className="m-0 ">{userInfo.email}</p>
     </div>
   );

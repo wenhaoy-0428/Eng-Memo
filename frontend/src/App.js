@@ -11,8 +11,8 @@ function App() {
   const [pendingReviews, setPendingReviews] = useState(data["numPending"]);
 
   const userInfo = {
-    name: "Ada",
-    email: "ada@gmail.com",
+    name: data["username"],
+    email: data["email"],
     avatar: undefined,
   };
 
