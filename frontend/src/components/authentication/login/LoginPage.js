@@ -19,7 +19,7 @@ import { useNotification } from "../../../contexts/NotificationContext";
 import TextMorph from "../../common/TextMorph";
 import Logo from "../../logo/Logo";
 
-const API_LOGIN = "/account/login/";
+const API_LOGIN = "/api/account/login/";
 
 function Login() {
   const { newNotification } = useNotification();
@@ -40,6 +40,7 @@ function Login() {
   const onSuccess = async (data) => {
     console.log(data);
     try {
+      console.log(API_LOGIN);
       let response = await axios.post(API_LOGIN, data);
       console.log("response:", response);
       setAuth(true);
