@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import RedirectView
+from .views import ReactIndex
 
 urlpatterns = [
-    path('', RedirectView.as_view(url='home/', permanent=True)),
+    path('', ReactIndex.as_view(), name="react-index"),
     path('account/', include('account.urls')),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls'))

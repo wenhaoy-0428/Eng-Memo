@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -19,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_lh1z!7b!7xqi8$u27o^ilwewt%=*4$j@p8&kqgueg*h3o)0ep'
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['whyprojects.tech', "139.196.146.111"]
 
 # Application definition
 
@@ -52,7 +53,7 @@ ROOT_URLCONF = 'EngMemo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'EngMemo/templates'],
+        'DIRS': [ BASE_DIR / 'EngMemo/templates', os.path.join(BASE_DIR, "frontend/build") ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -131,11 +132,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "EngMemo/static",
-]
+STATICFILES_DIRS = []
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -156,7 +155,11 @@ EMAIL_HOST = "smtp.exmail.qq.com"
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = "no_reply@whyprojects.tech"
-EMAIL_HOST_PASSWORD = "E4MmqrxbwDJHxqhY"
+EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 PASSWORD_RESET_TIMEOUT = 86400
+
+# HTTPS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
