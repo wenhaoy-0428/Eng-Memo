@@ -21,6 +21,7 @@ import { green } from "@mui/material/colors";
 import dropDownAnimation from "./DropDownAnimation.module.css";
 import submitBtnAnimation from "./SubmitBtnAnimation.module.css";
 import Uplifting from "../common/uplifting/Uplifting";
+import { useOutletContext } from "react-router-dom";
 
 // solve csrf token missing error when POSTing data to Django
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
@@ -57,12 +58,16 @@ const status = {
  * @brief: InputForm Component
  */
 function InputForm() {
+  const API_NEW_REVIEW = "/api/newRecord/";
+  const API_GET_NUM_PENDING_REVIEWS = "/api/get-num-pending-reviews/";
   // The status of the form.
   const [formStatus, setFormStatus] = useState(status.neutral);
   // The state of the dropDown menu.
   const [openDropDown, setOpenDropDown] = useState(false);
   // The switch that toggles the animation of the submitBtn
   const [switchSubmitBtn, setSwitchSubmitBtn] = useState(false);
+  // handler to update number of pending reviews.
+  const [setPendingReviews] = useOutletContext();
 
   /**
    * @brief: Toggle DropDown menu when menu button is clicked.
@@ -76,26 +81,28 @@ function InputForm() {
    * @param values: An object contains all the user inputs.
    * @return:
    */
-  const submitForm = (values) => {
+  const submitForm = async (values) => {
     setFormStatus(status.loading);
 
     // handle request.
-    axios
-      .post("/api/newRecord/", values)
-      .then(() => {
-        setFormStatus(status.success);
-        // TODO: reset the form.
-      })
-      .catch((e) => {
-        setFormStatus(status.failure);
-      })
-      .then(() => {
-        setTimeout(() => {
-          setFormStatus(status.neutral);
-          // tell to animate.
-          setSwitchSubmitBtn(!switchSubmitBtn);
-        }, 2000);
-      });
+    try {
+      await axios.post(API_NEW_REVIEW, values);
+      setFormStatus(status.success);
+      // on successfully add a new record, update number of pending reviews.
+      try {
+        let response = await axios.get(API_GET_NUM_PENDING_REVIEWS);
+        setPendingReviews(response.data);
+      } catch (e) {
+        console.log(e);
+      }
+    } catch (e) {
+      setFormStatus(status.failure);
+    }
+    setTimeout(() => {
+      setFormStatus(status.neutral);
+      // tell to animate.
+      setSwitchSubmitBtn(!switchSubmitBtn);
+    }, 2000);
   };
 
   return (
@@ -279,15 +286,6 @@ function InputFormDropDown({ errors }) {
       </Paper>
     </>
   );
-}
-
-function usePrev(value) {
-  const ref = useRef();
-
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
 }
 
 /**

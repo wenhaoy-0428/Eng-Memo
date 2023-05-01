@@ -25,7 +25,7 @@ class Record(models.Model):
     and target generation is skipped, so that set default to epoch
     """
     # last time this record was planed be to reviewed
-    last_planed = models.DateField(default=datetime.fromtimestamp(0))
+    last_planed = models.DateField(default=timezone.now)
     # last time this record was reviewed (finished).
     last_reviewed = models.DateField(default=datetime.fromtimestamp(0))
     """
