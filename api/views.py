@@ -24,9 +24,12 @@ from . import utils
 
 class GetUserContext(APIView):
     def get(self, request, format=None):
-        allReviewingRecordsCount = Record.objects.filter(~Q(reviewing_status=3), user_id=request.user, last_planed=date.today()).count()
+        user = request.user
+        allReviewingRecordsCount = Record.objects.filter(~Q(reviewing_status=3), user_id=user, last_planed=date.today()).count()
         response = {
-            "numPending": allReviewingRecordsCount
+            "numPending": allReviewingRecordsCount,
+            "username": user.username,
+            "email": user.email,
         }
         return Response(response)
         
