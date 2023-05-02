@@ -16,14 +16,12 @@ import {
   createRoutesFromElements,
   RouterProvider,
   Route,
-  Link,
   Navigate,
-  Routes,
 } from "react-router-dom";
 
-import axios from "axios";
 import { AuthProvider } from "./contexts/AuthContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { UserProvider } from "./contexts/UserContext";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,7 +30,11 @@ const router = createBrowserRouter(
       <Route element={<PrivateRoutes />}>
         <Route
           path="/*"
-          element={<App />}
+          element={
+            <UserProvider>
+              <App />
+            </UserProvider>
+          }
           loader={loadApp}
           errorElement={<ErrorPage />}
         >
