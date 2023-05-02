@@ -16,6 +16,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import IconButton from "@mui/material/IconButton";
 
 import axios from "axios";
+import TrophyCard from "./summary/TrophyCard";
 
 // The normal width of the tag indicator.
 const INDICATOR_OFFSET_WIDTH = 10;
@@ -190,7 +191,7 @@ function Review() {
       ref={reviewPageRef}
     >
       {/* TODO: SUMMARY PAGE */}
-      {review ? (
+      {false ? (
         <div
           data-testid="review-container"
           className={`ReviewContainer relative w-[600px] max-w-[95vw] h-full border-solid border-slate-200 rounded-lg ${extraRCAttr} ${reviewAnimation.ReviewContainer}`}
@@ -311,7 +312,7 @@ function Review() {
             canvasHeight={window.innerHeight}
             confettiCount={100}
           ></Confetti> */}
-          <Summary></Summary>
+          <TrophyCard />
         </>
       )}
     </div>
