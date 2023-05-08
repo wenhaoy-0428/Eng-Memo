@@ -174,6 +174,11 @@ class GetReview(APIView):
         Fetches all entries that are currently being reviewed, or generate entries to be reviewed.
     """
     def get(self, request, format=None):
+
+        if Record.objects.filter(user_id=request.user).count() is 0:
+            # when the user is new and has no records at all
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        
         if 'reviewing_records' not in request.session:
             # select from generated reviewing records
             reviewRecords = getPendingReviews(request.user)

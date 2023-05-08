@@ -33,14 +33,20 @@ function Review() {
   const [prevRecord, setPrevRecord] = useState(null);
   const [setPendingReviews] = useOutletContext();
 
-  // current reviewingRecord
-  let reviewingRecord = reviewWindow[0];
-
   // Extra animation styles for review container when switching entries.
   const [extraRCAttr, setExtraRCAttr] = useState("border-0");
 
   // Toggles review sliding to next. Animation only happens when @ TransitionGroup.key changes
   const [nextReview, setNextReview] = useState(false);
+
+  // current reviewingRecord
+  let reviewingRecord = undefined;
+
+  try {
+    reviewingRecord = reviewWindow[0];
+  } catch {
+    reviewingRecord = -1;
+  }
 
   const slideNextReview = () => {
     setNextReview(!nextReview);
@@ -81,41 +87,54 @@ function Review() {
       id="review-page"
       className="ReviewPage row-span-4 h-full w-full flex justify-center"
     >
-      {/* TODO: SUMMARY PAGE */}
-      {reviewingRecord ? (
-        <div
-          data-testid="review-container"
-          className={`ReviewContainer relative w-[600px] max-w-[95vw] h-full border-solid border-slate-200 rounded-lg ${extraRCAttr} ${reviewAnimation.ReviewContainer}`}
-        >
-          <TransitionGroup component={null}>
-            <CSSTransition
-              key={nextReview}
-              timeout={1500}
-              onEnter={() => {
-                setExtraRCAttr("border-4 bg-slate-200 overflow-hidden");
-              }}
-              onEntered={() => {
-                setExtraRCAttr("border-0");
-              }}
-              classNames={{ ...reviewCardAnimation }}
+      {(() => {
+        if (reviewingRecord == -1) {
+          return (
+            <div className="w-full h-full border-1 flex items-center justify-center">
+              <span className="font-lilita text-3xl text-center">
+                Go collect some words and build up your memo!
+              </span>
+            </div>
+          );
+        } else if (reviewingRecord) {
+          return (
+            <div
+              data-testid="review-container"
+              className={`ReviewContainer relative w-[600px] max-w-[95vw] h-full border-solid border-slate-200 rounded-lg ${extraRCAttr} ${reviewAnimation.ReviewContainer}`}
             >
-              <ReviewCard
-                record={reviewingRecord}
-                handleFuncButton={handleFuncButton}
-              />
-            </CSSTransition>
-          </TransitionGroup>
-        </div>
-      ) : (
-        <>
-          <Confetti
-            canvasWidth={window.innerWidth}
-            canvasHeight={window.innerHeight}
-            confettiCount={100}
-          ></Confetti>
-          <TrophyCard />
-        </>
-      )}
+              <TransitionGroup component={null}>
+                <CSSTransition
+                  key={nextReview}
+                  timeout={1500}
+                  onEnter={() => {
+                    setExtraRCAttr("border-4 bg-slate-200 overflow-hidden");
+                  }}
+                  onEntered={() => {
+                    setExtraRCAttr("border-0");
+                  }}
+                  classNames={{ ...reviewCardAnimation }}
+                >
+                  <ReviewCard
+                    record={reviewingRecord}
+                    handleFuncButton={handleFuncButton}
+                  />
+                </CSSTransition>
+              </TransitionGroup>
+            </div>
+          );
+        } else {
+          return (
+            <>
+              <Confetti
+                canvasWidth={window.innerWidth}
+                canvasHeight={window.innerHeight}
+                confettiCount={100}
+              ></Confetti>
+              <TrophyCard />
+            </>
+          );
+        }
+      })()}
     </div>
   );
 }
@@ -147,9 +166,14 @@ export async function loadReview() {
     let response = await axios.get("/api/syncReview/");
     if (response.data.length != 0 && response.status == 200) {
       return response.data;
-    } else {
-      response = await axios.get("/api/getReview/");
+    }
+    response = await axios.get("/api/getReview/");
+    if (response.status == 200) {
       return response.data;
+    }
+    // when user has no records to review
+    if (response.status == 204) {
+      return null;
     }
   } catch (error) {
     console.log(error);

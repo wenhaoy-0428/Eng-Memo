@@ -19,7 +19,7 @@ function App() {
     email: data["email"],
     avatar: undefined,
     //TODO: placeholder for milestone
-    consecutivePlanDays: 1,
+    consecutivePlanDays: 0,
   };
   const { user, setUser } = useUser();
 
