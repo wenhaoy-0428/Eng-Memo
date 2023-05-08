@@ -10,21 +10,21 @@ import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 
-const API_LOG_OUT = "/account/logout/";
+const API_LOGOUT = "/api/account/logout/";
 
 export function UserMenuInfoSection({ userInfo }) {
   return (
-    <div className="UserInfo p-3 w-[10px] block">
-      <h4 className="m-0 w-40 whitespace-nowrap overflow-hidden text-ellipsis ">
+    <div className="UserInfo px-3 w-full mb-2">
+      <div className="m-0 w-40 whitespace-nowrap overflow-hidden text-ellipsis text-xl text-[#1976d2] font-extrabold text-center">
         {userInfo.name}
-      </h4>
+      </div>
       <p className="m-0 ">{userInfo.email}</p>
     </div>
   );
 }
 
 /**
- * An Higher Order Component that pushes UserItems into the original component
+ * A Higher Order Component that pushes UserItems into the original component
  * @param {*} OriginalComponent
  * @returns An Enhanced component with UserItems pushed in.
  */
@@ -57,7 +57,7 @@ function withUserItems(OriginalComponent) {
         icon: <Logout fontSize="small" />,
         onclick: () => {
           axios
-            .post(API_LOG_OUT)
+            .post(API_LOGOUT)
             .then(() => {
               setAuth(false);
             })

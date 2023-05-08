@@ -22,11 +22,28 @@ from .serializers import RecordSerializer, QuoteSerializer
 from . import global_param
 from . import utils
 
+def getPendingReviews(user):
+    """Get all records of the user that are not yet reviewed today.
+    Args:
+        user (_type_): the user
+    Returns:
+        [Record]: 
+    """
+    return Record.objects.filter(~Q(reviewing_status=3), user_id=user, last_planed=date.today())
+
+class GetNumPendingReviews(APIView):
+    def get(self, request, format=None):
+        allReviewingRecordsCount = getPendingReviews(request.user).count()
+        return Response(allReviewingRecordsCount)
+
 class GetUserContext(APIView):
     def get(self, request, format=None):
-        allReviewingRecordsCount = Record.objects.filter(~Q(reviewing_status=3), user_id=request.user, last_planed=date.today()).count()
+        user = request.user
+        allReviewingRecordsCount = getPendingReviews(user).count()
         response = {
-            "numPending": allReviewingRecordsCount
+            "numPending": allReviewingRecordsCount,
+            "username": user.username,
+            "email": user.email,
         }
         return Response(response)
         
@@ -34,7 +51,12 @@ class GetUserContext(APIView):
 def NewRecord(request):
     """ API handler that handles user enter new words
     Args:
-        request (_type_): The POST request
+        request.data: {
+            "link": url,
+            "quote": str,
+            "tag": str,
+            "word": str,
+        } 
 
     Returns:
         response: The response of this API including the status
@@ -154,13 +176,13 @@ class GetReview(APIView):
     def get(self, request, format=None):
         if 'reviewing_records' not in request.session:
             # select from generated reviewing records
-            reviewRecords = Record.objects.filter(~Q(reviewing_status=3), user_id=request.user, last_planed=date.today())
+            reviewRecords = getPendingReviews(request.user)
             # send only data only within the window size
             data = RecordSerializer(reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data
             request.session['reviewing_records'] = data
         else:
             # select from generated reviewing records that are not currently reviewing (inside )
-            reviewRecords = Record.objects.filter(~Q(reviewing_status=3), user_id=request.user, last_planed=date.today())\
+            reviewRecords = getPendingReviews(request.user)\
                 .exclude(pk__in=[record['pk'] for record in request.session['reviewing_records']])
             data = RecordSerializer(reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data
             request.session['reviewing_records'] += data
@@ -245,7 +267,7 @@ class UpdateReviewingRecordStatus(APIView):
             record.reviewing_status = 0
         record.save()
         
-        allReviewingRecords = Record.objects.filter(~Q(reviewing_status=3), user_id=request.user, last_planed=date.today())
+        allReviewingRecords = getPendingReviews(request.user)
         data = None
         # mark more records as reviewing if necessary
         if (len(request.session['reviewing_records']) < global_param.LEAST_REVIEWING_SIZE):    

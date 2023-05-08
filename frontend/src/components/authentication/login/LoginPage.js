@@ -19,7 +19,7 @@ import { useNotification } from "../../../contexts/NotificationContext";
 import TextMorph from "../../common/TextMorph";
 import Logo from "../../logo/Logo";
 
-const API_LOGIN = "/account/login/";
+const API_LOGIN = "/api/account/login/";
 
 function Login() {
   const { newNotification } = useNotification();
@@ -40,6 +40,7 @@ function Login() {
   const onSuccess = async (data) => {
     console.log(data);
     try {
+      console.log(API_LOGIN);
       let response = await axios.post(API_LOGIN, data);
       console.log("response:", response);
       setAuth(true);
@@ -65,70 +66,87 @@ function Login() {
   return (
     <>
       {auth && <Navigate to="/home" />}
-
-      <AuthForm handleSubmit={handleSubmit(onSuccess)} gallery={<TextMorph />}>
-        <Logo />
-        {/* Email field */}
-        <TextField
-          {...register("email", {
-            required: { value: true, message: "This is required." },
-          })}
-          label="Email"
-          size="medium"
-          error={errors["email"] != undefined}
-          helperText={errors["email"] ? errors["email"].message : ""}
-        />
-
-        <FormControl
-          variant="outlined"
-          error={errors["password"] != undefined}
-          size="medium"
+      <div className="flex  flex-col w-full h-full justify-center items-center">
+        {/* a placeholder */}
+        <div></div>
+        <AuthForm
+          handleSubmit={handleSubmit(onSuccess)}
+          gallery={<TextMorph />}
         >
-          <InputLabel htmlFor="password">Password</InputLabel>
-          <OutlinedInput
-            id="password"
-            {...register("password", {
+          <Logo />
+          {/* Email field */}
+          <TextField
+            {...register("email", {
               required: { value: true, message: "This is required." },
             })}
-            type={showPassword ? "text" : "password"}
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={() => {
-                    setShowPassword(!showPassword);
-                  }}
-                  edge="end"
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            }
-            label="Password"
+            label="Email"
+            size="medium"
+            error={errors["email"] != undefined}
+            helperText={errors["email"] ? errors["email"].message : ""}
           />
-          {errors["password"] != undefined ? (
-            <FormHelperText>{errors["password"].message}</FormHelperText>
-          ) : null}
-        </FormControl>
 
-        <div className="flex justify-between">
-          <Button variant="text" sx={{ textTransform: "none" }}>
-            Forgot Password?
-          </Button>
-
-          <Button
-            to="/account/register"
-            variant="text"
-            sx={{ textTransform: "none" }}
-            component={Link}
+          <FormControl
+            variant="outlined"
+            error={errors["password"] != undefined}
+            size="medium"
           >
-            Register now!
+            <InputLabel htmlFor="password">Password</InputLabel>
+            <OutlinedInput
+              id="password"
+              {...register("password", {
+                required: { value: true, message: "This is required." },
+              })}
+              type={showPassword ? "text" : "password"}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => {
+                      setShowPassword(!showPassword);
+                    }}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password"
+            />
+            {errors["password"] != undefined ? (
+              <FormHelperText>{errors["password"].message}</FormHelperText>
+            ) : null}
+          </FormControl>
+
+          <div className="flex justify-between">
+            <Button variant="text" sx={{ textTransform: "none" }}>
+              Forgot Password?
+            </Button>
+
+            <Button
+              to="/account/register"
+              variant="text"
+              sx={{ textTransform: "none" }}
+              component={Link}
+            >
+              Register now!
+            </Button>
+          </div>
+          <Button type="submit" variant="contained">
+            Login
           </Button>
+        </AuthForm>
+        <div className="footer">
+          <a>
+            <a
+              href="https://beian.miit.gov.cn/"
+              target="_blank"
+              className="no-underline hover:underline text-[#ababab] font-NotoSansSCR text-xs"
+            >
+              豫ICP备2023008283号-1
+            </a>
+          </a>
         </div>
-        <Button type="submit" variant="contained">
-          Login
-        </Button>
-      </AuthForm>
+      </div>
     </>
   );
 }

@@ -26,6 +26,7 @@ module.exports = {
     },
     fontFamily: {
       lilita: ["LilitaOne", "sans-serif"],
+      NotoSansSCR: ["NotoSansSC-Regular", "sans-serif"],
     },
     extend: {},
   },

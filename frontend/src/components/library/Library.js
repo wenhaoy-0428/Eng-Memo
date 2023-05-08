@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState, useRef, useEffect } from "react";
 import { useLoaderData } from "react-router-dom";
 import { useFetcher, useLocation } from "react-router-dom";
@@ -20,19 +21,14 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import CloseIcon from "@mui/icons-material/Close";
-import TextField from "@mui/material/TextField";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Checkbox } from "@mui/material";
-import CircularProgress from "@mui/material/CircularProgress";
-import CircularProgressBar from "../common/CircularProgressBar";
+import { Checkbox, TextField } from "@mui/material";
 
 import { CSSTransition } from "react-transition-group";
 
-import axios from "axios";
-
 import Tag from "../common/Tag";
 import ControlPanelStyles from "./CSS/LibraryControlPanel.module.css";
-import { useAnimate, useMotionValue, useTransform } from "framer-motion";
+import CircularProgressBar from "../common/CircularProgressBar";
 
 /**
  * The component Library that contains all the word entries the user ever stored.
@@ -40,7 +36,7 @@ import { useAnimate, useMotionValue, useTransform } from "framer-motion";
 function Library() {
   let location = useLocation();
   // The data fetched from loader when navigation arrives at this page
-  const [rows, setRows] = useState(useLoaderData().data);
+  const [records, setRecords] = useState(useLoaderData().data);
 
   // Fetcher that is used to manually call loader
   const fetcher = useFetcher();
@@ -89,7 +85,7 @@ function Library() {
   // update Library Rows when changes.
   useEffect(() => {
     if (fetcher.data) {
-      setRows(fetcher.data.data);
+      setRecords(fetcher.data.data);
     }
   }, [fetcher.data]);
 
@@ -127,10 +123,10 @@ function Library() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
+            {records.map((row) => (
               <Row
                 key={row.word}
-                row={row}
+                record={row}
                 fetcher={fetcher}
                 selectQuote={setSelectedQuoteHelper}
                 getSelectQuote={getSelectedQuoteHelper}
@@ -142,10 +138,15 @@ function Library() {
     </div>
   );
 }
-
-function Row({ row, fetcher, selectQuote, getSelectQuote }) {
+/**
+ * @param record: A record row that displays information of the record
+ * @param fetcher: A handler to manually fetch data from Library Loader
+ * @param selectQuote: A handler that used to select a quote globally inside LibraryPage
+ * @param getSelectQuote: A helper function to get the selected quote with PK.
+ */
+function Row({ record, fetcher, selectQuote, getSelectQuote }) {
   const [openRow, setOpenRow] = useState(false);
-  let allSelected = row.quotes.reduce((selected, quote) => {
+  let allSelected = record.quotes.reduce((selected, quote) => {
     return selected && getSelectQuote(quote.pk);
   }, true);
 
@@ -170,6 +171,10 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
     return null;
   };
 
+  useEffect(() => {
+    console.log(record);
+  });
+
   return (
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
@@ -183,14 +188,14 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
-          <b>{row.word}</b>
+          <b>{record.word}</b>
         </TableCell>
-        <TableCell align="right">{row.date_added}</TableCell>
+        <TableCell align="right">{record.date_added}</TableCell>
         <TableCell align="right">
           <CircularProgressBar
-            strokeColor={calcProgressBarColor(row.mastery)}
+            strokeColor={calcProgressBarColor(record.mastery)}
             strokeWidth={3}
-            progress={row.mastery * 100}
+            progress={record.mastery}
           />
         </TableCell>
       </TableRow>
@@ -208,7 +213,7 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
                         checked={allSelected}
                         onChange={(event) => {
                           let allQuote = {};
-                          row.quotes.map((quote) => {
+                          record.quotes.map((quote) => {
                             allQuote[quote.pk] = event.target.checked;
                           });
                           selectQuote(allQuote);
@@ -220,7 +225,7 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.quotes.map((quote, index) => {
+                  {record.quotes.map((quote, index) => {
                     return (
                       <TableRow key={index}>
                         <TableCell component="th" scope="row">
@@ -240,7 +245,7 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
                         <TableCell>
                           {/* The Modal shows full quote */}
                           <QuoteDialog
-                            word={row.word}
+                            word={record.word}
                             pk={quote.pk}
                             fetcher={fetcher}
                           >

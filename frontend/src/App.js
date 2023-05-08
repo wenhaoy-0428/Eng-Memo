@@ -1,8 +1,12 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
 import NavBarTop from "./components/nav-bar/NavBar-Top";
 import NavBarBottom from "./components/nav-bar/NavBar-Bottom";
+
 import { useLoaderData, Outlet } from "react-router-dom";
-import React, { useState } from "react";
-import axios from "axios";
+
+import { useUser } from "./contexts/UserContext";
 
 function App() {
   // The data fetched from server including user Information and library
@@ -11,10 +15,17 @@ function App() {
   const [pendingReviews, setPendingReviews] = useState(data["numPending"]);
 
   const userInfo = {
-    name: "Ada",
-    email: "ada@gmail.com",
+    name: data["username"],
+    email: data["email"],
     avatar: undefined,
+    //TODO: placeholder for milestone
+    consecutivePlanDays: 1,
   };
+  const { user, setUser } = useUser();
+
+  useEffect(() => {
+    setUser(userInfo);
+  }, []);
 
   return (
     <div className="App grid grid-rows-6 grid-flow-col items-start justify-items-center h-screen">
