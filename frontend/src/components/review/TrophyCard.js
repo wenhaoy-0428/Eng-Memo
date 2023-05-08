@@ -10,7 +10,7 @@ import {
   Float,
 } from "@react-three/drei";
 import font from "three/examples/fonts/helvetiker_bold.typeface.json";
-import { useUser } from "../../../contexts/UserContext";
+import { useUser } from "../../contexts/UserContext";
 
 const PATH_TROPHY_CARD = "/3dAssets/TrophyCard.glb";
 const PATH_ENV_MAP = "/3dAssets/kloofendal_48d_partly_cloudy_puresky_4k.hdr";

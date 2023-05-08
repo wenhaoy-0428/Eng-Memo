@@ -282,7 +282,7 @@ function Confetti({ canvasWidth, canvasHeight, confettiCount }) {
     requestAnimationFrame(renderConfetti);
   }, []); // empty brace to tell react never re-run this block of code.
 
-  return <canvas ref={canvasRef} className="absolute"></canvas>;
+  return <canvas ref={canvasRef} className="absolute top-0 z-[-1]" />;
 }
 
 export default Confetti;
