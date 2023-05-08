@@ -31,7 +31,7 @@ class RecordSerializer(serializers.ModelSerializer):
         fields = ['pk', 'word', 'date_added', 'mastery', 'quotes']
     
     def to_representation(self, instance):
-        # update the representation of mastery so that it shows decayed value since last reviewed.
         ret = super().to_representation(instance)
+        # update the representation of mastery so that it shows decayed value since last reviewed.
         ret['mastery'] = utils.calcDecayedMastery(instance)
         return ret

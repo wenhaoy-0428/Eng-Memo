@@ -170,6 +170,10 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
     return null;
   };
 
+  useEffect(() => {
+    console.log(row);
+  });
+
   return (
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
@@ -190,7 +194,7 @@ function Row({ row, fetcher, selectQuote, getSelectQuote }) {
           <CircularProgressBar
             strokeColor={calcProgressBarColor(row.mastery)}
             strokeWidth={3}
-            progress={row.mastery * 100}
+            progress={row.mastery}
           />
         </TableCell>
       </TableRow>
