@@ -1,4 +1,4 @@
-import { React, useEffect, useRef, useState } from "react";
+import { React, useEffect, useRef } from "react";
 
 /** General Variables */
 const PI = Math.PI,
@@ -6,7 +6,6 @@ const PI = Math.PI,
   radius2 = 2 * radius,
   cos = Math.cos,
   sin = Math.sin,
-  pow = Math.pow,
   random = Math.random;
 
 let ctx = null,
@@ -51,7 +50,6 @@ class Confetto {
    * @param {*} ivy : THe initial vertical velocity.
    */
   constructor(width, height, color, x, y, ivx, ivy) {
-    let randomTemp = random();
     // Dimensions of the Confetto
     this.dimensions = {
       width_: width,

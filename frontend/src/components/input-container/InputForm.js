@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { Formik, Field, Form } from "formik";
 import axios from "axios";
 import { object, string } from "yup";
@@ -221,7 +221,7 @@ function SubmitBtn({ formStatus, errors, switchSubmitBtn, handleSubmit }) {
               onClick={handleButtonClick}
               data-testid="submitBtn"
               className="SubmitBtn"
-              disabled={formStatus != status.neutral}
+              disabled={formStatus !== status.neutral}
             >
               {renderSubmitIcon(formStatus)}
             </IconButton>
@@ -296,7 +296,7 @@ function InputFormDropDown({ errors }) {
  */
 const objIsEmpty = (obj) => {
   if (typeof obj === "string") {
-    throw "Input is not an Object";
+    throw new Error("Input is not an Object");
   }
   return Object.keys(obj).length === 0;
 };

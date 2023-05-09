@@ -81,13 +81,13 @@ function Login() {
             })}
             label="Email"
             size="medium"
-            error={errors["email"] != undefined}
+            error={errors["email"] !== undefined}
             helperText={errors["email"] ? errors["email"].message : ""}
           />
 
           <FormControl
             variant="outlined"
-            error={errors["password"] != undefined}
+            error={errors["password"] !== undefined}
             size="medium"
           >
             <InputLabel htmlFor="password">Password</InputLabel>
@@ -112,7 +112,7 @@ function Login() {
               }
               label="Password"
             />
-            {errors["password"] != undefined ? (
+            {errors["password"] !== undefined ? (
               <FormHelperText>{errors["password"].message}</FormHelperText>
             ) : null}
           </FormControl>

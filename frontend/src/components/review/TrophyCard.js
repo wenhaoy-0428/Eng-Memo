@@ -12,8 +12,11 @@ import {
 import font from "three/examples/fonts/helvetiker_bold.typeface.json";
 import { useUser } from "../../contexts/UserContext";
 
-const PATH_TROPHY_CARD = "/3dAssets/TrophyCard.glb";
-const PATH_ENV_MAP = "/3dAssets/kloofendal_48d_partly_cloudy_puresky_4k.hdr";
+import throphyCard from "./3dAssets/TrophyCard.glb";
+import envMap from "./3dAssets/kloofendal_48d_partly_cloudy_puresky_1k.hdr";
+
+// const PATH_TROPHY_CARD = "/3dAssets/TrophyCard.glb";
+// const PATH_ENV_MAP = "/3dAssets/kloofendal_48d_partly_cloudy_puresky_4k.hdr";
 
 export default function TrophyCard() {
   /**
@@ -21,7 +24,7 @@ export default function TrophyCard() {
    */
   function Model() {
     // contains all nodes and materials of the 3D model
-    const { nodes, materials } = useGLTF(PATH_TROPHY_CARD);
+    const { nodes, materials } = useGLTF(throphyCard);
     // Get user information from global context
     // TODO: consider if needs to update user when milestone is implemented
     const { user } = useUser();
@@ -40,7 +43,7 @@ export default function TrophyCard() {
           intensity={0.5}
           shadows="accumulative"
           environment={{
-            files: PATH_ENV_MAP,
+            files: envMap,
           }}
         >
           <group scale={0.3} dispose={null}>
@@ -130,4 +133,4 @@ export default function TrophyCard() {
   );
 }
 
-useGLTF.preload(PATH_TROPHY_CARD);
+useGLTF.preload(throphyCard);

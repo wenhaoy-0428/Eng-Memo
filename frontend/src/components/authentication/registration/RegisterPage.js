@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import { Button, OutlinedInput } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
@@ -38,6 +37,7 @@ function Register() {
   let image = (
     <img
       className="object-cover"
+      alt="man writing in a notebook"
       src={require("./man-writing-in-a-notebook.png")}
     />
   );
@@ -45,7 +45,7 @@ function Register() {
   const onSuccess = async (data) => {
     try {
       let response = await axios.post(API_REGISTER, data);
-      if (response.status == 201) {
+      if (response.status === 201) {
         newNotification(
           "A confirm email has sent to your email address, please follow the instructions to complete your registration",
           "success",
@@ -86,7 +86,7 @@ function Register() {
         })}
         label="User Name"
         size="small"
-        error={errors["username"] != undefined}
+        error={errors["username"] !== undefined}
         helperText={errors["username"] ? errors["username"].message : ""}
       />
       {/* Email field */}
@@ -100,13 +100,13 @@ function Register() {
         })}
         label="Email"
         size="small"
-        error={errors["email"] != undefined}
+        error={errors["email"] !== undefined}
         helperText={errors["email"] ? errors["email"].message : ""}
       />
       {/* Password field */}
       <FormControl
         variant="outlined"
-        error={errors["password"] != undefined}
+        error={errors["password"] !== undefined}
         size="small"
       >
         <InputLabel htmlFor="password">Password</InputLabel>
@@ -146,7 +146,7 @@ function Register() {
           }
           label="Password"
         />
-        {errors["password"] != undefined ? (
+        {errors["password"] !== undefined ? (
           <FormHelperText>{errors["password"].message}</FormHelperText>
         ) : null}
       </FormControl>

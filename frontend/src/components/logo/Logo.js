@@ -1,4 +1,4 @@
-import { motion, useAnimate } from "framer-motion";
+import { motion } from "framer-motion";
 /**
  * This component renders a sun.
  * Credit for https://codepen.io/mariacacacho/pen/WNaGWLm for the svg this component contains

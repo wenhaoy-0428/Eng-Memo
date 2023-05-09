@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import Avatar from "@mui/material/Avatar";
 import Settings from "@mui/icons-material/Settings";

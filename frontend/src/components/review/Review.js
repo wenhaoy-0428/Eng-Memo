@@ -65,7 +65,7 @@ function Review() {
         newReviewWindow.shift();
         if (
           response.data["newRecords"] != null &&
-          response.data["newRecords"].length != 0
+          response.data["newRecords"].length !== 0
         ) {
           newReviewWindow = [
             ...newReviewWindow,
@@ -88,7 +88,7 @@ function Review() {
       className="ReviewPage row-span-4 h-full w-full flex justify-center"
     >
       {(() => {
-        if (reviewingRecord == -1) {
+        if (reviewingRecord === -1) {
           return (
             <div className="w-full h-full border-1 flex items-center justify-center">
               <span className="font-lilita text-3xl text-center">
@@ -164,15 +164,15 @@ function FunButton({ label, color, eventHandler }) {
 export async function loadReview() {
   try {
     let response = await axios.get("/api/syncReview/");
-    if (response.data.length != 0 && response.status == 200) {
+    if (response.data.length !== 0 && response.status === 200) {
       return response.data;
     }
     response = await axios.get("/api/getReview/");
-    if (response.status == 200) {
+    if (response.status === 200) {
       return response.data;
     }
     // when user has no records to review
-    if (response.status == 204) {
+    if (response.status === 204) {
       return null;
     }
   } catch (error) {
@@ -289,9 +289,9 @@ function ReviewCard({ record, handleFuncButton }) {
   return (
     <div className="ReviewCard absolute h-full w-full p-3 flex flex-col rounded-lg bg-white shadow-2xl">
       {/* TODO: link to word translate API */}
-      <a className="WordDetail">
-        <h2 className="text-center grow-0">{record.word}</h2>
-      </a>
+      {/* <a href="#" className="WordDetail"> */}
+      <h2 className="text-center grow-0">{record.word}</h2>
+      {/* </a> */}
       <div className="QuoteContainer">
         <h3>Quotes</h3>
         <div className="QuoteGallery flex items-center justify-center gap-1 overflow-hidden">
@@ -347,6 +347,7 @@ function ReviewCard({ record, handleFuncButton }) {
                 </Tag>
               );
             }
+            return null;
           })}
         </div>
         {/* Tag Indicator */}

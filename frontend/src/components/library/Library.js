@@ -167,8 +167,9 @@ function Row({ record, fetcher, selectQuote, getSelectQuote }) {
         return "#99cc33";
       case mastery <= 1:
         return "#339900";
+      default:
+        return "black";
     }
-    return null;
   };
 
   useEffect(() => {
@@ -213,7 +214,7 @@ function Row({ record, fetcher, selectQuote, getSelectQuote }) {
                         checked={allSelected}
                         onChange={(event) => {
                           let allQuote = {};
-                          record.quotes.map((quote) => {
+                          record.quotes.forEach((quote) => {
                             allQuote[quote.pk] = event.target.checked;
                           });
                           selectQuote(allQuote);
