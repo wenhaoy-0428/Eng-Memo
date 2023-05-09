@@ -28,7 +28,7 @@ function App() {
   }, []);
 
   return (
-    <div className="App grid grid-rows-6 grid-flow-col items-start justify-items-center h-screen">
+    <div className="App grid grid-rows-6 grid-flow-col items-start justify-items-center h-full">
       <NavBarTop pendingReviews={pendingReviews} userInfo={userInfo} />
       <Outlet context={[setPendingReviews]} />
       <NavBarBottom pendingReviews={pendingReviews} />

@@ -18,8 +18,8 @@
   box-sizing: border-box;
 }
 
-body {
-  height: 100vh;
+html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
 }
@@ -27,6 +27,7 @@ body {
 #root {
   overflow: hidden;
   height: 100%;
+  width: 100%;
 }
 
 img {
