@@ -18,6 +18,7 @@ import { useAuth } from "../../../contexts/AuthContext";
 import { useNotification } from "../../../contexts/NotificationContext";
 import TextMorph from "../../common/TextMorph";
 import Logo from "../../logo/Logo";
+import beianIcon from "./beian.png";
 
 const API_LOGIN = "/api/account/login/";
 
@@ -38,7 +39,6 @@ function Login() {
 
   // Form submission
   const onSuccess = async (data) => {
-    console.log(data);
     try {
       console.log(API_LOGIN);
       let response = await axios.post(API_LOGIN, data);
@@ -135,15 +135,17 @@ function Login() {
             Login
           </Button>
         </AuthForm>
-        <div className="footer">
-          <a>
-            <a
-              href="https://beian.miit.gov.cn/"
-              target="_blank"
-              className="no-underline hover:underline text-[#ababab] font-NotoSansSCR text-xs"
-            >
-              豫ICP备2023008283号-1
-            </a>
+        <div className="footer flex gap-2 p-1 [&>*]:no-underline  [&>*]:text-[#ababab] [&>*]:font-NotoSansSCR [&>*]:text-xs [&>*]:inline-block">
+          <img src={beianIcon} className="w-4 h-4" />
+          <a
+            target="_blank"
+            href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=41031102000581"
+          >
+            豫公网安备 41031102000581号
+          </a>
+
+          <a href="https://beian.miit.gov.cn/" target="_blank">
+            豫ICP备2023008283号-1
           </a>
         </div>
       </div>
