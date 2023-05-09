@@ -90,7 +90,7 @@ function Library() {
   }, [fetcher.data]);
 
   return (
-    <div data-testid="library-container" className=" min-w-[500px]">
+    <div data-testid="library-container" className="w-[90%] max-w-[500px]">
       <CSSTransition
         in={Object.keys(selectedQuote).length}
         unmountOnExit
