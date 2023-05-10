@@ -23,10 +23,6 @@ import submitBtnAnimation from "./SubmitBtnAnimation.module.css";
 import Uplifting from "../common/uplifting/Uplifting";
 import { useOutletContext } from "react-router-dom";
 
-// solve csrf token missing error when POSTing data to Django
-axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
-axios.defaults.xsrfCookieName = "csrftoken";
-
 /**
  * @brief: The default attributes for the inputs.
  */

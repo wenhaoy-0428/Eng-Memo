@@ -92,7 +92,7 @@ function Library() {
   return (
     <div data-testid="library-container" className="w-[90%] max-w-[500px]">
       <CSSTransition
-        in={Object.keys(selectedQuote).length}
+        in={Object.keys(selectedQuote).length > 0}
         unmountOnExit
         timeout={800}
         classNames={{ ...ControlPanelStyles }}
