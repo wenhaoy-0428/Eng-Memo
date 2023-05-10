@@ -23,16 +23,6 @@ export async function loadCSRFToken() {
 
 export const PrivateRoutes = () => {
   const { auth } = useAuth();
-  // render loading page if authentication is not yet checked
-  if (auth === null) {
-    return (
-      <div className="flex justify-center items-center w-full h-full">
-        <div className="w-[30%] max-w-[300px]">
-          <LinearProgress />
-        </div>
-      </div>
-    );
-  }
   return auth ? <Outlet /> : <Navigate to="/account/login" />;
 };
 
