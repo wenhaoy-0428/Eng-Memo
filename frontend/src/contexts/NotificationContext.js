@@ -16,20 +16,10 @@ export const NotificationProvider = ({ children }) => {
     setDuration(duration);
   };
 
-  const resetNotification = () => {
-    setMessage(null);
-    setSeverity("info");
-  };
-
   return (
     <NotificationContext.Provider value={{ newNotification }}>
       {children}
-      <Notification
-        message={message}
-        severity={severity}
-        duration={duration}
-        onClose={resetNotification}
-      />
+      <Notification message={message} severity={severity} duration={duration} />
     </NotificationContext.Provider>
   );
 };
