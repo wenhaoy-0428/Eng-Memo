@@ -66,9 +66,7 @@ function Login() {
   return (
     <>
       {auth && <Navigate to="/home" />}
-      <div className="flex  flex-col w-full h-full justify-center items-center">
-        {/* a placeholder */}
-        <div></div>
+      <div className="flex flex-col w-full h-full justify-center items-center">
         <AuthForm
           handleSubmit={handleSubmit(onSuccess)}
           gallery={<TextMorph />}

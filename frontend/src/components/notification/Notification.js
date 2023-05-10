@@ -1,14 +1,81 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useAnimate } from "framer-motion";
+
+import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 
 import Alert from "@mui/material/Alert";
 
-const Notification = ({ message, severity, duration, onClose }) => {
+// The amount of offset that
+const DRAG_SNAP_OFFSET = 100;
+
+const Notification = ({ message, severity, duration }) => {
+  // state stores the timer to slide out Notification which can be used to cancel.
   const [prevTimer, setPrevTimer] = useState(undefined);
+  // a ref that points to the container element of Notification used to animate.
+  const [mainRef, animateMain] = useAnimate();
+  // a ref that points to the arrow indicator inside notification.
+  const [arrowRef, animateArrow] = useAnimate();
+
+  // The animation handler for Notification to slide into the screen.
+  const slideIn = () => {
+    animateMain(
+      mainRef.current,
+      {
+        x: "-100%",
+      },
+      { duration: 0.3, ease: "easeInOut" }
+    );
+    animateArrow(
+      arrowRef.current,
+      {
+        rotateY: 180,
+      },
+      { duration: 0.3, ease: "easeInOut" }
+    );
+  };
+  // The animation handler for Notification to slide out of the screen.
+  const slidOut = () => {
+    animateMain(
+      mainRef.current,
+      {
+        x: 0,
+      },
+      { duration: 0.3, ease: "easeInOut" }
+    );
+    animateArrow(
+      arrowRef.current,
+      {
+        rotateY: 0,
+      },
+      { duration: 0.3, ease: "easeInOut" }
+    );
+  };
+
+  /**
+   * EventHandler when user stops dragging the notification
+   * @param {*} e: The event, mainly pan event.
+   * @param {*} info: All the state info of the current drag event including movements.
+   */
+  const dragEnd = (e, info) => {
+    if (info.offset.x < -DRAG_SNAP_OFFSET) {
+      slideIn();
+      const timer = setTimeout(() => {
+        slidOut();
+      }, duration);
+      setPrevTimer(timer);
+    } else {
+      slidOut();
+    }
+  };
+
+  /**
+   * On mount animation and on message change animations
+   */
   useEffect(() => {
     if (message) {
+      slideIn();
       const timer = setTimeout(() => {
-        onClose();
+        slidOut();
       }, duration);
       setPrevTimer(timer);
       return () => clearTimeout(timer);
@@ -17,29 +84,38 @@ const Notification = ({ message, severity, duration, onClose }) => {
 
   return (
     <>
-      <AnimatePresence>
-        {message && (
-          <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 100, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-5 right-4 bg-gray-50 bg-opacity-50 backdrop-filter backdrop-blur-lg border border-gray-200 rounded-lg p-3"
-            onMouseEnter={() => {
-              clearTimeout(prevTimer);
-            }}
-            onMouseLeave={() => {
-              setTimeout(() => {
-                onClose();
-              }, 1000);
-            }}
+      {message && (
+        <motion.div
+          ref={mainRef}
+          className="notification fixed top-[80px] left-[calc(100%-20px)] bg-transparent"
+          style={{ x: 0 }}
+          onMouseEnter={() => {
+            clearTimeout(prevTimer);
+          }}
+          onDrag={() => {
+            // prevent mouse leave when dragging
+            clearTimeout(prevTimer);
+          }}
+          onMouseLeave={() => {
+            const timer = setTimeout(() => {
+              slidOut();
+            }, duration);
+            setPrevTimer(timer);
+          }}
+          drag="x"
+          onDragEnd={dragEnd}
+        >
+          <Alert
+            severity={severity}
+            className="bg-slate-400 relative flex items-center bg-opacity-50 backdrop-filter backdrop-blur-sm border border-gray-200 rounded-lg p-3 pl-5 text-white md:w-[30vw] md:max-w-[275px] xs:w-[calc(100vw-20px)] whitespace-normal overflow-hidden"
           >
-            <Alert severity={severity} className="bg-transparent p-0">
-              <div className=" w-[30vw] max-w-[275px]">{message}</div>
-            </Alert>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <motion.div className="absolute z-[1] left-0" ref={arrowRef}>
+              <ArrowLeftIcon />
+            </motion.div>
+            {message}
+          </Alert>
+        </motion.div>
+      )}
     </>
   );
 };
