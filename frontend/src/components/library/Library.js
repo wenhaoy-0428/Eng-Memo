@@ -172,10 +172,6 @@ function Row({ record, fetcher, selectQuote, getSelectQuote }) {
     }
   };
 
-  useEffect(() => {
-    console.log(record);
-  });
-
   return (
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>

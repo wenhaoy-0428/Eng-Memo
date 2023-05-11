@@ -37,8 +37,6 @@ const CircularProgressBar = ({
   useEffect(() => {
     animate(progressMotion, progress, {
       duration: 1,
-      // continuously update progressState with the latest value of progressMotion
-      // onUpdate: (latest) => console.log(latest),
     });
   }, []);
 

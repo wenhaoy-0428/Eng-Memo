@@ -30,16 +30,13 @@ function NavBarTop({ pendingReviews, userInfo }) {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   const handleCloseDropdown = (event) => {
-    console.log("close Drop down");
     setAnchorElUser(null);
   };
   const handleCloseDrawer = () => {
-    console.log("close drawer");
     setOpenDrawer(false);
   };
 
   const openUserMenu = (event) => {
-    console.log("toggle UserMenu");
     // Open DropDown in desktop view
     if (matches) {
       setAnchorElUser(event.currentTarget);
