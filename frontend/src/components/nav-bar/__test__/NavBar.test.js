@@ -70,7 +70,6 @@ describe("NavBarTestSuite", () => {
    */
   it("NAV_BAR_TC_003", async () => {
     function fetchReview() {
-      console.log("FETCH CALLED");
       return [
         {
           key: "Word",

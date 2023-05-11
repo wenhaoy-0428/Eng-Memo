@@ -40,12 +40,9 @@ function Login() {
   // Form submission
   const onSuccess = async (data) => {
     try {
-      console.log(API_LOGIN);
       let response = await axios.post(API_LOGIN, data);
-      console.log("response:", response);
       setAuth(true);
     } catch (e) {
-      console.log(e.response.data);
       let data = e.response.data;
       if (data["error"]) {
         newNotification(data["error"], "error", 5000);
