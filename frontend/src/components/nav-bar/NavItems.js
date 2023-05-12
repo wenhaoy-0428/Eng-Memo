@@ -6,7 +6,7 @@ import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 const getPages = (pendingReviews) => ({
   Home: {
     icon: <HomeIcon />,
-    path: "/",
+    path: "home",
   },
   Review: {
     icon: (

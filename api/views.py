@@ -2,7 +2,8 @@ import json
 
 from datetime import date
 from math import log
-from random import choices, random, randint
+from random import random
+from time import sleep
 
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -22,6 +23,7 @@ from .serializers import RecordSerializer, QuoteSerializer
 from . import global_param
 from . import utils
 
+
 def getPendingReviews(user):
     """Get all records of the user that are not yet reviewed today.
     Args:
@@ -31,10 +33,12 @@ def getPendingReviews(user):
     """
     return Record.objects.filter(~Q(reviewing_status=3), user_id=user, last_planed=date.today())
 
+
 class GetNumPendingReviews(APIView):
     def get(self, request, format=None):
         allReviewingRecordsCount = getPendingReviews(request.user).count()
         return Response(allReviewingRecordsCount)
+
 
 class GetUserContext(APIView):
     def get(self, request, format=None):
@@ -46,7 +50,7 @@ class GetUserContext(APIView):
             "email": user.email,
         }
         return Response(response)
-        
+
 
 def NewRecord(request):
     """ API handler that handles user enter new words
@@ -61,9 +65,9 @@ def NewRecord(request):
     Returns:
         response: The response of this API including the status
     """
-    
+
     if request.method == 'POST':
-        # Populate the form with received data 
+        # Populate the form with received data
         form = NewRecordForm(json.loads(request.body))
         word = quote = link = tag = tagAssignment = record = None
 
@@ -82,7 +86,8 @@ def NewRecord(request):
                 word = queryWord[0]
 
             # save for Record
-            queryRecord = Record.objects.filter(user_id=currentUser, word_id=word)
+            queryRecord = Record.objects.filter(
+                user_id=currentUser, word_id=word)
             if not queryRecord.exists():
                 record = Record(user_id=currentUser, word_id=word)
                 record.save()
@@ -108,23 +113,26 @@ def NewRecord(request):
             # save for Quote
             # ! tag is empty
             inputQuote, inputLink = form.cleaned_data['quote'], form.cleaned_data['link']
-            
+
             if inputLink or inputQuote:
                 quote = Quote(tagAssignment_id=tagAssignment, record_id=record, value=inputQuote,
-                                link=inputLink)
+                              link=inputLink)
                 quote.save()
-            
+
     return HttpResponse(request.body)
+
 
 class SyncReview(APIView):
     """
         Sync frontend with backend all reviewing records that were already sent to the frontend 
         before last page refresh.
     """
+
     def get(self, request, format=None):
         if 'reviewing_records' in request.session:
             return Response(request.session['reviewing_records'])
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class GenerateReviewPlan(APIView):
     def initTodaysRecord(self, record):
@@ -135,16 +143,18 @@ class GenerateReviewPlan(APIView):
         record.save()
 
     def calcSelectedProb(self, instance):
-        date_since_added = (date.today() - instance.date_added).days 
+        date_since_added = (date.today() - instance.date_added).days
         # calculate decayed mastery
         decayedMastery = utils.calcDecayedMastery(instance)
         prob = 0.5 * (1 - decayedMastery) + 0.3 * (min(1, instance.num_reviewed / global_param.REVIEW_TIMES_DENOMINATOR)) \
-            + 0.2 * (min(1,  date_since_added / global_param.TIME_SINCE_ADDED_DENOMINATOR))
+            + 0.2 * (min(1,  date_since_added /
+                     global_param.TIME_SINCE_ADDED_DENOMINATOR))
         return prob
-    
+
     def post(self, request, format=None):
         # check if review records are generated
-        recordQueryCount = Record.objects.filter(user_id=request.user, last_planed=date.today()).count()
+        recordQueryCount = Record.objects.filter(
+            user_id=request.user, last_planed=date.today()).count()
         if recordQueryCount != 0:
             return Response({"success": "Already Generated"}, status=status.HTTP_200_OK)
         # Generate reviewing records
@@ -161,37 +171,45 @@ class GenerateReviewPlan(APIView):
             def randomSampleWithWeightFromExpoDistr(record):
                 # tuple(record, sample)
                 return (record, -log(random())/self.calcSelectedProb(record))
-            expoSamples = list(map(randomSampleWithWeightFromExpoDistr, recordQuery))
+            expoSamples = list(
+                map(randomSampleWithWeightFromExpoDistr, recordQuery))
             # select the n minimum samples as candidates
-            candidates = sorted(expoSamples, key=lambda x: x[1])[:global_param.NUM_REVIEW_RECORDS_PER_DAY]
+            candidates = sorted(expoSamples, key=lambda x: x[1])[
+                :global_param.NUM_REVIEW_RECORDS_PER_DAY]
             for sample in candidates:
                 candidate = sample[0]
-                self.initTodaysRecord(candidate)            
+                self.initTodaysRecord(candidate)
+        # To make sure the loading screen is on
+        sleep(1.5)
         return Response({"success": "Generated"}, status=status.HTTP_201_CREATED)
+
 
 class GetReview(APIView):
     """
         Fetches all entries that are currently being reviewed, or generate entries to be reviewed.
     """
+
     def get(self, request, format=None):
 
         if Record.objects.filter(user_id=request.user).count() is 0:
             # when the user is new and has no records at all
             return Response(status=status.HTTP_204_NO_CONTENT)
-        
+
         if 'reviewing_records' not in request.session:
             # select from generated reviewing records
             reviewRecords = getPendingReviews(request.user)
             # send only data only within the window size
-            data = RecordSerializer(reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data
+            data = RecordSerializer(
+                reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data
             request.session['reviewing_records'] = data
         else:
             # select from generated reviewing records that are not currently reviewing (inside )
             reviewRecords = getPendingReviews(request.user)\
                 .exclude(pk__in=[record['pk'] for record in request.session['reviewing_records']])
-            data = RecordSerializer(reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data
+            data = RecordSerializer(
+                reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data
             request.session['reviewing_records'] += data
-        
+
         request.session.modified = True
         return Response(data)
 
@@ -200,11 +218,13 @@ class GetLibrary(APIView):
     """ 
         Fetches all entries belong to current user.
     """
+
     def get(self, request, format=None):
         records = Record.objects.filter(user_id=request.user)
 
         data = RecordSerializer(records, many=True).data
         return Response(data)
+
 
 class UpdateQuote(APIView):
     def patch(self, request, format=None):
@@ -228,7 +248,8 @@ class UpdateQuote(APIView):
                 quote.save(update_fields=['value'])
                 return Response(status=status.HTTP_202_ACCEPTED)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 class DeleteQuotes(APIView):
     def put(self, request, format=None):
         """Delete an array of specified quotes
@@ -243,6 +264,7 @@ class DeleteQuotes(APIView):
         quotesToDelete.delete()
         return Response()
 
+
 class UpdateReviewingRecordStatus(APIView):
     """
         Update the today's status of specified record.
@@ -252,10 +274,12 @@ class UpdateReviewingRecordStatus(APIView):
             status: *,
         }
     """
+
     def patch(self, request, format=None):
         record = Record.objects.get(pk=request.data['pk'])
         # Mark as not reviewing, meaning frontend now doesn't contain this record
-        request.session['reviewing_records'] = list(filter(lambda x: x['pk'] != request.data['pk'], request.session['reviewing_records']))
+        request.session['reviewing_records'] = list(filter(
+            lambda x: x['pk'] != request.data['pk'], request.session['reviewing_records']))
         record.num_reviewed += 1
         status = request.data['status']
         # < 3 is a safety guard
@@ -263,7 +287,8 @@ class UpdateReviewingRecordStatus(APIView):
             record.reviewing_status += 1
             if (record.reviewing_status == 3):
                 # update mastery when pass with decayed value and increments
-                record.mastery = utils.calcDecayedMastery(record) + global_param.MASTERY_INCREMENT * (1 / record.num_reviewed)
+                record.mastery = utils.calcDecayedMastery(
+                    record) + global_param.MASTERY_INCREMENT * (1 / record.num_reviewed)
                 record.last_reviewed = date.today()
 
         elif status == global_param.STATUS_UC:
@@ -271,13 +296,15 @@ class UpdateReviewingRecordStatus(APIView):
         elif status == global_param.STATUS_DN:
             record.reviewing_status = 0
         record.save()
-        
+
         allReviewingRecords = getPendingReviews(request.user)
         data = None
         # mark more records as reviewing if necessary
-        if (len(request.session['reviewing_records']) < global_param.LEAST_REVIEWING_SIZE):    
-            reviewRecords = allReviewingRecords.exclude(pk__in=[record['pk'] for record in request.session['reviewing_records']])
-            data = RecordSerializer(reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data
+        if (len(request.session['reviewing_records']) < global_param.LEAST_REVIEWING_SIZE):
+            reviewRecords = allReviewingRecords.exclude(
+                pk__in=[record['pk'] for record in request.session['reviewing_records']])
+            data = RecordSerializer(
+                reviewRecords[0:global_param.REVIEW_WINDOW_SIZE], many=True).data
             request.session['reviewing_records'] += data
 
         request.session.modified = True
@@ -286,8 +313,10 @@ class UpdateReviewingRecordStatus(APIView):
             'numPending': allReviewingRecords.count(),
             'newRecords': data
         }
-    
+
         return Response(response)
+
+
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class GetCSTRFToken(APIView):
     permission_classes = [permissions.AllowAny, ]
@@ -297,6 +326,7 @@ class GetCSTRFToken(APIView):
             use decorator to ensure a CSRF token is included in the cookie even it's a GET request.
         """
         return Response("CSRF Token set")
+
 
 class CheckAuthenticated(APIView):
     def get(self, request, format=None):
@@ -308,7 +338,6 @@ class CheckAuthenticated(APIView):
         Returns: 200 if the user is authenticated and 403 otherwise
         """
         return Response()
-        
 
 
 """ Legacy Code that constructs response data using for loops and Objects

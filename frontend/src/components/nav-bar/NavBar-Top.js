@@ -58,9 +58,9 @@ function NavBarTop({ pendingReviews, userInfo }) {
           data-testid="logo-desktop"
           className="xs:hidden md:flex md: items-center"
         >
-          <a href="/" className="no-underline text-white">
+          <Link to="home" className="no-underline text-white">
             <Logo size={40} />
-          </a>
+          </Link>
         </div>
 
         {/* Icon on Mobile */}
@@ -68,9 +68,9 @@ function NavBarTop({ pendingReviews, userInfo }) {
           data-testid="logo-mobile"
           className="xs:flex xs:items-center md:hidden col-start-2  col-end-4"
         >
-          <a href="/" className="no-underline text-white">
+          <Link to="home" className="no-underline text-white">
             <Logo size={40} />
-          </a>
+          </Link>
         </div>
 
         {/* Nav-Items */}

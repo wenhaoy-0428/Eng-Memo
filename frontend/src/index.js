@@ -50,6 +50,10 @@ const router = createBrowserRouter(
           }
           loader={loadApp}
           errorElement={<ErrorPage />}
+          shouldRevalidate={() => {
+            // only call loader on mount
+            return false;
+          }}
         >
           <Route path="home" element={<InputForm />} />
           <Route path="review" element={<Review />} loader={loadReview} />
@@ -79,7 +83,7 @@ function Index() {
    * the delay is reached.
    */
   useEffect(() => {
-    if (navigation.state === "loading") {
+    if (navigation.state !== "idle") {
       const timer = setTimeout(() => {
         setShowLoadingIndicator(true);
       }, LOADING_APPEARANCE_THRESHOLD);
