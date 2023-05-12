@@ -6,11 +6,17 @@ const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
   const [message, setMessage] = useState(null);
   // severity level of the alert
-  const [severity, setSeverity] = useState("info");
+  const [severity, setSeverity] = useState("");
   // duration the notification will last
-  const [duration, setDuration] = useState(3000);
+  const [duration, setDuration] = useState(0);
 
-  const newNotification = (message, severity = "info", duration = 3000) => {
+  /**
+   * Broadcast new notification
+   * @param {*} message The content of the Notification
+   * @param {*} severity The type of the notification which determine the color and icon of the notification "error" | "warning" | "success" | "info"
+   * @param {*} duration The time the notification will remain on screen
+   */
+  const newNotification = (message, severity = "info", duration = 5000) => {
     setMessage(message);
     setSeverity(severity);
     setDuration(duration);

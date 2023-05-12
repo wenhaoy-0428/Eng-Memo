@@ -24,11 +24,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Checkbox, TextField } from "@mui/material";
 
-import { CSSTransition } from "react-transition-group";
-
 import Tag from "../common/Tag";
-import ControlPanelStyles from "./CSS/LibraryControlPanel.module.css";
 import CircularProgressBar from "../common/CircularProgressBar";
+import { AnimatePresence, motion } from "framer-motion";
+import { useNotification } from "../../contexts/NotificationContext";
 
 /**
  * The component Library that contains all the word entries the user ever stored.
@@ -42,14 +41,16 @@ function Library() {
   const fetcher = useFetcher();
   // An dic that stores all selected quotes with True, and ever selected quotes with False,
   // meaning never selected quotes don't exist in this dic
-  const [selectedQuote, setSelectedQuote] = useState({});
+  const [selectedQuotes, setSelectedQuotes] = useState({});
+
+  const { newNotification } = useNotification();
 
   /**
    * A helper function that pass along the chain to enable children to add new selected quotes
-   * @param {*} selectedQuotes: An object that have quote.pk and bool pairs
+   * @param {*} newSelectedQuotes: An object that have quote.pk and bool pairs
    */
-  const setSelectedQuoteHelper = (selectedQuotes) => {
-    setSelectedQuote({ ...selectedQuote, ...selectedQuotes });
+  const setSelectedQuoteHelper = (newSelectedQuotes) => {
+    setSelectedQuotes({ ...selectedQuotes, ...newSelectedQuotes });
   };
 
   /**
@@ -59,27 +60,45 @@ function Library() {
    */
   const getSelectedQuoteHelper = (quote) => {
     // when undefined return false
-    return selectedQuote[quote] ? selectedQuote[quote] : false;
+    return selectedQuotes[quote] ? selectedQuotes[quote] : false;
   };
 
-  const handleDeleting = () => {
-    let data = Object.keys(selectedQuote).reduce((truthyQuotes, pk) => {
-      if (selectedQuote[pk]) {
+  /**
+   * A helper function that filter selected quotes.
+   * @returns A quotes that are currently being selected.
+   */
+  const getAllSelectedQuotes = () => {
+    return Object.keys(selectedQuotes).reduce((truthyQuotes, pk) => {
+      if (selectedQuotes[pk]) {
         truthyQuotes.push(pk);
       }
       return truthyQuotes;
     }, []);
+  };
+
+  const handleDelete = () => {
+    let data = getAllSelectedQuotes();
     if (window.confirm(`${data.length} quotes will be deleted`)) {
       axios
         .put("/api/deleteQuotes/", data)
         .then(() => {
-          alert("Successfully deleted");
+          newNotification("Successfully deleted", "success");
           fetcher.load(location["pathname"]);
         })
         .catch((e) => {
-          alert(e);
+          newNotification("An error occurred", "error");
         });
     }
+  };
+
+  // a variant that defines the animation of toolbar
+  const animate_toolbar = {
+    hidden: {
+      height: 0,
+    },
+    appear: {
+      height: "auto",
+    },
   };
 
   // update Library Rows when changes.
@@ -91,35 +110,34 @@ function Library() {
 
   return (
     <div data-testid="library-container" className="w-[90%] max-w-[500px]">
-      <CSSTransition
-        in={Object.keys(selectedQuote).length > 0}
-        unmountOnExit
-        timeout={800}
-        classNames={{ ...ControlPanelStyles }}
-      >
-        <Paper variant="outlined" className="overflow-hidden flex justify-end">
-          {/* <div className="p-2"> */}
-
-          <IconButton
-            onClick={handleDeleting}
-            aria-label="delete"
-            color="error"
-            sx={{ margin: 0.5 }}
+      <AnimatePresence>
+        {getAllSelectedQuotes().length > 0 && (
+          <motion.div
+            variants={animate_toolbar}
+            initial="hidden"
+            animate="appear"
+            exit="hidden"
+            className="overflow-hidden"
           >
-            <DeleteIcon />
-          </IconButton>
-          {/* </div> */}
-        </Paper>
-      </CSSTransition>
+            <ToolBar handleDelete={handleDelete} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <TableContainer component={Paper}>
-        <Table aria-label="collapsible table">
+      <TableContainer component={Paper} className="w-full">
+        <Table className="w-full table-fixed overflow-hidden">
           <TableHead>
             <TableRow>
-              <TableCell />
-              <TableCell>Word</TableCell>
-              <TableCell align="right">Date Added</TableCell>
-              <TableCell align="right">Mastery</TableCell>
+              <TableCell className="w-[15%]" />
+              <TableCell align="center" className="w-[30%]">
+                Word
+              </TableCell>
+              <TableCell align="center" className="w-[35%]">
+                Date Added
+              </TableCell>
+              <TableCell align="center" className="w-[20%]">
+                Mastery
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -129,7 +147,7 @@ function Library() {
                 record={row}
                 fetcher={fetcher}
                 selectQuote={setSelectedQuoteHelper}
-                getSelectQuote={getSelectedQuoteHelper}
+                getSelectedQuote={getSelectedQuoteHelper}
               />
             ))}
           </TableBody>
@@ -142,14 +160,10 @@ function Library() {
  * @param record: A record row that displays information of the record
  * @param fetcher: A handler to manually fetch data from Library Loader
  * @param selectQuote: A handler that used to select a quote globally inside LibraryPage
- * @param getSelectQuote: A helper function to get the selected quote with PK.
+ * @param getSelectedQuote: A helper function to get the selected quote with PK.
  */
-function Row({ record, fetcher, selectQuote, getSelectQuote }) {
+function Row({ record, fetcher, selectQuote, getSelectedQuote }) {
   const [openRow, setOpenRow] = useState(false);
-  let allSelected = record.quotes.reduce((selected, quote) => {
-    return selected && getSelectQuote(quote.pk);
-  }, true);
-
   /**
    * Calculate color of circular progress bar based on the mastery.
    * @param {*} mastery: describes how well the user knows the word.
@@ -184,11 +198,11 @@ function Row({ record, fetcher, selectQuote, getSelectQuote }) {
             {openRow ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell component="th" scope="row">
+        <TableCell component="th" scope="row" align="center">
           <b>{record.word}</b>
         </TableCell>
-        <TableCell align="right">{record.date_added}</TableCell>
-        <TableCell align="right">
+        <TableCell align="center">{record.date_added}</TableCell>
+        <TableCell align="center">
           <CircularProgressBar
             strokeColor={calcProgressBarColor(record.mastery)}
             strokeWidth={3}
@@ -196,68 +210,13 @@ function Row({ record, fetcher, selectQuote, getSelectQuote }) {
           />
         </TableCell>
       </TableRow>
-      <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          {/* Record Detail ROW */}
-          <Collapse in={openRow} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1 }}>
-              <Table size="small" aria-label="purchases">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>
-                      {/* Select ALL */}
-                      <Checkbox
-                        checked={allSelected}
-                        onChange={(event) => {
-                          let allQuote = {};
-                          record.quotes.forEach((quote) => {
-                            allQuote[quote.pk] = event.target.checked;
-                          });
-                          selectQuote(allQuote);
-                        }}
-                      ></Checkbox>
-                    </TableCell>
-                    <TableCell>Tag</TableCell>
-                    <TableCell>Quote</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {record.quotes.map((quote, index) => {
-                    return (
-                      <TableRow key={index}>
-                        <TableCell component="th" scope="row">
-                          <Checkbox
-                            checked={getSelectQuote(quote.pk)}
-                            onChange={(event) => {
-                              selectQuote({ [quote.pk]: event.target.checked });
-                            }}
-                          ></Checkbox>
-                        </TableCell>
-
-                        <TableCell>
-                          {quote.tag ? (
-                            <Tag link={quote.link}>{quote.tag}</Tag>
-                          ) : null}
-                        </TableCell>
-                        <TableCell>
-                          {/* The Modal shows full quote */}
-                          <QuoteDialog
-                            word={record.word}
-                            pk={quote.pk}
-                            fetcher={fetcher}
-                          >
-                            {quote.value}
-                          </QuoteDialog>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
+      <DetailRow
+        record={record}
+        openRow={openRow}
+        getSelectedQuote={getSelectedQuote}
+        selectQuote={selectQuote}
+        fetcher={fetcher}
+      />
     </>
   );
 }
@@ -278,6 +237,8 @@ function QuoteDialog({ fetcher, word, pk, children }) {
   const quoteRef = useRef();
 
   let location = useLocation();
+
+  const { newNotification } = useNotification();
 
   const handleOpen = () => {
     setOpen(true);
@@ -300,26 +261,27 @@ function QuoteDialog({ fetcher, word, pk, children }) {
       axios
         .patch("/api/updateQuote/", data)
         .then(() => {
-          alert("Changes successfully saved.");
+          newNotification("Changes have been saved.", "success");
           // recall library loader
           fetcher.load(location["pathname"]);
         })
         .catch((e) => {
-          alert(`Submission Failure: ${e}`);
+          newNotification(`Submission Failure: ${e}`, "error");
         });
     } else {
-      alert("No changes are made");
+      newNotification("No changes are made.", "info");
     }
   }
 
   return (
-    <div>
+    <>
       <Button
         variant="outlined"
         onClick={handleOpen}
         sx={{ textTransform: "none" }}
+        className="w-full"
       >
-        <div className="w-[300px] text-ellipsis overflow-hidden whitespace-nowrap">
+        <div className="text-ellipsis overflow-hidden whitespace-nowrap">
           {children}
         </div>
       </Button>
@@ -359,7 +321,115 @@ function QuoteDialog({ fetcher, word, pk, children }) {
           </DialogActions>
         ) : null}
       </Dialog>
-    </div>
+    </>
+  );
+}
+
+function ToolBar({ handleDelete }) {
+  return (
+    <Paper
+      variant="outlined"
+      className="ToolBar overflow-hidden flex justify-end"
+    >
+      <IconButton
+        onClick={handleDelete}
+        aria-label="delete"
+        color="error"
+        sx={{ margin: 0.5 }}
+      >
+        <DeleteIcon />
+      </IconButton>
+    </Paper>
+  );
+}
+
+/**
+ * A nested row is a child of a normal library row which contains more information
+ * @param openRow: A switch that toggles the appearance of the detailRow
+ * @param record: The record that this detail row is belong to,  which contains record word and all associated quotes
+ * @param getSelectedQuote: A helper function to get a selected quote with its pk.
+ * @param selectQuote: A helper function to mark a quote as selected.
+ * @param fetcher: A function allows us to manually trigger @link (loadLibrary) function
+ */
+function DetailRow({
+  openRow,
+  record,
+  getSelectedQuote,
+  selectQuote,
+  fetcher,
+}) {
+  //
+  let allSelected = record.quotes.reduce((selected, quote) => {
+    return selected && getSelectedQuote(quote.pk);
+  }, true);
+
+  return (
+    <TableRow>
+      <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        {/* Record Detail ROW */}
+        <Collapse in={openRow} timeout="auto" unmountOnExit>
+          <Box>
+            <Table className="w-full table-fixed">
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center" className="w-[15%] ">
+                    {/* Select ALL */}
+                    <Checkbox
+                      checked={allSelected}
+                      onChange={(event) => {
+                        let allQuote = {};
+                        record.quotes.forEach((quote) => {
+                          allQuote[quote.pk] = event.target.checked;
+                        });
+                        selectQuote(allQuote);
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell align="left" className="w-[20%]">
+                    Tag
+                  </TableCell>
+                  <TableCell align="center" className="w-[65%]">
+                    Quote
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {record.quotes.map((quote, index) => {
+                  return (
+                    <TableRow key={index}>
+                      <TableCell component="th" scope="row">
+                        <Checkbox
+                          checked={getSelectedQuote(quote.pk)}
+                          onChange={(event) => {
+                            selectQuote({ [quote.pk]: event.target.checked });
+                          }}
+                        />
+                      </TableCell>
+
+                      <TableCell>
+                        {quote.tag ? (
+                          <Tag link={quote.link}>{quote.tag}</Tag>
+                        ) : null}
+                      </TableCell>
+                      <TableCell>
+                        {/* The Modal shows full quote */}
+                        <QuoteDialog
+                          word={record.word}
+                          pk={quote.pk}
+                          fetcher={fetcher}
+                        >
+                          {quote.value}
+                        </QuoteDialog>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Box>
+        </Collapse>
+      </TableCell>
+    </TableRow>
   );
 }
 
