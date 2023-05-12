@@ -1,9 +1,0 @@
-.enter {
-    max-height: 0px !important;
-}
-
-.enterActive {
-    max-height: 100px !important;
-    transition: all .8s ease !important;
-}
-

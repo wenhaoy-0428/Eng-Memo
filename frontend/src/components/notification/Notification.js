@@ -9,8 +9,8 @@ import Alert from "@mui/material/Alert";
 const DRAG_SNAP_OFFSET = 100;
 
 const Notification = ({ message, severity, duration }) => {
-  // state stores the timer to slide out Notification which can be used to cancel.
-  const [prevTimer, setPrevTimer] = useState(undefined);
+  // state stores the timers to slide out Notification which can be used to cancel.
+  const [prevTimers, setPrevTimers] = useState([]);
   // a ref that points to the container element of Notification used to animate.
   const [mainRef, animateMain] = useAnimate();
   // a ref that points to the arrow indicator inside notification.
@@ -51,6 +51,12 @@ const Notification = ({ message, severity, duration }) => {
     );
   };
 
+  const clearAllTimer = () => {
+    prevTimers.forEach((timer) => {
+      clearTimeout(timer);
+    });
+  };
+
   /**
    * EventHandler when user stops dragging the notification
    * @param {*} e: The event, mainly pan event.
@@ -62,7 +68,7 @@ const Notification = ({ message, severity, duration }) => {
       const timer = setTimeout(() => {
         slidOut();
       }, duration);
-      setPrevTimer(timer);
+      setPrevTimers([...prevTimers, timer]);
     } else {
       slidOut();
     }
@@ -77,7 +83,7 @@ const Notification = ({ message, severity, duration }) => {
       const timer = setTimeout(() => {
         slidOut();
       }, duration);
-      setPrevTimer(timer);
+      setPrevTimers([...prevTimers, timer]);
       return () => clearTimeout(timer);
     }
   }, [message]);
@@ -89,25 +95,25 @@ const Notification = ({ message, severity, duration }) => {
           ref={mainRef}
           className="notification fixed top-[80px] left-[calc(100%-20px)] bg-transparent"
           style={{ x: 0 }}
-          onMouseEnter={() => {
-            clearTimeout(prevTimer);
+          onMouseOver={() => {
+            clearAllTimer();
           }}
           onDrag={() => {
             // prevent mouse leave when dragging
-            clearTimeout(prevTimer);
+            clearAllTimer();
           }}
           onMouseLeave={() => {
             const timer = setTimeout(() => {
               slidOut();
             }, duration);
-            setPrevTimer(timer);
+            setPrevTimers([...prevTimers, timer]);
           }}
           drag="x"
           onDragEnd={dragEnd}
         >
           <Alert
             severity={severity}
-            className="bg-slate-400 relative flex items-center bg-opacity-50 backdrop-filter backdrop-blur-sm border border-gray-200 rounded-lg p-3 pl-5 text-white md:w-[30vw] md:max-w-[275px] xs:w-[calc(100vw-20px)] whitespace-normal overflow-hidden"
+            className="bg-slate-400 relative flex items-center bg-opacity-50 backdrop-filter backdrop-blur-sm border border-gray-200 rounded-lg p-3 pl-5 text-white md:w-[30vw] md:max-w-[275px] xs:w-[calc(100vw-40px)] whitespace-normal overflow-hidden"
           >
             <motion.div className="absolute z-[1] left-0" ref={arrowRef}>
               <ArrowLeftIcon />
