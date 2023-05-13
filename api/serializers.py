@@ -46,3 +46,11 @@ class SearchRecordSerializer(serializers.Serializer):
     search = serializers.CharField()
     CHOICES = [('Word', 'Word'), ('Tag', 'Tag')]
     filter = serializers.ChoiceField(choices=CHOICES)
+
+
+class SearchWordTagSerializer(serializers.Serializer):
+    """
+    This serializer is used to serialize input with word OR tag
+    """
+    word = serializers.CharField(required=False)
+    tag = serializers.CharField(required=False)

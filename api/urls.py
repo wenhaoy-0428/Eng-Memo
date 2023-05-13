@@ -15,4 +15,6 @@ urlpatterns = [
         path("generateReviewPlan/", views.GenerateReviewPlan.as_view(), name="generate_review_plan"),
         path("get-num-pending-reviews/", views.GetNumPendingReviews.as_view(), name="get_num_pending_reviews"),
         path("search-records/", views.SearchRecords.as_view(), name="search_records"),
+        path("search-words/", views.SearchWords.as_view(), name="search-words"),
+        path("search-tags/", views.SearchTags.as_view(), name="search-tags"),
     ]

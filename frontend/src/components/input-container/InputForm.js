@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Formik, Field, Form } from "formik";
 import axios from "axios";
 import { object, string } from "yup";
@@ -22,6 +22,7 @@ import dropDownAnimation from "./DropDownAnimation.module.css";
 import submitBtnAnimation from "./SubmitBtnAnimation.module.css";
 import Uplifting from "../common/uplifting/Uplifting";
 import { useOutletContext } from "react-router-dom";
+import ProximityBar from "./proximityBar";
 
 /**
  * @brief: The default attributes for the inputs.
@@ -64,6 +65,13 @@ function InputForm() {
   const [switchSubmitBtn, setSwitchSubmitBtn] = useState(false);
   // handler to update number of pending reviews.
   const [setPendingReviews] = useOutletContext();
+  // The state of current value of the inputBar.
+  const [search, setSearch] = useState("");
+  // The filter type of search.
+  const [filer, setFilter] = useState("Word");
+  // A reference to InputField and TagInput
+  const inputRef = useRef(null);
+  const tagRef = useRef(null);
 
   /**
    * @brief: Toggle DropDown menu when menu button is clicked.
@@ -103,64 +111,84 @@ function InputForm() {
 
   return (
     <>
-      <div className="md:row-start-3">
+      <div>
         <Uplifting />
       </div>
-      <div className="InputForm relative w-4/5 max-w-xl xs:row-start-3 md:row-start-4">
+      <div className="InputForm w-4/5 max-w-xl">
         {/* Use Formik library to implement form, 
       check this link https://formik.org/docs/tutorial for a comprehensive tutorial */}
-        <Formik
-          initialValues={{ word: "", quote: "", tag: "", link: "" }}
-          validationSchema={object({
-            word: string().required("Required"),
-            link: string().url("Link must be a valid URL").nullable(),
-          })}
-          onSubmit={submitForm}
-        >
-          {/* Use Children of Formik to get more props */}
-          {({ handleSubmit, errors }) => (
-            <Form>
-              {/* InputBar */}
-              <Paper className="InputBar flex items-center relative z-50 h-10">
-                <Tooltip title="Menu">
-                  <IconButton
-                    aria-label="menu"
-                    data-testid="DropDownBtn"
-                    onClick={toggleDropDown}
-                    className="DropDownBtn"
-                  >
-                    <MenuIcon />
-                  </IconButton>
-                </Tooltip>
-                <Field
-                  name="word"
-                  type="text"
-                  as={InputBase}
-                  placeholder={inputPresets.word.placeholder}
-                  autoFocus
-                  className="WordInput flex-1"
-                />
-                <Divider className="h-6" orientation="vertical" />
-                {/* Give this a better name */}
-                <SubmitBtn
-                  formStatus={formStatus}
-                  errors={errors}
-                  switchSubmitBtn={switchSubmitBtn}
-                  handleSubmit={handleSubmit}
-                />
-              </Paper>
-              {/* Drop down menu */}
-              <CSSTransition
-                in={openDropDown}
-                unmountOnExit
-                timeout={800}
-                classNames={{ ...dropDownAnimation }}
-              >
-                <InputFormDropDown errors={errors} />
-              </CSSTransition>
-            </Form>
-          )}
-        </Formik>
+        <div>
+          <ProximityBar
+            search={search}
+            inputRef={inputRef}
+            tagRef={tagRef}
+            filter={filer}
+          />
+        </div>
+        <div className="relative">
+          <Formik
+            initialValues={{ word: "", quote: "", tag: "", link: "" }}
+            validationSchema={object({
+              word: string().required("Required"),
+              link: string().url("Link must be a valid URL").nullable(),
+            })}
+            onSubmit={submitForm}
+          >
+            {/* Use Children of Formik to get more props */}
+            {({ handleSubmit, errors }) => (
+              <Form>
+                {/* InputBar */}
+                <Paper className="InputBar flex items-center relative z-50 h-10">
+                  <Tooltip title="Menu">
+                    <IconButton
+                      aria-label="menu"
+                      data-testid="DropDownBtn"
+                      onClick={toggleDropDown}
+                      className="DropDownBtn"
+                    >
+                      <MenuIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Field
+                    inputRef={inputRef}
+                    name="word"
+                    type="text"
+                    as={InputBase}
+                    placeholder={inputPresets.word.placeholder}
+                    onInput={(e) => {
+                      setSearch(e.target.value);
+                      setFilter("Word");
+                    }}
+                    autoFocus
+                    className="WordInput flex-1"
+                  />
+                  <Divider className="h-6" orientation="vertical" />
+                  {/* Give this a better name */}
+                  <SubmitBtn
+                    formStatus={formStatus}
+                    errors={errors}
+                    switchSubmitBtn={switchSubmitBtn}
+                    handleSubmit={handleSubmit}
+                  />
+                </Paper>
+                {/* Drop down menu */}
+                <CSSTransition
+                  in={openDropDown}
+                  unmountOnExit
+                  timeout={800}
+                  classNames={{ ...dropDownAnimation }}
+                >
+                  <InputFormDropDown
+                    errors={errors}
+                    tagRef={tagRef}
+                    setSearch={setSearch}
+                    setFilter={setFilter}
+                  />
+                </CSSTransition>
+              </Form>
+            )}
+          </Formik>
+        </div>
       </div>
     </>
   );
@@ -245,8 +273,11 @@ function SubmitBtn({ formStatus, errors, switchSubmitBtn, handleSubmit }) {
 /**
  * @brief: The Drop-down menu for inputForm.
  * @prop errors: The drilling errors of the form.
+ * @prop tagRef: A reference to tag field. Used for ProximitySearch. @link ProximitySearch
+ * @prop setSearch: A handler to set the value of search. @link ProximitySearch
+ * @prop setFilter: A handler to set the ProximitySearch type. @link ProximitySearch
  */
-function InputFormDropDown({ errors }) {
+function InputFormDropDown({ errors, tagRef, setFilter, setSearch }) {
   return (
     <>
       <Paper className="InputFormDropDown grid grid-cols-[1fr_2fr] gap-4 p-3 absolute top-0 z-10 overflow-hidden">
@@ -262,8 +293,13 @@ function InputFormDropDown({ errors }) {
 
         <Field
           name="tag"
+          inputRef={tagRef}
           as={TextField}
           type="text"
+          onInput={(e) => {
+            setSearch(e.target.value);
+            setFilter("Tag");
+          }}
           label={inputPresets.tag.label}
           placeholder={inputPresets.tag.placeholder}
           className="TagInput"
