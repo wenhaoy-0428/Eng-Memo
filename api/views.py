@@ -18,7 +18,7 @@ from rest_framework.response import Response
 
 from .forms import NewRecordForm
 from .models import Word, Tag, Record, TagAssignment, Quote
-from .serializers import RecordSerializer, QuoteSerializer, SearchRecordSerializer
+from .serializers import RecordSerializer, QuoteSerializer, SearchRecordSerializer, SearchWordTagSerializer
 
 from . import global_param
 from . import utils
@@ -355,6 +355,7 @@ class SearchRecords(APIView):
             search: string,
             filter: Word | Tag
         }
+        return: [Record]
         """
         serializer = SearchRecordSerializer(data=request.data)
         if serializer.is_valid():
@@ -370,8 +371,42 @@ class SearchRecords(APIView):
                 # filter record with recordId
                 recordSet = Record.objects.filter(pk__in=quoteSetWithRecordId)
             data = RecordSerializer(recordSet, many=True).data
+            return Response(data)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(data)
+class SearchWords(APIView):
+    def post(self, request, format=None):
+        """
+        search words that comply with the key
+        request:
+        {
+         word: string
+        }
+        return: [Word]
+        """
+        serializer = SearchWordTagSerializer(data=request.data)
+        if serializer.is_valid():
+            search = serializer.data['word']
+            wordSet = Record.objects.filter(user_id=request.user, word_id__value__icontains=search).values_list("word_id__value", flat=True)
+            return Response(wordSet)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+class SearchTags(APIView):
+    def post(self, request, format=None):
+        """
+        search tags that comply with the key
+        request:
+        {
+         tag: string
+        }
+        return: [Tag]
+        """
+        serializer = SearchWordTagSerializer(data=request.data)
+        if serializer.is_valid():
+            search = serializer.data['tag']
+            tagSet = TagAssignment.objects.filter(user_id=request.user, tag_id__value__icontains=search).values_list("tag_id__value", flat=True)
+            return Response(tagSet)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 """ Legacy Code that constructs response data using for loops and Objects
