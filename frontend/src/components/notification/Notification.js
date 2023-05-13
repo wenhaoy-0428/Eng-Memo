@@ -8,7 +8,7 @@ import Alert from "@mui/material/Alert";
 // The amount of offset that
 const DRAG_SNAP_OFFSET = 100;
 
-const Notification = ({ message, severity, duration }) => {
+const Notification = ({ message, severity, duration, timestamp }) => {
   // state stores the timers to slide out Notification which can be used to cancel.
   const [prevTimers, setPrevTimers] = useState([]);
   // a ref that points to the container element of Notification used to animate.
@@ -75,7 +75,7 @@ const Notification = ({ message, severity, duration }) => {
   };
 
   /**
-   * On mount animation and on message change animations
+   * On mount animation and on new message animations
    */
   useEffect(() => {
     if (message) {
@@ -86,7 +86,7 @@ const Notification = ({ message, severity, duration }) => {
       setPrevTimers([...prevTimers, timer]);
       return () => clearTimeout(timer);
     }
-  }, [message]);
+  }, [timestamp]);
 
   return (
     <>

@@ -18,7 +18,7 @@ from rest_framework.response import Response
 
 from .forms import NewRecordForm
 from .models import Word, Tag, Record, TagAssignment, Quote
-from .serializers import RecordSerializer, QuoteSerializer
+from .serializers import RecordSerializer, QuoteSerializer, SearchRecordSerializer
 
 from . import global_param
 from . import utils
@@ -97,27 +97,32 @@ def NewRecord(request):
 
             # save for Tag
             inputTag = form.cleaned_data['tag']
-            if inputTag and (not Tag.objects.filter(value=inputTag).exists()):
-                tag = Tag(value=inputTag)
-                tag.save()
-
-            # save for TagAssignment
-            """saving of TagAssignment happens only when:
-            1. tag is entered
-            2. tag is not yet bound to the user
-            """
-            if inputTag and (not TagAssignment.objects.filter(user_id=currentUser, tag_id=tag).exists()):
-                tagAssignment = TagAssignment(user_id=currentUser, tag_id=tag)
-                tagAssignment.save()
+            tagAssignment = None
+            if inputTag:
+                queryTag = Tag.objects.filter(value=inputTag)
+                if (not queryTag.exists()):
+                    tag = Tag(value=inputTag)
+                    tag.save()
+                else:
+                    tag = queryTag[0]
+                # save for TagAssignment
+                """saving of TagAssignment happens only when:
+                1. tag is entered
+                2. tag is not yet bound to the user
+                """
+                queryTagAssignment = TagAssignment.objects.filter(user_id=currentUser, tag_id=tag)
+                if not queryTagAssignment.exists():
+                    tagAssignment = TagAssignment(user_id=currentUser, tag_id=tag)
+                    tagAssignment.save()
+                else:
+                    tagAssignment = queryTagAssignment[0]                
 
             # save for Quote
-            # ! tag is empty
             inputQuote, inputLink = form.cleaned_data['quote'], form.cleaned_data['link']
 
-            if inputLink or inputQuote:
-                quote = Quote(tagAssignment_id=tagAssignment, record_id=record, value=inputQuote,
+            quote = Quote(tagAssignment_id=tagAssignment, record_id=record, value=inputQuote,
                               link=inputLink)
-                quote.save()
+            quote.save()
 
     return HttpResponse(request.body)
 
@@ -191,7 +196,7 @@ class GetReview(APIView):
 
     def get(self, request, format=None):
 
-        if Record.objects.filter(user_id=request.user).count() is 0:
+        if Record.objects.filter(user_id=request.user).count() == 0:
             # when the user is new and has no records at all
             return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -338,6 +343,35 @@ class CheckAuthenticated(APIView):
         Returns: 200 if the user is authenticated and 403 otherwise
         """
         return Response()
+
+
+class SearchRecords(APIView):
+
+    def post(self, request, format=None):
+        """
+        Search records that comply with the search key.
+        request: 
+        {
+            search: string,
+            filter: Word | Tag
+        }
+        """
+        serializer = SearchRecordSerializer(data=request.data)
+        if serializer.is_valid():
+            search = serializer.data['search']
+            if serializer.data['filter'] == 'Word':
+                recordSet = Record.objects.filter(user_id=request.user, word_id__value__icontains=search)
+                
+            else:
+                # filter by tags
+                tagAssignmentSet = TagAssignment.objects.filter(user_id=request.user, tag_id__value__icontains=search)
+                # select all quotes with the the above tags, and return the record_id of it.
+                quoteSetWithRecordId = Quote.objects.filter(tagAssignment_id__in=tagAssignmentSet).values_list("record_id", flat=True)
+                # filter record with recordId
+                recordSet = Record.objects.filter(pk__in=quoteSetWithRecordId)
+            data = RecordSerializer(recordSet, many=True).data
+
+        return Response(data)
 
 
 """ Legacy Code that constructs response data using for loops and Objects

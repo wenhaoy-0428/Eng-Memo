@@ -22,12 +22,13 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Checkbox, TextField } from "@mui/material";
+import { Checkbox, LinearProgress, TextField } from "@mui/material";
 
 import Tag from "../common/Tag";
 import CircularProgressBar from "../common/CircularProgressBar";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNotification } from "../../contexts/NotificationContext";
+import SearchBar from "./search-bar/SearchBar";
 
 /**
  * The component Library that contains all the word entries the user ever stored.
@@ -42,7 +43,7 @@ function Library() {
   // An dic that stores all selected quotes with True, and ever selected quotes with False,
   // meaning never selected quotes don't exist in this dic
   const [selectedQuotes, setSelectedQuotes] = useState({});
-
+  const [isLoading, setIsLoading] = useState(false);
   const { newNotification } = useNotification();
 
   /**
@@ -112,49 +113,59 @@ function Library() {
 
   return (
     <div data-testid="library-container" className="w-[90%] max-w-[500px]">
-      <AnimatePresence>
-        {getAllSelectedQuotes().length > 0 && (
-          <motion.div
-            variants={animate_toolbar}
-            initial="hidden"
-            animate="appear"
-            exit="hidden"
-            className="overflow-hidden"
-          >
-            <ToolBar handleDelete={handleDelete} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <SearchBar
+        updateHandler={setRecords}
+        searchStatusHandler={setIsLoading}
+      />
+      {isLoading ? (
+        <LinearProgress />
+      ) : (
+        <>
+          <AnimatePresence>
+            {getAllSelectedQuotes().length > 0 && (
+              <motion.div
+                variants={animate_toolbar}
+                initial="hidden"
+                animate="appear"
+                exit="hidden"
+                className="overflow-hidden"
+              >
+                <ToolBar handleDelete={handleDelete} />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-      <TableContainer component={Paper} className="w-full">
-        <Table className="w-full table-fixed overflow-hidden">
-          <TableHead>
-            <TableRow>
-              <TableCell className="w-[15%]" />
-              <TableCell align="center" className="w-[30%]">
-                Word
-              </TableCell>
-              <TableCell align="center" className="w-[35%]">
-                Date Added
-              </TableCell>
-              <TableCell align="center" className="w-[20%]">
-                Mastery
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {records.map((row) => (
-              <Row
-                key={row.word}
-                record={row}
-                fetcher={fetcher}
-                selectQuote={setSelectedQuoteHelper}
-                getSelectedQuote={getSelectedQuoteHelper}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          <TableContainer component={Paper} className="w-full">
+            <Table className="w-full table-fixed overflow-hidden">
+              <TableHead>
+                <TableRow>
+                  <TableCell className="w-[15%]" />
+                  <TableCell align="center" className="w-[30%]">
+                    Word
+                  </TableCell>
+                  <TableCell align="center" className="w-[35%]">
+                    Date Added
+                  </TableCell>
+                  <TableCell align="center" className="w-[20%]">
+                    Mastery
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {records.map((row) => (
+                  <Row
+                    key={row.word}
+                    record={row}
+                    fetcher={fetcher}
+                    selectQuote={setSelectedQuoteHelper}
+                    getSelectedQuote={getSelectedQuoteHelper}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
+      )}
     </div>
   );
 }
