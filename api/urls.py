@@ -14,4 +14,5 @@ urlpatterns = [
         path("auth-check/", views.CheckAuthenticated.as_view(), name="check_if_user_authenticated"),
         path("generateReviewPlan/", views.GenerateReviewPlan.as_view(), name="generate_review_plan"),
         path("get-num-pending-reviews/", views.GetNumPendingReviews.as_view(), name="get_num_pending_reviews"),
+        path("search-records/", views.SearchRecords.as_view(), name="search_records"),
     ]

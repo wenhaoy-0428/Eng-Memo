@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 from rest_framework import status
 
-from .models import Record, Word
+from .models import Record, Word, TagAssignment, Tag, Quote
 from . import global_param
 
 from . import views
@@ -161,3 +161,251 @@ class TEST_NewRecordView(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = views.GetNumPendingReviews.as_view()(requestNumPendingReviews)
         self.assertEqual(response.data, 2)
+
+    def test_0003(self):
+        """
+        __Test adding a single word__
+        """
+        self.assertEqual(Record.objects.filter(word_id__value="test").count(), 0)
+        data = {
+            'link': "",
+            'quote': "",
+            'tag': "",
+            'word': "test"
+        }
+        
+        requestNewRecord = self.factory.post(self.API_PATH_NEW_RECORD, data, content_type='application/json')
+        requestNewRecord.user = self.user
+        response = views.NewRecord(requestNewRecord)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Record.objects.filter(word_id__value="test").count(), 1)
+
+    def test_0003(self):
+        """
+        __Test adding a word with Tag only__
+        """
+        data = {
+            'link': "",
+            'quote': "",
+            'tag': "tag",
+            'word': "test"
+        }
+
+        self.assertEqual(Record.objects.filter(word_id__value="test").count(), 0)
+        self.assertEqual(Tag.objects.filter(value=data['tag']).count(), 0)
+        self.assertEqual(TagAssignment.objects.filter(tag_id__value=data['tag'], user_id=self.user).count(), 0)
+
+        requestNewRecord = self.factory.post(self.API_PATH_NEW_RECORD, data, content_type='application/json')
+        requestNewRecord.user = self.user
+        response = views.NewRecord(requestNewRecord)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        self.assertEqual(Record.objects.filter(word_id__value="test").count(), 1)
+        
+        self.assertEqual(Tag.objects.filter(value=data['tag']).count(), 1)
+        tagAssignmentSet = TagAssignment.objects.filter(tag_id__value=data['tag'], user_id=self.user)
+        self.assertEqual(tagAssignmentSet.count(), 1)
+        quoteSet = Quote.objects.filter(tagAssignment_id=tagAssignmentSet[0])
+        self.assertEqual(quoteSet.count(), 1)
+        quote = quoteSet[0]
+        self.assertEqual(quote.record_id.word_id.value, data["word"])
+        self.assertEqual(quote.value, "")
+        self.assertEqual(quote.link, "")
+
+
+    def test_0004(self):
+        """
+        __Test adding a word with Quote only__
+        """
+        data = {
+            'link': "",
+            'quote': "quote",
+            'tag': "",
+            'word': "test"
+        }
+
+        self.assertEqual(Record.objects.filter(word_id__value="test").count(), 0)
+        self.assertEqual(Quote.objects.filter(value=data['quote']).count(), 0)
+        
+        requestNewRecord = self.factory.post(self.API_PATH_NEW_RECORD, data, content_type='application/json')
+        requestNewRecord.user = self.user
+        response = views.NewRecord(requestNewRecord)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        self.assertEqual(Record.objects.filter(word_id__value="test").count(), 1)
+        
+        
+        quoteSet = Quote.objects.filter(value=data['quote'])
+        self.assertEqual(quoteSet.count(), 1)
+        quote = quoteSet[0]
+        self.assertEqual(quote.record_id.word_id.value, data["word"])
+        self.assertEqual(quote.link, "")
+        self.assertEqual(quote.tagAssignment_id, None)
+    
+    def test_0005(self):
+        """
+        __Test adding a word with link only__
+        """
+        data = {
+            'link': "https://www.google.com.hk/?client=safari",
+            'quote': "",
+            'tag': "",
+            'word': "test"
+        }
+
+        self.assertEqual(Record.objects.filter(word_id__value="test").count(), 0)
+        self.assertEqual(Quote.objects.filter(link=data['link']).count(), 0)
+        
+        requestNewRecord = self.factory.post(self.API_PATH_NEW_RECORD, data, content_type='application/json')
+        requestNewRecord.user = self.user
+        response = views.NewRecord(requestNewRecord)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        self.assertEqual(Record.objects.filter(word_id__value="test").count(), 1)
+        
+        
+        quoteSet = Quote.objects.filter(link=data['link'])
+        self.assertEqual(quoteSet.count(), 1)
+        quote = quoteSet[0]
+        self.assertEqual(quote.record_id.word_id.value, data["word"])
+        self.assertEqual(quote.link, data['link'])
+        self.assertEqual(quote.value, "")
+        self.assertEqual(quote.tagAssignment_id, None)
+    
+    def test_0006(self):
+        """
+        __Test adding one records with different tags__
+        """
+        data1 = {
+            'link': "",
+            'quote': "",
+            'tag': "tag1",
+            'word': "test1"
+        }
+        self.assertEqual(Record.objects.filter(word_id__value=data1['word']).count(), 0)
+        self.assertEqual(Tag.objects.filter(value=data1['tag']).count(), 0)
+        self.assertEqual(TagAssignment.objects.filter(tag_id__value=data1['tag'], user_id=self.user).count(), 0)
+        self.assertEqual(TagAssignment.objects.filter(user_id=self.user).count(), 0)
+
+        requestNewRecord = self.factory.post(self.API_PATH_NEW_RECORD, data1, content_type='application/json')
+        requestNewRecord.user = self.user
+        response = views.NewRecord(requestNewRecord)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        recordSet = Record.objects.filter(word_id__value=data1['word'])
+        self.assertEqual(recordSet.count(), 1)
+        self.assertEqual(Tag.objects.filter(value=data1['tag']).count(), 1)
+        tagAssignmentSet = TagAssignment.objects.filter(tag_id__value=data1['tag'], user_id=self.user)
+        self.assertEqual(TagAssignment.objects.filter(user_id=self.user).count(), 1)
+        self.assertEqual(tagAssignmentSet.count(), 1)
+
+        
+        quoteSet = recordSet[0].quotes.all()
+        self.assertEqual(quoteSet.count(), 1)
+        quote1 = quoteSet[0]
+        self.assertEqual(quote1.tagAssignment_id, tagAssignmentSet[0])
+
+        data2 = {
+            'link': "",
+            'quote': "",
+            'tag': "tag2",
+            'word': "test1"
+        }
+
+        requestNewRecord = self.factory.post(self.API_PATH_NEW_RECORD, data2, content_type='application/json')
+        requestNewRecord.user = self.user
+        response = views.NewRecord(requestNewRecord)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        recordSet = Record.objects.filter(word_id__value=data2['word'])
+        self.assertEqual(recordSet.count(), 1)
+        self.assertEqual(Tag.objects.filter(value=data2['tag']).count(), 1)
+        tagAssignmentSet = TagAssignment.objects.filter(tag_id__value=data2['tag'], user_id=self.user)
+        self.assertEqual(TagAssignment.objects.filter(user_id=self.user).count(), 2)
+        self.assertEqual(tagAssignmentSet.count(), 1)
+
+        quoteSet = recordSet[0].quotes.all()
+        self.assertEqual(quoteSet.count(), 2)
+        quote2 = quoteSet[1]
+        self.assertEqual(quote2.tagAssignment_id, tagAssignmentSet[0])
+
+
+class TEST_SearchRecordsView(TestCase):
+    
+    API_PATH_NEW_RECORD = "/api/newRecord/"
+    API_PATH_SEARCH_RECORDS = "/api/search-records/"
+
+    def setUp(self):
+        # Set up a test user.
+        self.user = User.objects.create(username=TEST_USER_NAME)
+        self.factory = RequestFactory()
+        self.apiFactory = APIRequestFactory()
+
+        data1 = {
+            'link': "",
+            'quote': "",
+            'tag': "tag1",
+            'word': "Hello"
+        }
+        data2 = {
+            'link': "",
+            'quote': "",
+            'tag': "tag2",
+            'word': "test1"
+        }
+        data3 = {
+            'link': "",
+            'quote': "",
+            'tag': "tag2",
+            'word': "TEST2"
+        }
+        requestNewRecord = self.factory.post(self.API_PATH_NEW_RECORD, data1, content_type='application/json')
+        requestNewRecord.user = self.user
+        response = views.NewRecord(requestNewRecord)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        requestNewRecord = self.factory.post(self.API_PATH_NEW_RECORD, data2, content_type='application/json')
+        requestNewRecord.user = self.user
+        response = views.NewRecord(requestNewRecord)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        requestNewRecord = self.factory.post(self.API_PATH_NEW_RECORD, data3, content_type='application/json')
+        requestNewRecord.user = self.user
+        response = views.NewRecord(requestNewRecord)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    
+    def test_0001(self):
+        """
+        __Test searching by word__
+        """
+        data = {
+            "search": "test",
+            "filter": "Word"
+        }
+
+        requestSearchRecords = self.apiFactory.post(self.API_PATH_SEARCH_RECORDS, data)
+        force_authenticate(requestSearchRecords, user=self.user)
+        response = views.SearchRecords.as_view()(requestSearchRecords)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.data), 2)
+        self.assertEqual(response.data[0]["word"], "test1")
+        self.assertEqual(response.data[1]["word"], "TEST2")
+
+    def test_0002(self):
+        """
+        __Test searching by tag__
+        """
+        data = {
+            "search": "tag1",
+            "filter": "Tag"
+        }
+
+        requestSearchRecords = self.apiFactory.post(self.API_PATH_SEARCH_RECORDS, data)
+        force_authenticate(requestSearchRecords, user=self.user)
+        response = views.SearchRecords.as_view()(requestSearchRecords)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["word"], "Hello")

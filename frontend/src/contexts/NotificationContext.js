@@ -9,6 +9,7 @@ export const NotificationProvider = ({ children }) => {
   const [severity, setSeverity] = useState("");
   // duration the notification will last
   const [duration, setDuration] = useState(0);
+  const [timestamp, setTimestamp] = useState(0);
 
   /**
    * Broadcast new notification
@@ -20,12 +21,19 @@ export const NotificationProvider = ({ children }) => {
     setMessage(message);
     setSeverity(severity);
     setDuration(duration);
+    let epochTime = new Date().getTime();
+    setTimestamp(epochTime);
   };
 
   return (
     <NotificationContext.Provider value={{ newNotification }}>
       {children}
-      <Notification message={message} severity={severity} duration={duration} />
+      <Notification
+        message={message}
+        severity={severity}
+        duration={duration}
+        timestamp={timestamp}
+      />
     </NotificationContext.Provider>
   );
 };

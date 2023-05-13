@@ -24,7 +24,6 @@ class TestViewSendActivationEmail(APIView):
 class ActivateAccount(APIView):
     permission_classes = [permissions.AllowAny,]
     def get(self, request, uidb64, token, format=None):
-        print(render_to_string("error.html", {"message": "The activation email has expired, a new email has been sent please check your email now."}))
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
@@ -37,7 +36,7 @@ class ActivateAccount(APIView):
             user.is_active = True
             user.save()
             # todo: redirect to login page.
-            return redirect("https://www.google.com")
+            return redirect("https://www.whyprojects.tech/")
         elif user.is_active is False:
             # token expired
             sendAccountActivationEmail(user, request)
@@ -79,7 +78,6 @@ class Login(APIView):
     def post(self, request, format=None):
         serializer = LoginSerializer(data=request.data)
         if not serializer.is_valid():
-            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         email = serializer.validated_data['email']
