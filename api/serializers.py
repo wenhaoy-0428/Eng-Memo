@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Quote, Record, TagAssignment, Tag
+from .models import Quote, Record, TagAssignment, Tag, Milestone
 
 from . import utils
 
@@ -41,6 +41,11 @@ class RecordSerializer(serializers.ModelSerializer):
         ret['mastery'] = utils.calcDecayedMastery(instance)
         return ret
 
+class MilestoneSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Milestone
+        fields = ['plannedAt', 'completed']
 
 class SearchRecordSerializer(serializers.Serializer):
     search = serializers.CharField()
@@ -54,3 +59,7 @@ class SearchWordTagSerializer(serializers.Serializer):
     """
     word = serializers.CharField(required=False)
     tag = serializers.CharField(required=False)
+
+class GetMilestoneSerializer(serializers.Serializer):
+    month = serializers.IntegerField(min_value=1, max_value=12)
+    year = serializers.IntegerField(min_value=2023)
