@@ -1,18 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, date
+
 
 class Word(models.Model):
     value = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
         return self.value
-    
+
+
 class Tag(models.Model):
     value = models.CharField(max_length=30, unique=True)
+
     def __str__(self):
         return self.value
+
 
 class Record(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -33,21 +37,27 @@ class Record(models.Model):
     meaning the record is included in the reviewing target of the day
     """
     # current status when reviewing.
-    STATUS_CHOICES = [(0, "Don't Know"), (1, "Uncertain"), (2, "Uncertain or Default"), (3, "Pass")]
-    reviewing_status = models.PositiveSmallIntegerField(default=2, choices=STATUS_CHOICES)
+    STATUS_CHOICES = [(0, "Don't Know"), (1, "Uncertain"),
+                      (2, "Uncertain or Default"), (3, "Pass")]
+    reviewing_status = models.PositiveSmallIntegerField(
+        default=2, choices=STATUS_CHOICES)
     # number of times has reviewed for today.
     num_reviewed = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f'{self.user_id}-{self.word_id}'
 
+
 class TagAssignment(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     tag_id = models.ForeignKey(Tag, on_delete=models.CASCADE)
 
+
 class Quote(models.Model):
-    tagAssignment_id = models.ForeignKey(TagAssignment, on_delete=models.CASCADE, null=True)
-    record_id = models.ForeignKey(Record, related_name='quotes', on_delete=models.CASCADE)
+    tagAssignment_id = models.ForeignKey(
+        TagAssignment, on_delete=models.CASCADE, null=True)
+    record_id = models.ForeignKey(
+        Record, related_name='quotes', on_delete=models.CASCADE)
     value = models.CharField(max_length=300, null=True)
     # we assume quote and link have 1 to 1 relationship
     link = models.URLField(null=True)
@@ -58,6 +68,15 @@ class Quote(models.Model):
             tag = self.tagAssignment_id.tag_id
         except:
             tag = "null"
-        
+
         return f'{self.record_id.user_id}-{self.record_id.word_id}-{tag}-{self.value[0:30]}'
 
+
+class Milestone(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    plannedAt = models.DateField(
+        null=False, blank=False, default=date.today, unique=True)
+    completed = models.BooleanField(default=False, null=False)
+
+    def __str__(self):
+        return f'{self.user_id}-{self.plannedAt}'

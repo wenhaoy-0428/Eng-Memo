@@ -17,4 +17,5 @@ urlpatterns = [
         path("search-records/", views.SearchRecords.as_view(), name="search_records"),
         path("search-words/", views.SearchWords.as_view(), name="search-words"),
         path("search-tags/", views.SearchTags.as_view(), name="search-tags"),
+        path("get-milestone-by-month/", views.GetMilestoneByMonth.as_view(), name="get_milestone_by_month"),
     ]

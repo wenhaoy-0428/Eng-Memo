@@ -5,7 +5,7 @@ import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import InsightsIcon from "@mui/icons-material/Insights";
 
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
@@ -32,6 +32,7 @@ function withUserItems(OriginalComponent) {
   return function (props) {
     // AuthContext
     const { auth, setAuth } = useAuth();
+    const navigate = useNavigate();
 
     // The available Info related buttons in user menu
     const userMenuDataSection = [
@@ -43,6 +44,9 @@ function withUserItems(OriginalComponent) {
       {
         label: "MileStone",
         icon: <InsightsIcon fontSize="small" />,
+        onclick: () => {
+          navigate("/milestone");
+        },
       },
     ];
 

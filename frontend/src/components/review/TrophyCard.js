@@ -12,7 +12,7 @@ import {
 import font from "three/examples/fonts/helvetiker_bold.typeface.json";
 import { useUser } from "../../contexts/UserContext";
 
-import throphyCard from "./3dAssets/TrophyCard.glb";
+import trophyCard from "./3dAssets/TrophyCard.glb";
 import envMap from "./3dAssets/kloofendal_48d_partly_cloudy_puresky_1k.hdr";
 
 // const PATH_TROPHY_CARD = "/3dAssets/TrophyCard.glb";
@@ -24,7 +24,7 @@ export default function TrophyCard() {
    */
   function Model() {
     // contains all nodes and materials of the 3D model
-    const { nodes, materials } = useGLTF(throphyCard);
+    const { nodes, materials } = useGLTF(trophyCard);
     // Get user information from global context
     // TODO: consider if needs to update user when milestone is implemented
     const { user } = useUser();
@@ -54,7 +54,7 @@ export default function TrophyCard() {
                 scale={[1, 1, 0.8]}
                 material={materials.bevelMetal}
               >
-                {user["consecutivePlanDays"] + 1}
+                {user["milestone_streak"] + 1}
               </Text3D>
             </Center>
 
@@ -133,4 +133,4 @@ export default function TrophyCard() {
   );
 }
 
-useGLTF.preload(throphyCard);
+useGLTF.preload(trophyCard);

@@ -17,11 +17,13 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 
 from .forms import NewRecordForm
-from .models import Word, Tag, Record, TagAssignment, Quote
-from .serializers import RecordSerializer, QuoteSerializer, SearchRecordSerializer, SearchWordTagSerializer
+from .models import Word, Tag, Record, TagAssignment, Quote, Milestone
+from .serializers import RecordSerializer, QuoteSerializer, SearchRecordSerializer, SearchWordTagSerializer, \
+    GetMilestoneSerializer, MilestoneSerializer
 
 from . import global_param
 from . import utils
+from .libs.libs import GetLongestConsecutiveDays, GetRecentConsecutiveDays
 
 
 def getPendingReviews(user):
@@ -42,12 +44,17 @@ class GetNumPendingReviews(APIView):
 
 class GetUserContext(APIView):
     def get(self, request, format=None):
+        milestoneSet = Milestone.objects.filter(
+            user_id=request.user, completed=True).order_by("-plannedAt").values_list("plannedAt", flat=True)
         user = request.user
         allReviewingRecordsCount = getPendingReviews(user).count()
         response = {
             "numPending": allReviewingRecordsCount,
             "username": user.username,
             "email": user.email,
+            "longestStreak": GetLongestConsecutiveDays(milestoneSet),
+            "streak": GetRecentConsecutiveDays(milestoneSet),
+            "total": milestoneSet.count()
         }
         return Response(response)
 
@@ -110,18 +117,20 @@ def NewRecord(request):
                 1. tag is entered
                 2. tag is not yet bound to the user
                 """
-                queryTagAssignment = TagAssignment.objects.filter(user_id=currentUser, tag_id=tag)
+                queryTagAssignment = TagAssignment.objects.filter(
+                    user_id=currentUser, tag_id=tag)
                 if not queryTagAssignment.exists():
-                    tagAssignment = TagAssignment(user_id=currentUser, tag_id=tag)
+                    tagAssignment = TagAssignment(
+                        user_id=currentUser, tag_id=tag)
                     tagAssignment.save()
                 else:
-                    tagAssignment = queryTagAssignment[0]                
+                    tagAssignment = queryTagAssignment[0]
 
             # save for Quote
             inputQuote, inputLink = form.cleaned_data['quote'], form.cleaned_data['link']
 
             quote = Quote(tagAssignment_id=tagAssignment, record_id=record, value=inputQuote,
-                              link=inputLink)
+                          link=inputLink)
             quote.save()
 
     return HttpResponse(request.body)
@@ -186,6 +195,8 @@ class GenerateReviewPlan(APIView):
                 self.initTodaysRecord(candidate)
         # To make sure the loading screen is on
         sleep(1.5)
+        # create milestone instance for the user
+        Milestone.objects.create(user_id=request.user)
         return Response({"success": "Generated"}, status=status.HTTP_201_CREATED)
 
 
@@ -286,9 +297,9 @@ class UpdateReviewingRecordStatus(APIView):
         request.session['reviewing_records'] = list(filter(
             lambda x: x['pk'] != request.data['pk'], request.session['reviewing_records']))
         record.num_reviewed += 1
-        status = request.data['status']
+        reviewStatus = request.data['status']
         # < 3 is a safety guard
-        if status == global_param.STATUS_KW and record.reviewing_status < 3:
+        if reviewStatus == global_param.STATUS_KW and record.reviewing_status < 3:
             record.reviewing_status += 1
             if (record.reviewing_status == 3):
                 # update mastery when pass with decayed value and increments
@@ -296,9 +307,9 @@ class UpdateReviewingRecordStatus(APIView):
                     record) + global_param.MASTERY_INCREMENT * (1 / record.num_reviewed)
                 record.last_reviewed = date.today()
 
-        elif status == global_param.STATUS_UC:
+        elif reviewStatus == global_param.STATUS_UC:
             record.reviewing_status = 1
-        elif status == global_param.STATUS_DN:
+        elif reviewStatus == global_param.STATUS_DN:
             record.reviewing_status = 0
         record.save()
 
@@ -319,6 +330,17 @@ class UpdateReviewingRecordStatus(APIView):
             'newRecords': data
         }
 
+        # review plan is finished when num of reviewing records is 0
+        if allReviewingRecords.count() == 0:
+            # complete milestone
+            milestoneSet = Milestone.objects.filter(
+                user_id=request.user, plannedAt=date.today())
+            if milestoneSet.count() == 1:
+                milestone = milestoneSet[0]
+                milestone.completed = True
+                milestone.save()
+            else:
+                Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(response)
 
 
@@ -361,18 +383,22 @@ class SearchRecords(APIView):
         if serializer.is_valid():
             search = serializer.data['search']
             if serializer.data['filter'] == 'Word':
-                recordSet = Record.objects.filter(user_id=request.user, word_id__value__icontains=search)
-                
+                recordSet = Record.objects.filter(
+                    user_id=request.user, word_id__value__icontains=search)
+
             else:
                 # filter by tags
-                tagAssignmentSet = TagAssignment.objects.filter(user_id=request.user, tag_id__value__icontains=search)
+                tagAssignmentSet = TagAssignment.objects.filter(
+                    user_id=request.user, tag_id__value__icontains=search)
                 # select all quotes with the the above tags, and return the record_id of it.
-                quoteSetWithRecordId = Quote.objects.filter(tagAssignment_id__in=tagAssignmentSet).values_list("record_id", flat=True)
+                quoteSetWithRecordId = Quote.objects.filter(
+                    tagAssignment_id__in=tagAssignmentSet).values_list("record_id", flat=True)
                 # filter record with recordId
                 recordSet = Record.objects.filter(pk__in=quoteSetWithRecordId)
             data = RecordSerializer(recordSet, many=True).data
             return Response(data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 class SearchWords(APIView):
     def post(self, request, format=None):
@@ -387,10 +413,12 @@ class SearchWords(APIView):
         serializer = SearchWordTagSerializer(data=request.data)
         if serializer.is_valid():
             search = serializer.data['word']
-            wordSet = Record.objects.filter(user_id=request.user, word_id__value__icontains=search).values_list("word_id__value", flat=True)
+            wordSet = Record.objects.filter(
+                user_id=request.user, word_id__value__icontains=search).values_list("word_id__value", flat=True)
             return Response(wordSet)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    
+
+
 class SearchTags(APIView):
     def post(self, request, format=None):
         """
@@ -404,8 +432,29 @@ class SearchTags(APIView):
         serializer = SearchWordTagSerializer(data=request.data)
         if serializer.is_valid():
             search = serializer.data['tag']
-            tagSet = TagAssignment.objects.filter(user_id=request.user, tag_id__value__icontains=search).values_list("tag_id__value", flat=True)
+            tagSet = TagAssignment.objects.filter(
+                user_id=request.user, tag_id__value__icontains=search).values_list("tag_id__value", flat=True)
             return Response(tagSet)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetMilestoneByMonth(APIView):
+    def get(self, request, format=None):
+        """
+        Get the milestone of a specific month.
+        request:
+        {
+          month: mm
+          year: yyyy
+        }
+        """
+        serializer = GetMilestoneSerializer(data=request.query_params)
+        if serializer.is_valid():
+            print(request.user)
+            milestoneSet = Milestone.objects.filter(user_id=request.user, plannedAt__month=serializer.data['month'],
+                                                    plannedAt__year=serializer.data['year'])
+            data = MilestoneSerializer(milestoneSet, many=True).data
+            return Response(data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -12,7 +12,7 @@ import {
 } from "react-router-dom";
 
 import axios from "axios";
-
+import { format } from "date-fns";
 import { AnimatePresence } from "framer-motion";
 
 import "./index.css";
@@ -28,6 +28,7 @@ import Review, { loadReview } from "./components/review/Review";
 import Register from "./components/authentication/registration/RegisterPage";
 import { PrivateRoutes, loadCSRFToken } from "./libs/auth/auth";
 import { UserProvider } from "./contexts/UserContext";
+import MileStone, { loadMilestone } from "./components/calendar";
 
 // solve csrf token missing error when POSTing data to Django
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
@@ -58,6 +59,19 @@ const router = createBrowserRouter(
           <Route path="home" element={<InputForm />} />
           <Route path="review" element={<Review />} loader={loadReview} />
           <Route path="library" element={<Library />} loader={loadLibrary} />
+          <Route path="milestone">
+            <Route
+              index
+              element={
+                <Navigate replace to={`${format(new Date(), "yyyy-MM-dd")}`} />
+              }
+            />
+            <Route
+              path=":date"
+              element={<MileStone />}
+              loader={loadMilestone}
+            />
+          </Route>
         </Route>
       </Route>
       <Route path="account/*" loader={loadCSRFToken}>

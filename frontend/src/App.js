@@ -18,8 +18,9 @@ function App() {
     name: data["username"],
     email: data["email"],
     avatar: undefined,
-    //TODO: placeholder for milestone
-    consecutivePlanDays: 0,
+    milestone_streak: data["streak"],
+    milestone_longestStreak: data["longestStreak"],
+    milestone_total: data["total"],
   };
   const { user, setUser } = useUser();
 
