@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Formik, Field, Form } from "formik";
 import axios from "axios";
 import { object, string } from "yup";
@@ -69,10 +69,9 @@ function InputForm() {
   const [search, setSearch] = useState("");
   // The filter type of search.
   const [filer, setFilter] = useState("Word");
-  // A reference to InputField and TagInput
-  const inputRef = useRef(null);
-  const tagRef = useRef(null);
-
+  // state values of InputField and TagInput
+  const [word, setWord] = useState("");
+  const [tag, setTag] = useState("");
   /**
    * @brief: Toggle DropDown menu when menu button is clicked.
    */
@@ -120,8 +119,8 @@ function InputForm() {
         <div>
           <ProximityBar
             search={search}
-            inputRef={inputRef}
-            tagRef={tagRef}
+            setWord={setWord}
+            setTag={setTag}
             filter={filer}
           />
         </div>
@@ -150,7 +149,7 @@ function InputForm() {
                     </IconButton>
                   </Tooltip>
                   <Field
-                    inputRef={inputRef}
+                    value={word}
                     name="word"
                     type="text"
                     as={InputBase}
@@ -158,6 +157,11 @@ function InputForm() {
                     onInput={(e) => {
                       setSearch(e.target.value);
                       setFilter("Word");
+                    }}
+                    onChange={(e) => {
+                      // onChange doesn't fire when copying the same value to input
+                      // https://stackoverflow.com/questions/38256332/in-react-whats-the-difference-between-onchange-and-oninput
+                      setWord(e.target.value);
                     }}
                     autoFocus
                     className="WordInput flex-1"
@@ -180,7 +184,8 @@ function InputForm() {
                 >
                   <InputFormDropDown
                     errors={errors}
-                    tagRef={tagRef}
+                    tag={tag}
+                    setTag={setTag}
                     setSearch={setSearch}
                     setFilter={setFilter}
                   />
@@ -273,11 +278,12 @@ function SubmitBtn({ formStatus, errors, switchSubmitBtn, handleSubmit }) {
 /**
  * @brief: The Drop-down menu for inputForm.
  * @prop errors: The drilling errors of the form.
- * @prop tagRef: A reference to tag field. Used for ProximitySearch. @link ProximitySearch
+ * @prop tag: The state value of tag field
+ * @prop setTag: A handler to update tag field. Used for ProximitySearch. @link ProximitySearch
  * @prop setSearch: A handler to set the value of search. @link ProximitySearch
  * @prop setFilter: A handler to set the ProximitySearch type. @link ProximitySearch
  */
-function InputFormDropDown({ errors, tagRef, setFilter, setSearch }) {
+function InputFormDropDown({ errors, tag, setTag, setFilter, setSearch }) {
   return (
     <>
       <Paper className="InputFormDropDown grid grid-cols-[1fr_2fr] gap-4 p-3 absolute top-0 z-10 overflow-hidden">
@@ -293,12 +299,15 @@ function InputFormDropDown({ errors, tagRef, setFilter, setSearch }) {
 
         <Field
           name="tag"
-          inputRef={tagRef}
+          value={tag}
           as={TextField}
           type="text"
           onInput={(e) => {
             setSearch(e.target.value);
             setFilter("Tag");
+          }}
+          onChange={(e) => {
+            setTag(e.target.value);
           }}
           label={inputPresets.tag.label}
           placeholder={inputPresets.tag.placeholder}
