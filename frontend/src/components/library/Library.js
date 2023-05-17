@@ -112,7 +112,10 @@ function Library() {
   }, [fetcher.data]);
 
   return (
-    <div data-testid="library-container" className="w-[90%] max-w-[500px]">
+    <div
+      data-testid="library-container"
+      className="w-[90%] max-w-[500px] h-full row-span-4"
+    >
       <SearchBar
         updateHandler={setRecords}
         searchStatusHandler={setIsLoading}
@@ -135,8 +138,8 @@ function Library() {
             )}
           </AnimatePresence>
 
-          <TableContainer component={Paper} className="w-full">
-            <Table className="w-full table-fixed overflow-hidden">
+          <TableContainer component={Paper} className="w-full max-h-full">
+            <Table stickyHeader className="w-full table-fixed">
               <TableHead>
                 <TableRow>
                   <TableCell className="w-[15%]" />
