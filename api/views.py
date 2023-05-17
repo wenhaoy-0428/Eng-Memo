@@ -20,7 +20,7 @@ from .forms import NewRecordForm
 from .models import Word, Tag, Record, TagAssignment, Quote, Milestone
 from .serializers import RecordSerializer, QuoteSerializer, SearchRecordSerializer, SearchWordTagSerializer, \
     GetMilestoneSerializer, MilestoneSerializer
-
+from account.models import UserProfile
 from . import global_param
 from . import utils
 from .libs.libs import GetLongestConsecutiveDays, GetRecentConsecutiveDays
@@ -48,10 +48,19 @@ class GetUserContext(APIView):
             user_id=request.user, completed=True).order_by("-plannedAt").values_list("plannedAt", flat=True)
         user = request.user
         allReviewingRecordsCount = getPendingReviews(user).count()
+        avatarUrl = userProfile = None
+        try:
+            userProfile = UserProfile.objects.get(user=request.user)
+            if userProfile.avatar != None:
+                avatarUrl = userProfile.avatar.url
+        except UserProfile.DoesNotExist:
+            userProfile = UserProfile.objects.create(user=request.user)
+
         response = {
             "numPending": allReviewingRecordsCount,
             "username": user.username,
             "email": user.email,
+            "avatar": avatarUrl,
             "longestStreak": GetLongestConsecutiveDays(milestoneSet),
             "streak": GetRecentConsecutiveDays(milestoneSet),
             "total": milestoneSet.count()

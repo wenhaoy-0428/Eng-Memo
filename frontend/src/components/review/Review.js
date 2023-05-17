@@ -16,6 +16,7 @@ import IconButton from "@mui/material/IconButton";
 
 import axios from "axios";
 import TrophyCard from "./TrophyCard";
+import { useUser } from "../../contexts/UserContext";
 
 // The normal width of the tag indicator.
 const INDICATOR_OFFSET_WIDTH = 10;
@@ -31,7 +32,7 @@ const STATUS_KW = "KW", // Know
 function Review() {
   const [reviewWindow, setReviewWindow] = useState(useLoaderData());
   const [prevRecord, setPrevRecord] = useState(null);
-  const [setPendingReviews] = useOutletContext();
+  const { setUser } = useUser();
 
   // Extra animation styles for review container when switching entries.
   const [extraRCAttr, setExtraRCAttr] = useState("border-0");
@@ -63,19 +64,13 @@ function Review() {
         // update window
         let newReviewWindow = reviewWindow;
         newReviewWindow.shift();
-        if (
-          response.data["newRecords"] != null &&
-          response.data["newRecords"].length !== 0
-        ) {
-          newReviewWindow = [
-            ...newReviewWindow,
-            ...response.data["newRecords"],
-          ];
+        if (response.data["newRecords"] != null && response.data["newRecords"].length !== 0) {
+          newReviewWindow = [...newReviewWindow, ...response.data["newRecords"]];
         }
         setReviewWindow(newReviewWindow);
         // update animation
         slideNextReview();
-        setPendingReviews(response.data["numPending"]);
+        setUser((prevState) => ({ ...prevState, numPendingReviews: response.data["numPending"] }));
       })
       .catch((e) => {
         console.log(e);
@@ -83,17 +78,12 @@ function Review() {
   };
 
   return (
-    <div
-      id="review-page"
-      className="ReviewPage row-span-4 h-full w-full flex justify-center"
-    >
+    <div id="review-page" className="ReviewPage row-span-4 h-full w-full flex justify-center">
       {(() => {
         if (reviewingRecord === -1) {
           return (
             <div className="w-full h-full border-1 flex items-center justify-center">
-              <span className="font-lilita text-3xl text-center">
-                Go collect some words and build up your memo!
-              </span>
+              <span className="font-lilita text-3xl text-center">Go collect some words and build up your memo!</span>
             </div>
           );
         } else if (reviewingRecord) {
@@ -114,10 +104,7 @@ function Review() {
                   }}
                   classNames={{ ...reviewCardAnimation }}
                 >
-                  <ReviewCard
-                    record={reviewingRecord}
-                    handleFuncButton={handleFuncButton}
-                  />
+                  <ReviewCard record={reviewingRecord} handleFuncButton={handleFuncButton} />
                 </CSSTransition>
               </TransitionGroup>
             </div>
@@ -125,11 +112,7 @@ function Review() {
         } else {
           return (
             <>
-              <Confetti
-                canvasWidth={window.innerWidth}
-                canvasHeight={window.innerHeight}
-                confettiCount={100}
-              ></Confetti>
+              <Confetti canvasWidth={window.innerWidth} canvasHeight={window.innerHeight} confettiCount={100}></Confetti>
               <TrophyCard />
             </>
           );
@@ -262,9 +245,7 @@ function ReviewCard({ record, handleFuncButton }) {
     let currentTag = tagRefs.current[crtQuoteIdx];
     if (currentTag) {
       // This offset centers the indicator bar underneath the new tag.
-      let newIndicatorOffset =
-        currentTag.offsetLeft +
-        (currentTag.offsetWidth - INDICATOR_OFFSET_WIDTH) / 2;
+      let newIndicatorOffset = currentTag.offsetLeft + (currentTag.offsetWidth - INDICATOR_OFFSET_WIDTH) / 2;
       // Apply no animation when first mounted.
       if (indicatorOffset === null || indicatorWidth === null) {
         setIndicatorWidth(INDICATOR_OFFSET_WIDTH);
@@ -272,8 +253,7 @@ function ReviewCard({ record, handleFuncButton }) {
         return;
       }
       // The new indicator width that span from current offset to new offset.
-      let newIndicatorWidth =
-        Math.abs(newIndicatorOffset - indicatorOffset) + INDICATOR_OFFSET_WIDTH;
+      let newIndicatorWidth = Math.abs(newIndicatorOffset - indicatorOffset) + INDICATOR_OFFSET_WIDTH;
       // Apply animation based on direction.
       if (direction === quoteAnimationRight) {
         shiftIndicatorRight(newIndicatorWidth, newIndicatorOffset);
@@ -317,9 +297,7 @@ function ReviewCard({ record, handleFuncButton }) {
               classNames={{ ...direction }}
             >
               <div className="break-all w-full absolute max-h-44 overflow-y-auto">
-                {crtQuoteIdx < record.quotes.length
-                  ? record.quotes[crtQuoteIdx].value
-                  : null}
+                {crtQuoteIdx < record.quotes.length ? record.quotes[crtQuoteIdx].value : null}
               </div>
             </CSSTransition>
           </TransitionGroup>

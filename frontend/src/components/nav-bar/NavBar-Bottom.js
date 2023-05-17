@@ -1,22 +1,21 @@
 import * as React from "react";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
-import { getPages } from "./NavItems";
+import { usePages } from "./NavItems";
 import { Link } from "react-router-dom";
 
 const navItems = ["Home", "Review", "Library"];
 /**
  * The bottom navigation component
- * @param pendingReviews: The number of unfinished reviews
  */
-function NavBarBottom({ pendingReviews }) {
+function NavBarBottom() {
   // value prop in BottomNavigation. Used for indicating the current selected button.
   const [value, setValue] = React.useState("Home");
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
   // Initialize pages config
-  const pages = getPages(pendingReviews);
+  const pages = usePages();
 
   return (
     <BottomNavigation

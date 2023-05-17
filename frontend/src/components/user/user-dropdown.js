@@ -10,15 +10,8 @@ import withUserItems, { UserMenuInfoSection } from "./user-menu-hoc";
 /**
  * The UserDrop down component that is only visibly in Desktop view.
  * This includes a userAvatar and dropDown menu.
- * @param userInfo: The prop that contains user information.
  */
-function UserDropDown({
-  userMenuDataSection,
-  userMenuActionSection,
-  userInfo,
-  anchorElUser,
-  handleCloseDropdown,
-}) {
+function UserDropDown({ userMenuDataSection, userMenuActionSection, anchorElUser, handleCloseDropdown }) {
   return (
     <Menu
       anchorEl={anchorElUser}
@@ -53,7 +46,7 @@ function UserDropDown({
       transformOrigin={{ horizontal: "right", vertical: "top" }}
       anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
     >
-      <UserMenuInfoSection userInfo={userInfo} />
+      <UserMenuInfoSection />
       {userMenuDataSection.map((item) => (
         <MenuItem key={item.label} onClick={item.onclick}>
           <ListItemIcon>{item.icon}</ListItemIcon>

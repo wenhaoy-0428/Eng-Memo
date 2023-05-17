@@ -1,3 +1,4 @@
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
@@ -11,18 +12,24 @@ from rest_framework.views import APIView
 from rest_framework import status, permissions
 from rest_framework.response import Response
 
-from .serializers import RegisterSerializer, LoginSerializer
+from .serializers import RegisterSerializer, LoginSerializer, AvatarSerializer
 from .email.accountActivation import sendAccountActivationEmail, email_verification_token_generator
+from django.views.decorators.csrf import csrf_exempt
+from .models import UserProfile
+
 
 class TestViewSendActivationEmail(APIView):
     permission_classes = [permissions.AllowAny,]
+
     def get(self, request, format=None):
         # ! TestView that uses super user.
         user = User.objects.get(username="hao")
         return Response(sendAccountActivationEmail(user, request))
-    
+
+
 class ActivateAccount(APIView):
     permission_classes = [permissions.AllowAny,]
+
     def get(self, request, uidb64, token, format=None):
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
@@ -58,7 +65,8 @@ class Register(APIView):
         _type_: _description_
     """
     permission_classes = [permissions.AllowAny,]
-    serializer_class = RegisterSerializer 
+    serializer_class = RegisterSerializer
+
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -66,9 +74,10 @@ class Register(APIView):
 
         if sendAccountActivationEmail(user, request) != 1:
             user.delete()
-            return Response({"error": "Email unreachable or unexpected error occurred when sending email"}, 
+            return Response({"error": "Email unreachable or unexpected error occurred when sending email"},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 @method_decorator(csrf_protect, name="dispatch")
 class Login(APIView):
@@ -79,7 +88,7 @@ class Login(APIView):
         serializer = LoginSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         email = serializer.validated_data['email']
         password = serializer.validated_data['password']
         user = authenticate(email=email, password=password)
@@ -93,9 +102,7 @@ class Login(APIView):
                 return Response(data={'error': "Inactivated User. Please check your email box to activate your account."}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(data={'password': ["Username and password don't match or username doesn't exist."]}, status=status.HTTP_401_UNAUTHORIZED)
-    
 
-            
 
 class Logout(APIView):
     def post(self, request, format=None):
@@ -104,3 +111,21 @@ class Logout(APIView):
             return Response('User successfully logged out.')
         except:
             return Response('Something went wrong', status=status.HTTP_400_BAD_REQUEST)
+
+
+class UploadAvatar(APIView):
+    def post(self, request, format=None):
+        serializer = AvatarSerializer(data=request.data)
+        if serializer.is_valid():
+            avatar = serializer.validated_data['avatar']
+            instance = None
+            try:
+                instance = UserProfile.objects.get(user=request.user)
+                if instance.avatar:
+                    instance.avatar.delete()
+                instance.avatar = avatar
+                instance.save()
+            except UserProfile.DoesNotExist:
+                instance = UserProfile.objects.create(user=request.user, avatar=avatar)
+            return Response(instance.avatar.url, status=201)
+        return Response(serializer.errors, status=400)

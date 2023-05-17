@@ -27,8 +27,10 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import Review, { loadReview } from "./components/review/Review";
 import Register from "./components/authentication/registration/RegisterPage";
 import { PrivateRoutes, loadCSRFToken } from "./libs/auth/auth";
+import Profile from "./components/profile";
 import { UserProvider } from "./contexts/UserContext";
 import MileStone, { loadMilestone } from "./components/calendar";
+import { ThemeProvider, createTheme } from "@mui/material";
 
 // solve csrf token missing error when POSTing data to Django
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
@@ -60,18 +62,10 @@ const router = createBrowserRouter(
           <Route path="review" element={<Review />} loader={loadReview} />
           <Route path="library" element={<Library />} loader={loadLibrary} />
           <Route path="milestone">
-            <Route
-              index
-              element={
-                <Navigate replace to={`${format(new Date(), "yyyy-MM-dd")}`} />
-              }
-            />
-            <Route
-              path=":date"
-              element={<MileStone />}
-              loader={loadMilestone}
-            />
+            <Route index element={<Navigate replace to={`${format(new Date(), "yyyy-MM-dd")}`} />} />
+            <Route path=":date" element={<MileStone />} loader={loadMilestone} />
           </Route>
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Route>
       <Route path="account/*" loader={loadCSRFToken}>
@@ -112,19 +106,27 @@ function Index() {
 
   return (
     <>
-      <AnimatePresence>
-        {showLoadingIndicator && <LoadingIndicator />}
-      </AnimatePresence>
+      <AnimatePresence>{showLoadingIndicator && <LoadingIndicator />}</AnimatePresence>
       <Outlet />
     </>
   );
 }
 
+const theme = createTheme({
+  palette: {
+    success: {
+      main: "#4CAF50",
+    },
+  },
+});
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <AuthProvider>
-    <NotificationProvider>
-      <RouterProvider router={router} />
-    </NotificationProvider>
+    <ThemeProvider theme={theme}>
+      <NotificationProvider>
+        <RouterProvider router={router} />
+      </NotificationProvider>
+    </ThemeProvider>
   </AuthProvider>
 );

@@ -120,7 +120,7 @@ export default function MileStone() {
   }, [fetcher]);
 
   return (
-    <div className="Milestone w-[80%] max-w-[400px] row-span-4 h-full relative font-NotoSansSCR text-xl overflow-hidden">
+    <div className="Milestone w-[80%] max-w-[400px] row-span-4 h-full relative font-NotoSansSC text-xl overflow-hidden">
       <div className="header flex justify-between items-center">
         <IconButton onClick={prevMonth}>
           <KeyboardArrowLeftIcon />

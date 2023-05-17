@@ -49,7 +49,7 @@ function Tag({ children, filter, search, setWord, setTag }) {
         whileTap={{ scale: 0.9 }}
         onClick={handlerOnClick}
       >
-        <Paper className="px-2 py-1 font-NotoSansSCR text-gray-500 ">
+        <Paper className="px-2 py-1 font-NotoSansSC text-gray-500 ">
           {(() => {
             switch (filter) {
               case "Word":
