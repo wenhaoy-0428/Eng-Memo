@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Formik, Field, Form } from "formik";
+import React, { useState } from "react";
 import axios from "axios";
-import { object, string } from "yup";
 import { SwitchTransition, CSSTransition } from "react-transition-group";
 
 // MaterialUI
@@ -23,6 +21,7 @@ import submitBtnAnimation from "./SubmitBtnAnimation.module.css";
 import Uplifting from "../common/uplifting/Uplifting";
 import { useOutletContext } from "react-router-dom";
 import ProximityBar from "./proximityBar";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 
 /**
  * @brief: The default attributes for the inputs.
@@ -70,8 +69,12 @@ function InputForm() {
   // The filter type of search.
   const [filer, setFilter] = useState("Word");
   // state values of InputField and TagInput
-  const [word, setWord] = useState("");
-  const [tag, setTag] = useState("");
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   /**
    * @brief: Toggle DropDown menu when menu button is clicked.
    */
@@ -114,85 +117,73 @@ function InputForm() {
         <Uplifting />
       </div>
       <div className="InputForm w-4/5 max-w-xl">
-        {/* Use Formik library to implement form, 
-      check this link https://formik.org/docs/tutorial for a comprehensive tutorial */}
         <div>
           <ProximityBar
             search={search}
-            setWord={setWord}
-            setTag={setTag}
+            setWord={(value) => {
+              setValue("word", value);
+            }}
+            setTag={(value) => {
+              setValue("tag", value);
+            }}
             filter={filer}
           />
         </div>
         <div className="relative">
-          <Formik
-            initialValues={{ word: "", quote: "", tag: "", link: "" }}
-            validationSchema={object({
-              word: string().required("Required"),
-              link: string().url("Link must be a valid URL").nullable(),
-            })}
-            onSubmit={submitForm}
+          <FormProvider
+            {...{
+              register,
+              errors,
+              handleSubmit: handleSubmit(submitForm),
+            }}
           >
-            {/* Use Children of Formik to get more props */}
-            {({ handleSubmit, errors }) => (
-              <Form>
-                {/* InputBar */}
-                <Paper className="InputBar flex items-center relative z-50 h-10">
-                  <Tooltip title="Menu">
-                    <IconButton
-                      aria-label="menu"
-                      data-testid="DropDownBtn"
-                      onClick={toggleDropDown}
-                      className="DropDownBtn"
-                    >
-                      <MenuIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Field
-                    value={word}
-                    name="word"
-                    type="text"
-                    as={InputBase}
-                    placeholder={inputPresets.word.placeholder}
-                    onInput={(e) => {
-                      setSearch(e.target.value);
-                      setFilter("Word");
-                    }}
-                    onChange={(e) => {
-                      // onChange doesn't fire when copying the same value to input
-                      // https://stackoverflow.com/questions/38256332/in-react-whats-the-difference-between-onchange-and-oninput
-                      setWord(e.target.value);
-                    }}
-                    autoFocus
-                    className="WordInput flex-1"
-                  />
-                  <Divider className="h-6" orientation="vertical" />
-                  {/* Give this a better name */}
-                  <SubmitBtn
-                    formStatus={formStatus}
-                    errors={errors}
-                    switchSubmitBtn={switchSubmitBtn}
-                    handleSubmit={handleSubmit}
-                  />
-                </Paper>
-                {/* Drop down menu */}
-                <CSSTransition
-                  in={openDropDown}
-                  unmountOnExit
-                  timeout={800}
-                  classNames={{ ...dropDownAnimation }}
-                >
-                  <InputFormDropDown
-                    errors={errors}
-                    tag={tag}
-                    setTag={setTag}
-                    setSearch={setSearch}
-                    setFilter={setFilter}
-                  />
-                </CSSTransition>
-              </Form>
-            )}
-          </Formik>
+            <form>
+              {/* InputBar */}
+              <Paper className="InputBar flex items-center relative z-50 h-10">
+                <Tooltip title="Menu">
+                  <IconButton
+                    aria-label="menu"
+                    data-testid="DropDownBtn"
+                    onClick={toggleDropDown}
+                    className="DropDownBtn"
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                </Tooltip>
+                <InputBase
+                  {...register("word", {
+                    required: { value: true, message: "This is required." },
+                  })}
+                  type="text"
+                  placeholder={inputPresets.word.placeholder}
+                  onInput={(e) => {
+                    setSearch(e.target.value);
+                    setFilter("Word");
+                  }}
+                  autoFocus
+                  className="WordInput flex-1"
+                />
+                <Divider className="h-6" orientation="vertical" />
+                {/* Give this a better name */}
+                <SubmitBtn
+                  formStatus={formStatus}
+                  switchSubmitBtn={switchSubmitBtn}
+                />
+              </Paper>
+              {/* Drop down menu */}
+              <CSSTransition
+                in={openDropDown}
+                unmountOnExit
+                timeout={800}
+                classNames={{ ...dropDownAnimation }}
+              >
+                <InputFormDropDown
+                  setSearch={setSearch}
+                  setFilter={setFilter}
+                />
+              </CSSTransition>
+            </form>
+          </FormProvider>
         </div>
       </div>
     </>
@@ -202,12 +193,15 @@ function InputForm() {
 /**
  * @brief: The submit button component
  * @param formStatus: The current status of the form. success | failure | neutral | loading
- * @param errors: The validation result of input fields.
  * @param switchSubmitBtn: A switch used for icon animation that switches its state when
  *  formStatus shifts from loading to [success|failure].
- * @param handleSubmit: A callback function to submit the form.
  */
-function SubmitBtn({ formStatus, errors, switchSubmitBtn, handleSubmit }) {
+function SubmitBtn({ formStatus, switchSubmitBtn }) {
+  /**
+   * errors: The validation result of input fields.
+   * handleSubmit: A callback function to submit the form.
+   */
+  const { errors, handleSubmit } = useFormContext();
   const handleButtonClick = () => {
     handleSubmit();
   };
@@ -277,19 +271,16 @@ function SubmitBtn({ formStatus, errors, switchSubmitBtn, handleSubmit }) {
 
 /**
  * @brief: The Drop-down menu for inputForm.
- * @prop errors: The drilling errors of the form.
- * @prop tag: The state value of tag field
- * @prop setTag: A handler to update tag field. Used for ProximitySearch. @link ProximitySearch
  * @prop setSearch: A handler to set the value of search. @link ProximitySearch
  * @prop setFilter: A handler to set the ProximitySearch type. @link ProximitySearch
  */
-function InputFormDropDown({ errors, tag, setTag, setFilter, setSearch }) {
+function InputFormDropDown({ setFilter, setSearch }) {
+  const { register, errors } = useFormContext();
   return (
     <>
       <Paper className="InputFormDropDown grid grid-cols-[1fr_2fr] gap-4 p-3 absolute top-0 z-10 overflow-hidden">
-        <Field
-          name="quote"
-          as={TextField}
+        <TextField
+          {...register("quote")}
           multiline
           label={inputPresets.quote.label}
           placeholder={inputPresets.quote.placeholder}
@@ -297,27 +288,26 @@ function InputFormDropDown({ errors, tag, setTag, setFilter, setSearch }) {
           className="QuoteInput col-span-2"
         />
 
-        <Field
-          name="tag"
-          value={tag}
-          as={TextField}
+        <TextField
+          {...register("tag")}
           type="text"
           onInput={(e) => {
             setSearch(e.target.value);
             setFilter("Tag");
-          }}
-          onChange={(e) => {
-            setTag(e.target.value);
           }}
           label={inputPresets.tag.label}
           placeholder={inputPresets.tag.placeholder}
           className="TagInput"
         />
 
-        <Field
+        <TextField
+          {...register("link", {
+            pattern: {
+              value: /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i,
+              message: "Invalid URL",
+            },
+          })}
           error={!objIsEmpty(errors) && errors["link"] ? true : false}
-          name="link"
-          as={TextField}
           type="url"
           label={inputPresets.link.label}
           placeholder={inputPresets.link.placeholder}
