@@ -335,7 +335,11 @@ class UpdateReviewingRecordStatus(APIView):
             # complete milestone
             milestoneSet = Milestone.objects.filter(
                 user_id=request.user, plannedAt=date.today())
-            if milestoneSet.count() == 1:
+            if milestoneSet.count() == 0:
+                # in case review plan is directly added, not through generateReviewPlan API
+                milestone = Milestone.objects.create(
+                    user_id=request.user, completed=True)
+            elif milestoneSet.count() == 1:
                 milestone = milestoneSet[0]
                 milestone.completed = True
                 milestone.save()

@@ -75,7 +75,7 @@ class Quote(models.Model):
 class Milestone(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     plannedAt = models.DateField(
-        null=False, blank=False, default=date.today, unique=True)
+        null=False, blank=False, default=date.today)
     completed = models.BooleanField(default=False, null=False)
 
     def __str__(self):
