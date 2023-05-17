@@ -7,15 +7,15 @@ import HighLightTexts from "../../common/highlightTexts";
 const API_SEARCH_WORDS = "/api/search-words/";
 const API_SEARCH_TAGS = "/api/search-tags/";
 
-function Tag({ children, filter, search, inputRef, tagRef }) {
+function Tag({ children, filter, search, setWord, setTag }) {
   // set value of inputField to the word of the matched record
   const handlerOnClick = () => {
     switch (filter) {
       case "Word":
-        inputRef.current.value = children;
+        setWord(children);
         break;
       case "Tag":
-        tagRef.current.value = children;
+        setTag(children);
         break;
       default:
         console.error("You should not be here!");
@@ -79,11 +79,11 @@ function Tag({ children, filter, search, inputRef, tagRef }) {
 /**
  * A proximity Bar that contains all the matching results.
  * @param search: The substring that is used to find matches results.
- * @param inputRef: The reference to the inputBar
- * @param tagRef: The reference to the tagField
+ * @param setWord: The handler to update inputBar
+ * @param setTag: The handler to update tagField
  * @param filter: The type of the search "Word" | "Tag"
  */
-export default function ProximityBar({ search, inputRef, filter, tagRef }) {
+export default function ProximityBar({ search, setWord, filter, setTag }) {
   //! The reason not to use normal variables directly is that Tag as the children of ProximityBar is rendered first
   //! before useEffect of ProximityBar is called to fetch matches. Hence, search can be newly inputted while tags are still stale.
   const [tags, setTags] = useState([]);
@@ -152,8 +152,8 @@ export default function ProximityBar({ search, inputRef, filter, tagRef }) {
               key={tag}
               search={_search}
               filter={_filter}
-              inputRef={inputRef}
-              tagRef={tagRef}
+              setWord={setWord}
+              setTag={setTag}
             >
               {tag}
             </Tag>
