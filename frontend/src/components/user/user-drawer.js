@@ -16,7 +16,12 @@ function UserDrawer({ userMenuDataSection, userMenuActionSection, openDrawer, ha
       <List sx={{ width: 250 }}>
         {userMenuDataSection.map((item) => (
           <ListItem key={item.label} disablePadding>
-            <ListItemButton onClick={item.onclick}>
+            <ListItemButton
+              onClick={() => {
+                item.onclick();
+                handleCloseDrawer();
+              }}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
             </ListItemButton>
@@ -25,7 +30,12 @@ function UserDrawer({ userMenuDataSection, userMenuActionSection, openDrawer, ha
         <Divider />
         {userMenuActionSection.map((item) => (
           <ListItem key={item.label} disablePadding>
-            <ListItemButton onClick={item.onclick}>
+            <ListItemButton
+              onClick={() => {
+                item.onclick();
+                handleCloseDrawer();
+              }}
+            >
               <ListItemIcon>{item.icon}</ListItemIcon>
               <ListItemText primary={item.label} />
             </ListItemButton>
