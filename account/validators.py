@@ -1,6 +1,7 @@
 import re
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.core.files.images import get_image_dimensions
 
 
 class UppercaseValidator(object):
@@ -18,6 +19,7 @@ class UppercaseValidator(object):
         return _(
             "Your password must contain at least 1 uppercase letter, A-Z."
         )
+
 
 class LowercaseValidator(object):
 
@@ -54,6 +56,7 @@ class SpecialCharValidator(object):
             "@#$%!^&*"
         )
 
+
 class MaximumLengthValidator:
     def __init__(self, max_length=24):
         self.max_length = max_length
@@ -71,3 +74,16 @@ class MaximumLengthValidator:
             "Your password must contain at least %(max_length)d characters."
             % {'max_length': self.max_length}
         )
+
+
+def MaxAvatarSizeValidator(image):
+    """
+    Validates avatar size to be within 400x400
+    https://stackoverflow.com/questions/39677349/django-admin-and-imagefield-dimension-restrictions
+    """
+    image_width, image_height = get_image_dimensions(image)
+    max_width = 400
+    max_height = 400
+
+    if image_width > max_width or image_height > max_height:
+        raise ValidationError(f"The maximum image dimensions allowed are {max_width}x{max_height} pixels.")

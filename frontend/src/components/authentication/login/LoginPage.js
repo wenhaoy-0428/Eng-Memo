@@ -130,7 +130,7 @@ function Login() {
             Login
           </Button>
         </AuthForm>
-        <div className="footer flex gap-2 p-1 [&>*]:no-underline  [&>*]:text-[#ababab] [&>*]:font-NotoSansSCR [&>*]:text-xs [&>*]:inline-block">
+        <div className="footer flex gap-2 p-1 [&>*]:no-underline  [&>*]:text-[#ababab] [&>*]:font-NotoSansSC [&>*]:text-xs [&>*]:inline-block">
           <img src={beianIcon} className="w-4 h-4" />
           <a
             target="_blank"

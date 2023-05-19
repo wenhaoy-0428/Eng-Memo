@@ -9,16 +9,19 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
+import { useUser } from "../../contexts/UserContext";
 
 const API_LOGOUT = "/api/account/logout/";
 
-export function UserMenuInfoSection({ userInfo }) {
+export function UserMenuInfoSection() {
+  const { user } = useUser();
+
   return (
     <div className="UserInfo px-3 w-full mb-2">
       <div className="m-0 w-40 whitespace-nowrap overflow-hidden text-ellipsis text-xl text-[#1976d2] font-extrabold text-center">
-        {userInfo.name}
+        {user.name}
       </div>
-      <p className="m-0 ">{userInfo.email}</p>
+      <p className="m-0 ">{user.email}</p>
     </div>
   );
 }
@@ -38,8 +41,10 @@ function withUserItems(OriginalComponent) {
     const userMenuDataSection = [
       {
         label: "Profile",
-        // TODO
         icon: <Avatar className="w-[1.5em] h-[1.5em] ml-[-5px]" />,
+        onclick: () => {
+          navigate("/profile");
+        },
       },
       {
         label: "MileStone",
@@ -72,14 +77,8 @@ function withUserItems(OriginalComponent) {
       },
     ];
 
-    return auth ? (
-      <OriginalComponent
-        userMenuDataSection={userMenuDataSection}
-        userMenuActionSection={userMenuActionSection}
-        {...props}
-      ></OriginalComponent>
-    ) : (
-      <Navigate to={"/account/login"} />
+    return (
+      <OriginalComponent userMenuDataSection={userMenuDataSection} userMenuActionSection={userMenuActionSection} {...props} />
     );
   };
 }

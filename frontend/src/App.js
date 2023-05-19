@@ -11,16 +11,15 @@ import { useUser } from "./contexts/UserContext";
 function App() {
   // The data fetched from server including user Information and library
   const data = useLoaderData();
-  // The number of unfinished reviews
-  const [pendingReviews, setPendingReviews] = useState(data["numPending"]);
 
   const userInfo = {
     name: data["username"],
     email: data["email"],
-    avatar: undefined,
+    avatar: data["avatar"],
     milestone_streak: data["streak"],
     milestone_longestStreak: data["longestStreak"],
     milestone_total: data["total"],
+    numPendingReviews: data["numPending"],
   };
   const { user, setUser } = useUser();
 
@@ -28,13 +27,13 @@ function App() {
     setUser(userInfo);
   }, []);
 
-  return (
+  return user ? (
     <div className="App grid grid-rows-6 grid-flow-col items-start justify-items-center h-full">
-      <NavBarTop pendingReviews={pendingReviews} userInfo={userInfo} />
-      <Outlet context={[setPendingReviews]} />
-      <NavBarBottom pendingReviews={pendingReviews} />
+      <NavBarTop userInfo={userInfo} />
+      <Outlet />
+      <NavBarBottom />
     </div>
-  );
+  ) : null;
 }
 
 export async function loadApp() {

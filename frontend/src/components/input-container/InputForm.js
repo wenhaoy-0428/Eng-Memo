@@ -22,6 +22,7 @@ import Uplifting from "../common/uplifting/Uplifting";
 import { useOutletContext } from "react-router-dom";
 import ProximityBar from "./proximityBar";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { useUser } from "../../contexts/UserContext";
 
 /**
  * @brief: The default attributes for the inputs.
@@ -50,12 +51,13 @@ const status = {
   neutral: 2,
   loading: 3,
 };
+
+const API_NEW_REVIEW = "/api/newRecord/";
+const API_GET_NUM_PENDING_REVIEWS = "/api/get-num-pending-reviews/";
 /**
  * @brief: InputForm Component
  */
 function InputForm() {
-  const API_NEW_REVIEW = "/api/newRecord/";
-  const API_GET_NUM_PENDING_REVIEWS = "/api/get-num-pending-reviews/";
   // The status of the form.
   const [formStatus, setFormStatus] = useState(status.neutral);
   // The state of the dropDown menu.
@@ -63,7 +65,7 @@ function InputForm() {
   // The switch that toggles the animation of the submitBtn
   const [switchSubmitBtn, setSwitchSubmitBtn] = useState(false);
   // handler to update number of pending reviews.
-  const [setPendingReviews] = useOutletContext();
+  const { setUser } = useUser();
   // The state of current value of the inputBar.
   const [search, setSearch] = useState("");
   // The filter type of search.
@@ -97,7 +99,7 @@ function InputForm() {
       // on successfully add a new record, update number of pending reviews.
       try {
         let response = await axios.get(API_GET_NUM_PENDING_REVIEWS);
-        setPendingReviews(response.data);
+        setUser((prevState) => ({ ...prevState, numPendingReviews: response.data }));
       } catch (e) {
         console.log(e);
       }
@@ -141,12 +143,7 @@ function InputForm() {
               {/* InputBar */}
               <Paper className="InputBar flex items-center relative z-50 h-10">
                 <Tooltip title="Menu">
-                  <IconButton
-                    aria-label="menu"
-                    data-testid="DropDownBtn"
-                    onClick={toggleDropDown}
-                    className="DropDownBtn"
-                  >
+                  <IconButton aria-label="menu" data-testid="DropDownBtn" onClick={toggleDropDown} className="DropDownBtn">
                     <MenuIcon />
                   </IconButton>
                 </Tooltip>
@@ -165,22 +162,11 @@ function InputForm() {
                 />
                 <Divider className="h-6" orientation="vertical" />
                 {/* Give this a better name */}
-                <SubmitBtn
-                  formStatus={formStatus}
-                  switchSubmitBtn={switchSubmitBtn}
-                />
+                <SubmitBtn formStatus={formStatus} switchSubmitBtn={switchSubmitBtn} />
               </Paper>
               {/* Drop down menu */}
-              <CSSTransition
-                in={openDropDown}
-                unmountOnExit
-                timeout={800}
-                classNames={{ ...dropDownAnimation }}
-              >
-                <InputFormDropDown
-                  setSearch={setSearch}
-                  setFilter={setFilter}
-                />
+              <CSSTransition in={openDropDown} unmountOnExit timeout={800} classNames={{ ...dropDownAnimation }}>
+                <InputFormDropDown setSearch={setSearch} setFilter={setFilter} />
               </CSSTransition>
             </form>
           </FormProvider>
@@ -213,16 +199,9 @@ function SubmitBtn({ formStatus, switchSubmitBtn }) {
   const renderSubmitIcon = (formStatus) => {
     switch (formStatus) {
       case status.success:
-        return (
-          <CheckCircleOutlineIcon
-            sx={{ color: green[500] }}
-            data-testid="checkIcon"
-          />
-        );
+        return <CheckCircleOutlineIcon sx={{ color: green[500] }} data-testid="checkIcon" />;
       case status.failure:
-        return (
-          <ErrorOutlineOutlinedIcon color="error" data-testid="crossIcon" />
-        );
+        return <ErrorOutlineOutlinedIcon color="error" data-testid="crossIcon" />;
       default:
         return <LibraryAddCheckOutlinedIcon data-testid="addIcon" />;
     }

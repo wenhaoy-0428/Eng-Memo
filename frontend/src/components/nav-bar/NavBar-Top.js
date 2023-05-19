@@ -10,24 +10,25 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 
 import { Link } from "react-router-dom";
 
-import { getPages } from "./NavItems";
+import { usePages } from "./NavItems";
 import UserDropDown from "../user/user-dropdown";
 import UserDrawer from "../user/user-drawer";
 import Logo from "../logo/Logo";
+import { useUser } from "../../contexts/UserContext";
 
 const navItems = ["Review", "Library"];
 
 /**
  * @brief: The NavBar component that handles the routing of the App
- * @param pendingReviews: The number of unfinished reviews
- * @param userInfo: The user information including userName and email, etc.
  */
-function NavBarTop({ pendingReviews, userInfo }) {
+function NavBarTop() {
   // Initialize the available pages.
-  const pages = getPages(pendingReviews);
+  const pages = usePages();
   const matches = useMediaQuery("(min-width:768px)");
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [openDrawer, setOpenDrawer] = useState(false);
+
+  const { user } = useUser();
 
   const handleCloseDropdown = (event) => {
     setAnchorElUser(null);
@@ -49,35 +50,23 @@ function NavBarTop({ pendingReviews, userInfo }) {
   return (
     <AppBar position="static" role="navigation">
       {/*  centers your content horizontally. */}
-      <Container
-        maxWidth="xl"
-        className="xs:grid xs:grid-cols-4 xs:justify-items-center md:flex md:items-center p-2"
-      >
+      <Container maxWidth="xl" className="xs:grid xs:grid-cols-4 xs:justify-items-center md:flex md:items-center p-2">
         {/* Icon on Desktop */}
-        <div
-          data-testid="logo-desktop"
-          className="xs:hidden md:flex md: items-center"
-        >
+        <div data-testid="logo-desktop" className="xs:hidden md:flex md: items-center">
           <Link to="home" className="no-underline text-white">
             <Logo size={40} />
           </Link>
         </div>
 
         {/* Icon on Mobile */}
-        <div
-          data-testid="logo-mobile"
-          className="xs:flex xs:items-center md:hidden col-start-2  col-end-4"
-        >
+        <div data-testid="logo-mobile" className="xs:flex xs:items-center md:hidden col-start-2  col-end-4">
           <Link to="home" className="no-underline text-white">
             <Logo size={40} />
           </Link>
         </div>
 
         {/* Nav-Items */}
-        <Box
-          className="xs:hidden md:flex md: items-center"
-          sx={{ flexGrow: 1 }}
-        >
+        <Box className="xs:hidden md:flex md: items-center" sx={{ flexGrow: 1 }}>
           {navItems.map((item) => (
             <Tooltip title={item} key={item}>
               <Button
@@ -97,20 +86,12 @@ function NavBarTop({ pendingReviews, userInfo }) {
         <Box className="UserMenu ml-auto">
           <Tooltip title="User Information">
             <IconButton onClick={openUserMenu} sx={{ p: 0 }}>
-              <Avatar alt="Undefined" src={userInfo.avatar} />
+              <Avatar alt={user.name} src={user.avatar} />
             </IconButton>
           </Tooltip>
-          <UserDropDown
-            userInfo={userInfo}
-            anchorElUser={anchorElUser}
-            handleCloseDropdown={handleCloseDropdown}
-          />
+          <UserDropDown anchorElUser={anchorElUser} handleCloseDropdown={handleCloseDropdown} />
 
-          <UserDrawer
-            userInfo={userInfo}
-            openDrawer={openDrawer}
-            handleCloseDrawer={handleCloseDrawer}
-          />
+          <UserDrawer openDrawer={openDrawer} handleCloseDrawer={handleCloseDrawer} />
         </Box>
       </Container>
     </AppBar>
