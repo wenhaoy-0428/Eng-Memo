@@ -38,31 +38,16 @@ function Tag({ children, filter, search, setWord, setTag }) {
   };
 
   return (
-    <Reorder.Item
-      variants={animate_tag}
-      initial="hidden"
-      animate="show"
-      exit="hidden"
-    >
-      <motion.div
-        className="hover:cursor-pointer"
-        whileTap={{ scale: 0.9 }}
-        onClick={handlerOnClick}
-      >
-        <Paper className="px-2 py-1 font-NotoSansSC text-gray-500 ">
+    <Reorder.Item variants={animate_tag} initial="hidden" animate="show" exit="hidden">
+      <motion.div className="hover:cursor-pointer" whileTap={{ scale: 0.9 }} onClick={handlerOnClick}>
+        <Paper className="px-2 py-1 font-NotoSansSC text-gray-500 [&>span]:whitespace-nowrap">
           {(() => {
             switch (filter) {
               case "Word":
-                return (
-                  <HighLightTexts search={search}>{children}</HighLightTexts>
-                );
+                return <HighLightTexts search={search}>{children}</HighLightTexts>;
               case "Tag":
                 return (
-                  <HighLightTexts
-                    highlightColor="#22C55E"
-                    search={search}
-                    start="#"
-                  >
+                  <HighLightTexts highlightColor="#22C55E" search={search} start="#">
                     {children}
                   </HighLightTexts>
                 );
@@ -147,14 +132,8 @@ export default function ProximityBar({ search, setWord, filter, setTag }) {
         className="flex px-[1px] py-1 gap-x-3 my-1 overflow-hidden list-none h-full"
       >
         <AnimatePresence wait>
-          {tags.map((tag) => (
-            <Tag
-              key={tag}
-              search={_search}
-              filter={_filter}
-              setWord={setWord}
-              setTag={setTag}
-            >
+          {tags.slice(0, 10).map((tag) => (
+            <Tag key={tag} search={_search} filter={_filter} setWord={setWord} setTag={setTag}>
               {tag}
             </Tag>
           ))}

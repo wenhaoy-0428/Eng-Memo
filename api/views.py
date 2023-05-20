@@ -203,7 +203,7 @@ class GenerateReviewPlan(APIView):
                 candidate = sample[0]
                 self.initTodaysRecord(candidate)
         # To make sure the loading screen is on
-        sleep(1.5)
+        sleep(3)
         # create milestone instance for the user
         Milestone.objects.create(user_id=request.user)
         return Response({"success": "Generated"}, status=status.HTTP_201_CREATED)
