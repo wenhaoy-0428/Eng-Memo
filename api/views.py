@@ -51,7 +51,7 @@ class GetUserContext(APIView):
         avatarUrl = userProfile = None
         try:
             userProfile = UserProfile.objects.get(user=request.user)
-            if userProfile.avatar != None:
+            if userProfile.avatar:
                 avatarUrl = userProfile.avatar.url
         except UserProfile.DoesNotExist:
             userProfile = UserProfile.objects.create(user=request.user)

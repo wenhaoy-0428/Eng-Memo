@@ -27,6 +27,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['whyprojects.tech', "139.196.146.111"]
 
+ADMINS = [("hao", "wenhaoy.0428@gmail.com"), ("Jie", "2455447217@qq.com")]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -159,13 +161,13 @@ REST_FRAMEWORK = {
 }
 
 # Configure confirmation email
-# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = "smtp.exmail.qq.com"
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = "no_reply@whyprojects.tech"
 EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
 
 PASSWORD_RESET_TIMEOUT = 86400
 
