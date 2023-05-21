@@ -24,6 +24,10 @@ from account.models import UserProfile
 from . import global_param
 from . import utils
 from .libs.libs import GetLongestConsecutiveDays, GetRecentConsecutiveDays
+from django.db import IntegrityError
+import logging
+
+logger_api = logging.getLogger("api_log")
 
 
 def getPendingReviews(user):
@@ -175,6 +179,9 @@ class GenerateReviewPlan(APIView):
         return prob
 
     def post(self, request, format=None):
+        if Record.objects.filter(user_id=request.user).count() == 0:
+            # when the user is new and has no records at all
+            return Response(status=status.HTTP_204_NO_CONTENT)
         # check if review records are generated
         recordQueryCount = Record.objects.filter(
             user_id=request.user, last_planed=date.today()).count()
@@ -205,7 +212,10 @@ class GenerateReviewPlan(APIView):
         # To make sure the loading screen is on
         sleep(3)
         # create milestone instance for the user
-        Milestone.objects.create(user_id=request.user)
+        try:
+            Milestone.objects.create(user_id=request.user)
+        except IntegrityError:
+            logger_api.error("User tries to create an instance that is already existed")
         return Response({"success": "Generated"}, status=status.HTTP_201_CREATED)
 
 

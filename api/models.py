@@ -78,5 +78,8 @@ class Milestone(models.Model):
         null=False, blank=False, default=date.today)
     completed = models.BooleanField(default=False, null=False)
 
+    class Meta:
+        unique_together = ('user_id', 'plannedAt')
+
     def __str__(self):
         return f'{self.user_id}-{self.plannedAt}'

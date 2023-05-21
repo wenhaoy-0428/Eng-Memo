@@ -18,6 +18,9 @@ jobs:
 
       - name: Install requirements
         run: pip install -r requirements.txt
+        
+      - name: Set env
+        run: echo "DJANGO_SETTINGS_MODULE=EngMemo.dev_settings" >> "$GITHUB_ENV"
 
       - name: update database
         run: python manage.py makemigrations && python manage.py migrate
