@@ -17,7 +17,8 @@ import IconButton from "@mui/material/IconButton";
 import axios from "axios";
 import TrophyCard from "./TrophyCard";
 import { useUser } from "../../contexts/UserContext";
-import { highlightBackticks } from "../../libs/utils";
+
+import ReactMarkdown from "react-markdown";
 
 // The normal width of the tag indicator.
 const INDICATOR_OFFSET_WIDTH = 10;
@@ -310,7 +311,19 @@ function ReviewCard({ record, handleFuncButton }) {
               classNames={{ ...direction }}
             >
               <div className="break-all w-full absolute max-h-44 overflow-y-auto">
-                {crtQuoteIdx < record.quotes.length ? highlightBackticks(record.quotes[crtQuoteIdx].value) : null}
+                {crtQuoteIdx < record.quotes.length ? (
+                  <ReactMarkdown
+                    components={{
+                      a: (props) => (
+                        <a href={props.href} target="_blank" className="no-underline text-orange-500">
+                          {props.children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {record.quotes[crtQuoteIdx].value}
+                  </ReactMarkdown>
+                ) : null}
               </div>
             </CSSTransition>
           </TransitionGroup>
