@@ -33,7 +33,7 @@ const STATUS_KW = "KW", // Know
 function Review() {
   const [reviewWindow, setReviewWindow] = useState(useLoaderData());
   const [prevRecord, setPrevRecord] = useState(null);
-  const { setUser } = useUser();
+  const { user, setUser } = useUser();
 
   // Extra animation styles for review container when switching entries.
   const [extraRCAttr, setExtraRCAttr] = useState("border-0");
@@ -62,6 +62,7 @@ function Review() {
       .then((response) => {
         // save prev review
         setPrevRecord(reviewingRecord);
+        let oldWindowSize = Object.keys(reviewWindow).length;
         // update window
         let newReviewWindow = reviewWindow;
         newReviewWindow.shift();
@@ -69,6 +70,17 @@ function Review() {
           newReviewWindow = [...newReviewWindow, ...response.data["newRecords"]];
         }
         setReviewWindow(newReviewWindow);
+        // update milestone so that a request can be saved
+        if (Object.keys(newReviewWindow).length === 0 && oldWindowSize !== 0) {
+          let userUpdates = {
+            milestone_streak: user["milestone_streak"] + 1,
+            milestone_total: user["milestone_total"] + 1,
+          };
+          if (user["milestone_streak"] === user["milestone_longestStreak"]) {
+            userUpdates["milestone_longestStreak"] = user["milestone_longestStreak"] + 1;
+          }
+          setUser((prevState) => ({ ...prevState, ...userUpdates }));
+        }
         // update animation
         slideNextReview();
         setUser((prevState) => ({ ...prevState, numPendingReviews: response.data["numPending"] }));

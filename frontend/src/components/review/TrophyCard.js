@@ -1,14 +1,7 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import {
-  Stage,
-  OrbitControls,
-  Text,
-  Text3D,
-  Center,
-  Float,
-} from "@react-three/drei";
+import { Stage, OrbitControls, Text, Text3D, Center, Float } from "@react-three/drei";
 import font from "three/examples/fonts/helvetiker_bold.typeface.json";
 import { useUser } from "../../contexts/UserContext";
 
@@ -49,12 +42,8 @@ export default function TrophyCard() {
           <group scale={0.3} dispose={null}>
             {/* consecutiveDays */}
             <Center>
-              <Text3D
-                font={font}
-                scale={[1, 1, 0.8]}
-                material={materials.bevelMetal}
-              >
-                {user["milestone_streak"] + 1}
+              <Text3D font={font} scale={[1, 1, 0.8]} material={materials.bevelMetal}>
+                {user["milestone_streak"]}
               </Text3D>
             </Center>
 
@@ -82,35 +71,11 @@ export default function TrophyCard() {
             </Text>
 
             {/* 3D trophy card */}
-            <group
-              position={[0, 0, 0]}
-              rotation={[Math.PI / 2, 0, 0]}
-              scale={[2.5, 0.1, 2.5]}
-            >
-              <mesh
-                castShadow
-                receiveShadow
-                geometry={nodes.TrophyCard_1.geometry}
-                material={materials.MainMetal}
-              />
-              <mesh
-                castShadow
-                receiveShadow
-                geometry={nodes.TrophyCard_2.geometry}
-                material={materials.bevelMetal}
-              />
-              <mesh
-                castShadow
-                receiveShadow
-                geometry={nodes.TrophyCard_3.geometry}
-                material={materials.RoughMetal}
-              />
-              <mesh
-                castShadow
-                receiveShadow
-                geometry={nodes.TrophyCard_4.geometry}
-                material={materials.LarualMaterial}
-              />
+            <group position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[2.5, 0.1, 2.5]}>
+              <mesh castShadow receiveShadow geometry={nodes.TrophyCard_1.geometry} material={materials.MainMetal} />
+              <mesh castShadow receiveShadow geometry={nodes.TrophyCard_2.geometry} material={materials.bevelMetal} />
+              <mesh castShadow receiveShadow geometry={nodes.TrophyCard_3.geometry} material={materials.RoughMetal} />
+              <mesh castShadow receiveShadow geometry={nodes.TrophyCard_4.geometry} material={materials.LarualMaterial} />
             </group>
           </group>
         </Stage>
