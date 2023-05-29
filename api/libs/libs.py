@@ -8,8 +8,11 @@ def GetLongestConsecutiveDays(dates):
         dates ([DateTime]): An array of dates in reverse chronological order
     return: int
     """
-    maxDays = 0
-    maxSubDays = 0
+    if not dates:
+        # return 0 when dates is empty
+        return 0
+    maxDays = 1
+    maxSubDays = 1
     for i, currDay in enumerate(dates):
         nextIdx = i + 1
         if nextIdx >= len(dates):
@@ -18,13 +21,16 @@ def GetLongestConsecutiveDays(dates):
             maxSubDays += 1
         else:
             maxDays = max(maxDays, maxSubDays)
-            maxSubDays = 0
+            maxSubDays = 1
     maxDays = max(maxDays, maxSubDays)
     return maxDays
 
 
 def GetRecentConsecutiveDays(dates):
-    result = 0
+    if not dates:
+        # return 0 when dates is empty
+        return 0
+    result = 1
     for i, currDay in enumerate(dates):
         nextIdx = i + 1
         if nextIdx >= len(dates):
