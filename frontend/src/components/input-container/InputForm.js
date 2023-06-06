@@ -75,6 +75,7 @@ function InputForm() {
     register,
     setValue,
     handleSubmit,
+    resetField,
     formState: { errors },
   } = useForm();
   /**
@@ -99,7 +100,9 @@ function InputForm() {
       // on successfully add a new record, update number of pending reviews.
       try {
         let response = await axios.get(API_GET_NUM_PENDING_REVIEWS);
+        // update number of pending reviews as newly added record will be inserted to today's plan
         setUser((prevState) => ({ ...prevState, numPendingReviews: response.data }));
+        resetField("word");
       } catch (e) {
         console.log(e);
       }
@@ -290,7 +293,7 @@ function InputFormDropDown({ setFilter, setSearch }) {
           type="url"
           label={inputPresets.link.label}
           placeholder={inputPresets.link.placeholder}
-          helperText={errors["link"]}
+          helperText={errors["link"] ? errors["link"].message : ""}
           className="LinkInput"
         />
       </Paper>
