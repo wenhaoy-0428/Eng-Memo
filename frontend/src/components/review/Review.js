@@ -310,7 +310,7 @@ function ReviewCard({ record, handleFuncButton }) {
               onEnter={handleQuoteContainerHeight}
               classNames={{ ...direction }}
             >
-              <div className="break-all w-full absolute max-h-44 overflow-y-auto">
+              <div className="w-full absolute max-h-44 overflow-y-auto break-words">
                 {crtQuoteIdx < record.quotes.length ? (
                   <ReactMarkdown
                     components={{
