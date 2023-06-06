@@ -322,7 +322,7 @@ class UpdateReviewingRecordStatus(APIView):
             record.reviewing_status += 1
             if (record.reviewing_status == 3):
                 # update mastery when pass with decayed value and increments
-                record.mastery = max(1, utils.calcDecayedMastery(
+                record.mastery = min(1, utils.calcDecayedMastery(
                     record) + global_param.MASTERY_INCREMENT * (1 / record.num_reviewed))
                 record.last_reviewed = date.today()
 
