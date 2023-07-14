@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, createContext, useContext } from "react";
 import { useLoaderData } from "react-router-dom";
 import { useFetcher, useLocation } from "react-router-dom";
 
@@ -30,6 +30,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useNotification } from "../../contexts/NotificationContext";
 import SearchBar from "./search-bar/SearchBar";
 
+// A context to pass selection related functions
+const SelectionContext = createContext({});
+
 /**
  * The component Library that contains all the word entries the user ever stored.
  */
@@ -43,6 +46,7 @@ function Library() {
   // An dic that stores all selected quotes with True, and ever selected quotes with False,
   // meaning never selected quotes don't exist in this dic
   const [selectedQuotes, setSelectedQuotes] = useState({});
+  const [selectedRecords, setSelectedRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { newNotification } = useNotification();
 
@@ -78,19 +82,39 @@ function Library() {
   };
 
   const handleDelete = () => {
-    let data = getAllSelectedQuotes();
-    if (window.confirm(`${data.length} quotes will be deleted`)) {
-      axios
-        .put("/api/deleteQuotes/", data)
-        .then(() => {
-          newNotification("Successfully deleted", "success");
-          // empty selectedQuotes
-          setSelectedQuotes({});
-          fetcher.load(location["pathname"]);
-        })
-        .catch((e) => {
-          newNotification("An error occurred", "error");
-        });
+    let quotes = getAllSelectedQuotes();
+    let records = selectedRecords;
+
+    if (quotes.length > 0) {
+      if (window.confirm(`${quotes.length} quotes will be deleted`)) {
+        axios
+          .put("/api/deleteQuotes/", quotes)
+          .then(() => {
+            newNotification("Successfully deleted", "success");
+            // empty selectedQuotes
+            setSelectedQuotes({});
+            fetcher.load(location["pathname"]);
+          })
+          .catch((e) => {
+            newNotification("An error occurred", "error");
+          });
+      }
+    }
+
+    if (records.length > 0) {
+      if (window.confirm(`${records.length} records will be deleted`)) {
+        axios
+          .put("/api/deleteRecords/", records)
+          .then(() => {
+            newNotification("Successfully deleted", "success");
+            // empty selectedQuotes
+            setSelectedRecords([]);
+            fetcher.load(location["pathname"]);
+          })
+          .catch((e) => {
+            newNotification("An error occurred", "error");
+          });
+      }
     }
   };
 
@@ -112,14 +136,15 @@ function Library() {
   }, [fetcher.data]);
 
   return (
-    <div data-testid="library-container" className="w-[90%] max-w-[500px] h-full row-span-4">
+    <div data-testid="library-container" className="w-[90%] max-w-[600px] h-full row-span-4">
       <SearchBar updateHandler={setRecords} searchStatusHandler={setIsLoading} />
       {isLoading ? (
         <LinearProgress />
       ) : (
         <>
+          {/* Tool Bar */}
           <AnimatePresence>
-            {getAllSelectedQuotes().length > 0 && (
+            {(getAllSelectedQuotes().length > 0 || selectedRecords.length > 0) && (
               <motion.div variants={animate_toolbar} initial="hidden" animate="appear" exit="hidden" className="overflow-hidden">
                 <ToolBar handleDelete={handleDelete} />
               </motion.div>
@@ -130,6 +155,7 @@ function Library() {
             <Table stickyHeader className="w-full table-fixed">
               <TableHead>
                 <TableRow>
+                  <TableCell className="w-[15%]" align="center" />
                   <TableCell className="w-[15%]" align="center">
                     {records.length}
                   </TableCell>
@@ -144,17 +170,16 @@ function Library() {
                   </TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
-                {records.map((row) => (
-                  <Row
-                    key={row.word}
-                    record={row}
-                    fetcher={fetcher}
-                    selectQuote={setSelectedQuoteHelper}
-                    getSelectedQuote={getSelectedQuoteHelper}
-                  />
-                ))}
-              </TableBody>
+
+              <SelectionContext.Provider
+                value={{ setSelectedQuoteHelper, getSelectedQuoteHelper, fetcher, setSelectedRecords, selectedRecords }}
+              >
+                <TableBody>
+                  {records.map((row) => (
+                    <Row key={row.word} record={row} />
+                  ))}
+                </TableBody>
+              </SelectionContext.Provider>
             </Table>
           </TableContainer>
         </>
@@ -164,12 +189,11 @@ function Library() {
 }
 /**
  * @param record: A record row that displays information of the record
- * @param fetcher: A handler to manually fetch data from Library Loader
- * @param selectQuote: A handler that used to select a quote globally inside LibraryPage
- * @param getSelectedQuote: A helper function to get the selected quote with PK.
  */
-function Row({ record, fetcher, selectQuote, getSelectedQuote }) {
+function Row({ record }) {
   const [openRow, setOpenRow] = useState(false);
+
+  const { setSelectedRecords, selectedRecords } = useContext(SelectionContext);
   /**
    * Calculate color of circular progress bar based on the mastery.
    * @param {*} mastery: describes how well the user knows the word.
@@ -196,6 +220,22 @@ function Row({ record, fetcher, selectQuote, getSelectedQuote }) {
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell>
+          <Checkbox
+            onChange={(event) => {
+              if (event.target.checked) {
+                setSelectedRecords([...selectedRecords, record.pk]);
+              } else {
+                setSelectedRecords((original) =>
+                  original.filter((pk) => {
+                    return pk !== record.pk;
+                  })
+                );
+              }
+            }}
+          />
+        </TableCell>
+
+        <TableCell>
           <IconButton aria-label="expand row" size="small" onClick={() => setOpenRow(!openRow)}>
             {openRow ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
@@ -208,13 +248,7 @@ function Row({ record, fetcher, selectQuote, getSelectedQuote }) {
           <CircularProgressBar strokeColor={calcProgressBarColor(record.mastery)} strokeWidth={3} progress={record.mastery} />
         </TableCell>
       </TableRow>
-      <DetailRow
-        record={record}
-        openRow={openRow}
-        getSelectedQuote={getSelectedQuote}
-        selectQuote={selectQuote}
-        fetcher={fetcher}
-      />
+      <DetailRow record={record} openRow={openRow} />
     </>
   );
 }
@@ -330,14 +364,14 @@ function ToolBar({ handleDelete }) {
  * A nested row is a child of a normal library row which contains more information
  * @param openRow: A switch that toggles the appearance of the detailRow
  * @param record: The record that this detail row is belong to,  which contains record word and all associated quotes
- * @param getSelectedQuote: A helper function to get a selected quote with its pk.
- * @param selectQuote: A helper function to mark a quote as selected.
- * @param fetcher: A function allows us to manually trigger @link (loadLibrary) function
  */
-function DetailRow({ openRow, record, getSelectedQuote, selectQuote, fetcher }) {
+function DetailRow({ openRow, record }) {
+  //  fetcher: A function allows us to manually trigger @link (loadLibrary) function
+  const { setSelectedQuoteHelper, getSelectedQuoteHelper, fetcher } = useContext(SelectionContext);
+
   //
   let allSelected = record.quotes.reduce((selected, quote) => {
-    return selected && getSelectedQuote(quote.pk);
+    return selected && getSelectedQuoteHelper(quote.pk);
   }, true);
 
   return (
@@ -358,7 +392,7 @@ function DetailRow({ openRow, record, getSelectedQuote, selectQuote, fetcher }) 
                         record.quotes.forEach((quote) => {
                           allQuote[quote.pk] = event.target.checked;
                         });
-                        selectQuote(allQuote);
+                        setSelectedQuoteHelper(allQuote);
                       }}
                     />
                   </TableCell>
@@ -376,9 +410,9 @@ function DetailRow({ openRow, record, getSelectedQuote, selectQuote, fetcher }) 
                     <TableRow key={index}>
                       <TableCell component="th" scope="row">
                         <Checkbox
-                          checked={getSelectedQuote(quote.pk)}
+                          checked={getSelectedQuoteHelper(quote.pk)}
                           onChange={(event) => {
-                            selectQuote({ [quote.pk]: event.target.checked });
+                            setSelectedQuoteHelper({ [quote.pk]: event.target.checked });
                           }}
                         />
                       </TableCell>
@@ -387,7 +421,7 @@ function DetailRow({ openRow, record, getSelectedQuote, selectQuote, fetcher }) 
                       <TableCell>
                         {/* The Modal shows full quote */}
                         <QuoteDialog word={record.word} pk={quote.pk} fetcher={fetcher}>
-                          {quote.value}
+                          {quote.value ? quote.value : "NULL"}
                         </QuoteDialog>
                       </TableCell>
                     </TableRow>

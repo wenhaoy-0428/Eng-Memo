@@ -300,6 +300,21 @@ class DeleteQuotes(APIView):
         return Response()
 
 
+class DeleteRecords(APIView):
+    def put(self, request, format=None):
+        """Delete an array of specified records
+        Args:
+            request: Accepts JSON input in the format of
+            [pk1, pk2, pk3...]
+
+        Returns:
+            _type_: _description_
+        """
+        recordsToDelete = Record.objects.filter(pk__in=request.data)
+        recordsToDelete.delete()
+        return Response()
+
+
 class UpdateReviewingRecordStatus(APIView):
     """
         Update the today's status of specified record.
