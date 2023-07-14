@@ -112,27 +112,15 @@ function Library() {
   }, [fetcher.data]);
 
   return (
-    <div
-      data-testid="library-container"
-      className="w-[90%] max-w-[500px] h-full row-span-4"
-    >
-      <SearchBar
-        updateHandler={setRecords}
-        searchStatusHandler={setIsLoading}
-      />
+    <div data-testid="library-container" className="w-[90%] max-w-[500px] h-full row-span-4">
+      <SearchBar updateHandler={setRecords} searchStatusHandler={setIsLoading} />
       {isLoading ? (
         <LinearProgress />
       ) : (
         <>
           <AnimatePresence>
             {getAllSelectedQuotes().length > 0 && (
-              <motion.div
-                variants={animate_toolbar}
-                initial="hidden"
-                animate="appear"
-                exit="hidden"
-                className="overflow-hidden"
-              >
+              <motion.div variants={animate_toolbar} initial="hidden" animate="appear" exit="hidden" className="overflow-hidden">
                 <ToolBar handleDelete={handleDelete} />
               </motion.div>
             )}
@@ -142,7 +130,9 @@ function Library() {
             <Table stickyHeader className="w-full table-fixed">
               <TableHead>
                 <TableRow>
-                  <TableCell className="w-[15%]" />
+                  <TableCell className="w-[15%]" align="center">
+                    {records.length}
+                  </TableCell>
                   <TableCell align="center" className="w-[30%]">
                     Word
                   </TableCell>
@@ -206,11 +196,7 @@ function Row({ record, fetcher, selectQuote, getSelectedQuote }) {
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
         <TableCell>
-          <IconButton
-            aria-label="expand row"
-            size="small"
-            onClick={() => setOpenRow(!openRow)}
-          >
+          <IconButton aria-label="expand row" size="small" onClick={() => setOpenRow(!openRow)}>
             {openRow ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
@@ -219,11 +205,7 @@ function Row({ record, fetcher, selectQuote, getSelectedQuote }) {
         </TableCell>
         <TableCell align="center">{record.date_added}</TableCell>
         <TableCell align="center">
-          <CircularProgressBar
-            strokeColor={calcProgressBarColor(record.mastery)}
-            strokeWidth={3}
-            progress={record.mastery}
-          />
+          <CircularProgressBar strokeColor={calcProgressBarColor(record.mastery)} strokeWidth={3} progress={record.mastery} />
         </TableCell>
       </TableRow>
       <DetailRow
@@ -291,15 +273,8 @@ function QuoteDialog({ fetcher, word, pk, children }) {
 
   return (
     <>
-      <Button
-        variant="outlined"
-        onClick={handleOpen}
-        sx={{ textTransform: "none" }}
-        className="w-full"
-      >
-        <div className="text-ellipsis overflow-hidden whitespace-nowrap">
-          {children}
-        </div>
+      <Button variant="outlined" onClick={handleOpen} sx={{ textTransform: "none" }} className="w-full">
+        <div className="text-ellipsis overflow-hidden whitespace-nowrap">{children}</div>
       </Button>
       <Dialog maxWidth="sm" fullWidth onClose={handleClose} open={open}>
         <DialogTitle sx={{ m: 0, p: 2 }}>
@@ -343,16 +318,8 @@ function QuoteDialog({ fetcher, word, pk, children }) {
 
 function ToolBar({ handleDelete }) {
   return (
-    <Paper
-      variant="outlined"
-      className="ToolBar overflow-hidden flex justify-end"
-    >
-      <IconButton
-        onClick={handleDelete}
-        aria-label="delete"
-        color="error"
-        sx={{ margin: 0.5 }}
-      >
+    <Paper variant="outlined" className="ToolBar overflow-hidden flex justify-end">
+      <IconButton onClick={handleDelete} aria-label="delete" color="error" sx={{ margin: 0.5 }}>
         <DeleteIcon />
       </IconButton>
     </Paper>
@@ -367,13 +334,7 @@ function ToolBar({ handleDelete }) {
  * @param selectQuote: A helper function to mark a quote as selected.
  * @param fetcher: A function allows us to manually trigger @link (loadLibrary) function
  */
-function DetailRow({
-  openRow,
-  record,
-  getSelectedQuote,
-  selectQuote,
-  fetcher,
-}) {
+function DetailRow({ openRow, record, getSelectedQuote, selectQuote, fetcher }) {
   //
   let allSelected = record.quotes.reduce((selected, quote) => {
     return selected && getSelectedQuote(quote.pk);
@@ -422,18 +383,10 @@ function DetailRow({
                         />
                       </TableCell>
 
-                      <TableCell>
-                        {quote.tag ? (
-                          <Tag link={quote.link}>{quote.tag}</Tag>
-                        ) : null}
-                      </TableCell>
+                      <TableCell>{quote.tag ? <Tag link={quote.link}>{quote.tag}</Tag> : null}</TableCell>
                       <TableCell>
                         {/* The Modal shows full quote */}
-                        <QuoteDialog
-                          word={record.word}
-                          pk={quote.pk}
-                          fetcher={fetcher}
-                        >
+                        <QuoteDialog word={record.word} pk={quote.pk} fetcher={fetcher}>
                           {quote.value}
                         </QuoteDialog>
                       </TableCell>
